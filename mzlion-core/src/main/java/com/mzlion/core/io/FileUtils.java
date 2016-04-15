@@ -40,16 +40,18 @@ public class FileUtils {
     /**
      * 文件拷贝，如果拷贝文件失败则返回-1
      *
-     * @param srcFile      原文件
-     * @param outputStream 输出流
+     * @param srcFile 原文件
+     * @param output  输出流
      * @return 返回文件的大小
      */
-    public static long copyFile(File srcFile, OutputStream outputStream) {
+    public static long copyFile(File srcFile, OutputStream output) {
         try {
-            return Files.copy(srcFile.toPath(), outputStream);
+            return Files.copy(srcFile.toPath(), output);
         } catch (IOException e) {
             logger.error(" ===> 文件拷贝失败", e);
             return -1;
+        } finally {
+            IOUtils.closeCloseable(output);
         }
     }
 

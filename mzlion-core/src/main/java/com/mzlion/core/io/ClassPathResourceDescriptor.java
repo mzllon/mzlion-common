@@ -101,7 +101,7 @@ import java.net.URL;
      */
     @Override
     public String getFilename() {
-        return StringUtils.getFilename(this.path);
+        return FilenameUtils.getFilename(this.path);
     }
 
     /**
