@@ -4,12 +4,16 @@ package com.mzlion.core.prop;
 import com.mzlion.core.io.ResourceUtils;
 import com.mzlion.core.lang.ArrayUtils;
 import com.mzlion.core.lang.StringUtils;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.BooleanDV;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.interfaces.ECKey;
 import java.util.*;
 
 /**
@@ -177,7 +181,7 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
      */
     @Override
     public String getProperty(String key) {
-        return getProperty(key, null);
+        return getProperty(key, (String) null);
     }
 
     /**
@@ -193,7 +197,67 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
             return defaultValue;
         }
         String value = propertyStringValue.get(key);
-        return value == null ? defaultValue : value;
+        return StringUtils.isEmpty(value) ? defaultValue : value;
+    }
+
+    @Override
+    public <T> T getProperty(String key, Class<T> targetType) {
+        return getProperty(key, targetType, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+        if (StringUtils.isEmpty(key)) {
+            return defaultValue;
+        }
+        String value = propertyStringValue.get(key);
+        if (StringUtils.isEmpty(value)) {
+            return defaultValue;
+        }
+        if (targetType == String.class) {
+            return (T) value;
+        } else if (targetType == int.class) {
+            return (T) new Integer(value);
+        } else if (targetType == Integer.class) {
+            return (T) new Integer(value);
+        } else if (targetType == Short.class) {
+            return (T) new Short(value);
+        } else if (targetType == short.class) {
+            return (T) Short.valueOf(value);
+        } else if (targetType == Byte.class) {
+            return (T) new Byte(value);
+        } else if (targetType == byte.class) {
+            return (T) new Byte(value);
+        } else if (targetType == Character.class) {
+            return (T) new Character(value.toCharArray()[0]);
+        } else if (targetType == char.class) {
+            return (T) new Character(value.toCharArray()[0]);
+        } else if (targetType == Long.class) {
+            return (T) new Long(value);
+        } else if (targetType == long.class) {
+            return (T) new Long(value);
+        } else if (targetType == Float.class) {
+            return (T) new Float(value);
+        } else if (targetType == float.class) {
+            return (T) new Float(value);
+        } else if (targetType == Long.class) {
+            return (T) new Long(value);
+        } else if (targetType == long.class) {
+            return (T) new Long(value);
+        } else if (targetType == Double.class) {
+            return (T) new Double(value);
+        } else if (targetType == double.class) {
+            return (T) new Double(value);
+        } else if (targetType == Boolean.class) {
+            return (T) Boolean.valueOf(value);
+        } else if (targetType == boolean.class) {
+            return (T) Boolean.valueOf(value);
+        } else if (targetType == BigDecimal.class) {
+            return (T) new BigDecimal(value);
+        } else {
+            return (T) value;
+        }
     }
 
     /**

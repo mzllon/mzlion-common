@@ -1,13 +1,12 @@
 package com.mzlion.core.io;
 
 
+import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * 输入输出流工具类
@@ -75,4 +74,19 @@ public class IOUtils {
         return count;
     }
 
+    public static long copy(Reader reader, OutputStream out) {
+        return copy(reader, out, Charset.defaultCharset());
+    }
+
+    public static long copy(Reader reader, OutputStream out, String encoding) {
+        if (StringUtils.isEmpty(encoding)) {
+            throw new NullPointerException("Encoding must not be null.");
+        }
+        return copy(reader, out, Charset.forName(encoding));
+    }
+
+    public static long copy(Reader reader, OutputStream out, Charset encoding) {
+
+        return -1;
+    }
 }

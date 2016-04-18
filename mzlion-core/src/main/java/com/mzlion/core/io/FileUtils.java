@@ -351,4 +351,62 @@ public class FileUtils {
         logger.info(" ===> Original file [{}] moved destination [{}] success.", srcFile, targetFile);
         return true;
     }
+
+    public static boolean copyInputStreamToFile(InputStream source, File destination) {
+        if (source == null) {
+            logger.error("Source must not be null.");
+            return false;
+        }
+        if (destination == null) {
+            logger.error("Destination must not be null.");
+            return false;
+        }
+        FileOutputStream out = null;
+        try {
+            out = openFileOutputStream(destination);
+            if (out == null) {
+                logger.error("Open file output stream error");
+                return false;
+            }
+            return IOUtils.copy(source, out) > 0;
+        } finally {
+            IOUtils.closeCloseable(out);
+            IOUtils.closeCloseable(source);
+        }
+    }
+
+    public static FileOutputStream openFileOutputStream(File file) {
+        return openFileOutputStream(file, false);
+    }
+
+    private static FileOutputStream openFileOutputStream(File file, boolean append) {
+        if (file == null) {
+            logger.error("File must not be null.");
+            return null;
+        }
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                logger.error("Destination [{}] exists but is a directory.", file);
+                return null;
+            }
+            if (!file.canWrite()) {
+                logger.error("Destination [%s] exists but cannot write.");
+                return null;
+            }
+        } else {
+            File parent = file.getParentFile();
+            if (parent != null) {
+                if (!parent.mkdirs() && !parent.isDirectory()) {
+                    logger.error("Directory [{}] could not be created.", parent);
+                    return null;
+                }
+            }
+        }
+        try {
+            return new FileOutputStream(file, append);
+        } catch (IOException e) {
+            logger.error("Create FleOutputStream error->", e);
+            return null;
+        }
+    }
 }
