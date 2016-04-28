@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mzlion.core.lang.StringUtils;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +63,21 @@ public abstract class JsonUtil {
             }.getType());
         }
         return gson.fromJson(json, clazz);
+    }
+
+    /**
+     * 将Json字符串转为对象
+     *
+     * @param json    Json字符串
+     * @param typeOfT Java的实际类型
+     * @param <T>     泛型类型
+     * @return 对象
+     */
+    public static <T> T toBean(String json, Type typeOfT) {
+        if (StringUtils.isEmpty(json)) {
+            return null;
+        }
+        return gson.fromJson(json, typeOfT);
     }
 
     /**

@@ -18,14 +18,9 @@ public class FileResponseConverter extends AbstractResponseConverter<File> imple
     }
 
     @Override
-    public File doConvert(Response response, Class<File> targetClass) {
+    public File doConvert(Response response) {
         InputStream inputStream = response.body().byteStream();
         FileUtils.copyInputStreamToFile(inputStream, destFile);
         return destFile;
-    }
-
-    @Override
-    public Class<File> getTargetClass() {
-        return File.class;
     }
 }

@@ -8,11 +8,6 @@ import okhttp3.Response;
 public class DefaultResponseConverter implements ResponseConverter<Response> {
 
     @Override
-    public Class<Response> getTargetClass() {
-        return Response.class;
-    }
-
-    @Override
     public Response convert(Response response) {
         return response;
     }

@@ -29,16 +29,11 @@ public class StringResponseConvert extends AbstractResponseConverter<String> imp
     }
 
     @Override
-    public String doConvert(Response response, Class<String> targetClass) {
+    public String doConvert(Response response) {
         try {
             return new String(response.body().bytes(), charset);
         } catch (IOException e) {
             throw new ResponseConverterException("Convert failed->", e);
         }
-    }
-
-    @Override
-    public Class<String> getTargetClass() {
-        return String.class;
     }
 }

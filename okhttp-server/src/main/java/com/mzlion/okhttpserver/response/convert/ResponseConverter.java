@@ -7,8 +7,6 @@ import okhttp3.Response;
  */
 public interface ResponseConverter<E> {
 
-    Class<E> getTargetClass();
-
     E convert(Response response);
 
 }

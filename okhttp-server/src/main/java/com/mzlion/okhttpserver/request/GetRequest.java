@@ -10,15 +10,31 @@ import okhttp3.RequestBody;
 import java.util.Map;
 
 /**
- * Created by mzlion on 2016/4/16.
+ * <p>
+ * 2016-04-16 HTTP的GET请求对象
+ * </p>
+ *
+ * @author mzlion
  */
 public class GetRequest extends AbstractHttpRequest<GetRequest> {
 
+    /**
+     * 构造GET请求对象
+     *
+     * @param url 请求的URL地址
+     */
     public GetRequest(String url) {
         super(url);
         this.builder = new HttpParameter.Builder();
     }
 
+    /**
+     * 设置请求参数
+     *
+     * @param key   请求参数名
+     * @param value 请求参数值
+     * @return {@link GetRequest}
+     */
     public GetRequest parameter(String key, String value) {
         builder.parameter(key, value);
         return this;

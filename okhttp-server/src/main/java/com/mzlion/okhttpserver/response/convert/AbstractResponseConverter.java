@@ -7,12 +7,12 @@ import okhttp3.Response;
  */
 public abstract class AbstractResponseConverter<E> implements ResponseConverter<E> {
 
-    public abstract E doConvert(Response response, Class<E> targetClass);
+    public abstract E doConvert(Response response);
 
     @Override
     public E convert(Response response) {
         if (response.isSuccessful()) {
-            return this.doConvert(response, getTargetClass());
+            return this.doConvert(response);
         }
         return null;
     }
