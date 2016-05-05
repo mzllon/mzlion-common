@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * <p>
- * 2016-04-14 集合框架的工具类
+ * 2016-05-05 22:05 集合框架的工具类
  * </p>
  *
  * @author mzlion
@@ -153,7 +153,7 @@ public abstract class CollectionUtils {
      * @param urlParam url请求参数
      * @return 返回Map对象
      */
-    public static Map<String, String> urlParam2Map(String urlParam) {
+    public static Map<String, String> urlParameters2Map(String urlParam) {
         if (!StringUtils.hasText(urlParam)) {
             return Collections.emptyMap();
         }

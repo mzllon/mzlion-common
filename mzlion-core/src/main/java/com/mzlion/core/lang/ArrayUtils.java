@@ -2,9 +2,9 @@ package com.mzlion.core.lang;
 
 
 /**
- * 数组工具类
  * <p>
- * Created by mzlion on 2016/4/10.
+ * 2016-05-05 22:15 数组工具类
+ * </p>
  *
  * @author mzlion
  */

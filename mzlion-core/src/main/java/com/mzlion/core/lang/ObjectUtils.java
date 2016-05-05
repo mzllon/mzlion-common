@@ -3,7 +3,10 @@ package com.mzlion.core.lang;
 import java.util.Arrays;
 
 /**
- * Created by mzlion on 2016/4/11.
+ * <p>
+ *     2016-05-05 22:03 {@linkplain ObjectUtils}提供了相关操作方法.
+ * </p>
+ * @author mzlion
  */
 public class ObjectUtils {
 

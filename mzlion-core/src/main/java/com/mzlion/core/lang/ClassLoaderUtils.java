@@ -11,7 +11,11 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 
 /**
- * Created by mzlion on 2016/4/10.
+ * <p>
+ * 2016-05-05 22:14 {@linkplain ClassLoader}相关的工具类
+ * </p>
+ *
+ * @author mzlion
  */
 public class ClassLoaderUtils {
     //log
@@ -25,8 +29,7 @@ public class ClassLoaderUtils {
      */
     public static ClassLoader getCustomClassLoader(String... pathEntries) {
         if (ArrayUtils.isEmpty(pathEntries)) {
-            logger.debug(" 输入参数[entries]为空");
-            return null;
+            throw new IllegalArgumentException("Array is null or empty.");
         }
 
         int i = 0, length = pathEntries.length;
@@ -36,12 +39,12 @@ public class ClassLoaderUtils {
         for (; i < length; i++) {
             pathEntry = pathEntries[i];
             if (StringUtils.isEmpty(pathEntry)) {
-                logger.debug("数组袁术中存在空");
+                logger.warn("数组元素中存在空元素.");
                 return null;
             }
             file = new File(pathEntry);
             if (!file.exists()) {
-                logger.debug("该文件不存在->{}", pathEntry);
+                logger.warn("该文件不存在->{}", pathEntry);
                 return null;
             }
             try {

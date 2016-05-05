@@ -7,50 +7,20 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * StringUtils工具类主要提供了针对字符串，字符串数组常用的工具类方法
  * <p>
- * 2016-04-10 主要实现基本功能
+ * 2016-05-05 22:03 StringUtils工具类主要提供了针对字符串，字符串数组常用的工具类方法.
  * </p>
  *
  * @author mzlion
  */
 public class StringUtils {
 
-    /**
-     * 空字符串
-     */
-    public static final String EMPTY_STRING = "";
-
-
     //---------------------------------------------------------------------
     // 比较常用的处理字符串String类的操作方法
     // ---------------------------------------------------------------------
 
-
     /**
-     * 判断对象是否为空
-     * <p>
-     * 该方法用于判断参数是否{@code null}以及是否是一个空(""),所以当一个非{@code String}类&非{@code null}作为参数传入，其返回值总是为{@code true}.
-     * </p>
-     * <pre class="code">
-     * StringUtils.isEmpty("");// ---> true
-     * //----------------------------------
-     * String str1 = "2";
-     * StringUtils.isEmpty(str1);// ---> false
-     * //----------------------------------
-     * StringUtils.isEmpty(2);// ---> false
-     * </pre>
-     *
-     * @param str 字符串
-     * @return 当字符串是{@code null}或""都返回{@code true}，否则都返回{@code false}
-     */
-    @Deprecated
-    public static boolean isEmpty(Object str) {
-        return (str == null) || ("".equals(str));
-    }
-
-    /**
-     * 判断字符串是否为{@code null}或空字符串。判断字符串是否为空请使用该方法，请不要使用其重载方法{@linkplain #isEmpty(Object)}
+     * 判断字符串是否为{@code null}或空字符串,判断字符串是否为空请使用该方法.
      *
      * @param str 字符串
      * @return 如果字符串是{@code}或空字符串则返回{@code true}，否则返回{@code false}
@@ -60,34 +30,13 @@ public class StringUtils {
     }
 
     /**
-     * 判断字符串是否为{@code null}或空字符串。判断字符串是否为空请使用该方法，请不要使用其重载方法{@linkplain #isEmpty(Object)}
+     * 判断字符串是否为{@code null}或空字符串,判断字符串是否为空请使用该方法.
      *
      * @param str 字符串
      * @return 如果字符串是{@code}或空字符串则返回{@code true}，否则返回{@code false}
      */
     public static boolean isEmpty(String str) {
         return isEmpty((CharSequence) str);
-    }
-
-    /**
-     * 判断字符串是否不是空
-     * <p/>
-     * <p>
-     * 该方法用于判断参数是否为{@code null}和一个空字符"",当且仅当传入参数既不是{@code null}也不是空字符""是返回{@code true}.
-     * </p>
-     * <p/>
-     * <pre class="code">
-     * StringUtils.isNotEmpty("");// ---> flase
-     * StringUtils.isNotEmpty(2);// ---> true
-     * StringUtils.isNotEmpty(" ");// ---> true
-     * </pre>
-     *
-     * @param str 字符串
-     * @return 当且仅当字符串既不为{@code null}也不是空字符串""时则返回{@code true}，否则返回{@code false}
-     * @see #isEmpty(Object)
-     */
-    public static boolean isNotEmpty(Object str) {
-        return !isEmpty(str);
     }
 
     /**
@@ -216,40 +165,41 @@ public class StringUtils {
         while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
             sb.deleteCharAt(0);
         }
+        //删除右边的空白符
         while (sb.length() > 0 && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
     }
-
-    /**
-     * 去除字符串中所有的空白字符
-     * <p/>
-     * <pre class="code">
-     * StringUtils.trimAllWhiteSpace(null); //---> null;
-     * StringUtils.trimAllWhiteSpace(" a "); //---> a
-     * StringUtils.trimAllWhiteSpace(" a b c "); //---> abc
-     * </pre>
-     *
-     * @param str 字符串
-     * @return 返回去除后的字符串
-     * @see Character#isWhitespace(char)
-     */
-    public static String trimAllWhiteSpace(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder sb = new StringBuilder(str);
-        int index = 0;
-        while (sb.length() > index) {
-            if (Character.isWhitespace(sb.charAt(index))) {
-                sb.deleteCharAt(index);
-            } else {
-                index++;
-            }
-        }
-        return sb.toString();
-    }
+//
+//    /**
+//     * 去除字符串中所有的空白字符
+//     * <p/>
+//     * <pre class="code">
+//     * StringUtils.trimAllWhiteSpace(null); //---> null;
+//     * StringUtils.trimAllWhiteSpace(" a "); //---> a
+//     * StringUtils.trimAllWhiteSpace(" a b c "); //---> abc
+//     * </pre>
+//     *
+//     * @param str 字符串
+//     * @return 返回去除后的字符串
+//     * @see Character#isWhitespace(char)
+//     */
+//    public static String trimAllWhiteSpace(String str) {
+//        if (!hasLength(str)) {
+//            return str;
+//        }
+//        StringBuilder sb = new StringBuilder(str);
+//        int index = 0;
+//        while (sb.length() > index) {
+//            if (Character.isWhitespace(sb.charAt(index))) {
+//                sb.deleteCharAt(index);
+//            } else {
+//                index++;
+//            }
+//        }
+//        return sb.toString();
+//    }
 
     /**
      * 去除字符串左侧的空白字符
@@ -358,59 +308,37 @@ public class StringUtils {
         return lowerSuffix.equals(lowerStr);
     }
 
-    /*public static boolean startsWithIgnoreCase(String str, String prefix, int offset) {
-        if ((null == str) || (null == prefix)) {
-            return false;
-        }
-        if (str.length() < prefix.length()) {
-            return false;
-        }
-        if ((offset < 0) || (offset > str.length() - prefix.length())) {
-            return false;
-        }
-        if (str.startsWith(prefix, offset)) {
-            return true;
-        }
-        String lowerCaseStr = str.substring(offset, offset + prefix.length()).toLowerCase();
-        String lowerCasePrefix = prefix.toLowerCase();
-        return lowerCaseStr.equals(lowerCasePrefix);
-    }*/
-
-
-    /**
-     * 判断字符串从指定位置是否和给定的字符串匹配
-     * <p/>
-     * <pre class="code">
-     * StringUtils.matchSubstring("abcdef",2,"cd"); //---> true
-     * StringUtils.matchSubstring("abc",2,"abcd"); //---> false
-     * </pre>
-     *
-     * @param str       字符串
-     * @param index     匹配的起始位置
-     * @param substring 匹配的字符串
-     * @return 匹配成功则返回{@code true},否则返回{@code false}
-     */
-    public static boolean matchSubstring(CharSequence str, int index, CharSequence substring) {
-        if (str == null || null == substring) {
-            return false;
-        }
-
-        if (str.length() < substring.length()) {
-            return false;
-        }
-
-        if (index < 0 || index > (str.length() - substring.length())) {
-            return false;
-        }
-
-        for (int strLen = str.length(), subLen = substring.length(), j = 0; j < subLen; j++) {
-            int i = j + index;
-            if (str.charAt(i) != substring.charAt(j)) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    /**
+//     * 判断字符串从指定位置是否和给定的字符串匹配
+//     * <p/>
+//     * <pre class="code">
+//     * StringUtils.matchSubstring("abcdef",2,"cd"); //---> true
+//     * StringUtils.matchSubstring("abc",2,"abcd"); //---> false
+//     * </pre>
+//     *
+//     * @param str       字符串
+//     * @param index     匹配的起始位置
+//     * @param substring 匹配的字符串
+//     * @return 匹配成功则返回{@code true},否则返回{@code false}
+//     */
+//    public static boolean matchSubstring(CharSequence str, int index, CharSequence substring) {
+//        if (str == null || null == substring) {
+//            return false;
+//        }
+//        if (str.length() < substring.length()) {
+//            return false;
+//        }
+//        if (index < 0 || index > (str.length() - substring.length())) {
+//            return false;
+//        }
+//        for (int subLen = substring.length(), j = 0; j < subLen; j++) {
+//            int i = j + index;
+//            if (str.charAt(i) != substring.charAt(j)) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     /**
      * 将字符串中所有出现{@code oldPattern}替换为{@code newPattern}.
@@ -524,96 +452,97 @@ public class StringUtils {
     // 比较常用的处理字符串String类数组的操作方法
     // ---------------------------------------------------------------------
 
-//
-//    /**
-//     * 向数组中追加一个字符串，返回一个新的字符串数组.
-//     * <p/>
-//     * <pre class="code">
-//     * StringUtils.addStringToArray(new String[]{"hello"},"world"); //---> [hello,world]
-//     * StringUtils.addStringToArray(null,"hah"); //---> [haha]
-//     * </pre>
-//     *
-//     * @param array  原始数组
-//     * @param addStr 追加的字符串
-//     * @return 返回一个新的数组，该数组永远不为{@code null}
-//     */
-//    public static String[] addStringToArray(String[] array, String addStr) {
-//        if (ObjectUtils.isEmpty(array)) {
-//            return new String[]{addStr};
-//        }
-//        String[] newArray = new String[array.length + 1];
-//        System.arraycopy(array, 0, newArray, 0, array.length);
-//        newArray[array.length] = addStr;
-//        return newArray;
-//    }
-//
-//    /**
-//     * 将两个字符串数组对接,返回一个新的字符串数组.
-//     * <p/>
-//     * <pre class="code">
-//     * StringUtils.concatStringArrays(new String[]{"girl","women"},new String[]{"boy","girl"}); //---> [girl,women,boy,girl]
-//     * </pre>
-//     *
-//     * @param arr1 数组
-//     * @param arr2 数组
-//     * @return 返回一个新的字符串数组
-//     */
-//    public static String[] concatStringArrays(String[] arr1, String[] arr2) {
-//        if (ObjectUtils.isEmpty(arr1)) {
-//            return arr2;
-//        }
-//        if (ObjectUtils.isEmpty(arr2)) {
-//            return arr1;
-//        }
-//        String[] newArr = new String[arr1.length + arr2.length];
-//        System.arraycopy(arr1, 0, newArr, 0, arr1.length);
-//        System.arraycopy(arr2, 0, newArr, arr1.length, arr2.length);
-//        return newArr;
-//    }
-//
-//    /**
-//     * 合并两个数组,其中数组元素重复的直计算一次.
-//     * <p/>
-//     * <pre class="code">
-//     * StringUtils.mergeStringArrays(new String[]{"girl","women"},new String[]{"boy","girl"}); //---> [girl,women,boy]
-//     * </pre>
-//     *
-//     * @param array1 数组
-//     * @param array2 数组
-//     * @return 返回合并后的新数组
-//     */
-//    public static String[] mergeStringArrays(String[] array1, String[] array2) {
-//        if (ObjectUtils.isEmpty(array1)) {
-//            return array2;
-//        }
-//        if (ObjectUtils.isEmpty(array2)) {
-//            return array1;
-//        }
-//        List<String> result = new ArrayList<String>();
-//        result.addAll(Arrays.asList(array1));
-//        for (String str : array2) {
-//            if (!result.contains(str)) {
-//                result.add(str);
-//            }
-//        }
-//        return toStringArray(result);
-//    }
-//
-//    /**
-//     * 数组排序
-//     * <p/>
-//     * <pre class="code">
-//     * StringUtils.sortStringArray(new String[]{"hello","boy","amazing"}); //---> [amazing,boy,hello]
-//     * </pre>
-//     *
-//     * @param array 数组
-//     */
-//    public static void sortStringArray(String[] array) {
-//        if (ObjectUtils.isEmpty(array)) {
-//            return;
-//        }
-//        Arrays.sort(array);
-//    }
+
+    /**
+     * 向数组中追加一个字符串，返回一个新的字符串数组.
+     * <p/>
+     * <pre class="code">
+     * StringUtils.addStringToArray(new String[]{"hello"},"world"); //---> [hello,world]
+     * StringUtils.addStringToArray(null,"hah"); //---> [haha]
+     * </pre>
+     *
+     * @param array  原始数组
+     * @param addStr 追加的字符串
+     * @return 返回一个新的数组，该数组永远不为{@code null}
+     */
+    public static String[] addStringToArray(String[] array, String addStr) {
+        if (ArrayUtils.isEmpty(array)) {
+            return new String[]{addStr};
+        }
+        String[] newArray = new String[array.length + 1];
+        System.arraycopy(array, 0, newArray, 0, array.length);
+        newArray[array.length] = addStr;
+        return newArray;
+    }
+
+    /**
+     * 将两个字符串数组对接,返回一个新的字符串数组.
+     * <p/>
+     * <pre class="code">
+     * StringUtils.concatStringArrays(new String[]{"girl","women"},new String[]{"boy","girl"}); //---> [girl,women,boy,girl]
+     * </pre>
+     *
+     * @param arr1 数组
+     * @param arr2 数组
+     * @return 返回一个新的字符串数组
+     */
+    public static String[] concatStringArrays(String[] arr1, String[] arr2) {
+        if (ArrayUtils.isEmpty(arr1)) {
+            return arr2;
+        }
+        if (ArrayUtils.isEmpty(arr2)) {
+            return arr1;
+        }
+        String[] newArr = new String[arr1.length + arr2.length];
+        System.arraycopy(arr1, 0, newArr, 0, arr1.length);
+        System.arraycopy(arr2, 0, newArr, arr1.length, arr2.length);
+        return newArr;
+    }
+
+    /**
+     * 合并两个数组,其中数组元素重复的直计算一次.
+     * <p/>
+     * <pre class="code">
+     * StringUtils.mergeStringArrays(new String[]{"girl","women"},new String[]{"boy","girl"}); //---> [girl,women,boy]
+     * </pre>
+     *
+     * @param array1 数组
+     * @param array2 数组
+     * @return 返回合并后的新数组
+     */
+    public static String[] mergeStringArrays(String[] array1, String[] array2) {
+        if (ArrayUtils.isEmpty(array1)) {
+            return array2;
+        }
+        if (ArrayUtils.isEmpty(array2)) {
+            return array1;
+        }
+        List<String> result = new ArrayList<>();
+        result.addAll(Arrays.asList(array1));
+        for (String str : array2) {
+            if (!result.contains(str)) {
+                result.add(str);
+            }
+        }
+        return toStringArray(result);
+    }
+
+    /**
+     * 数组排序
+     * <p/>
+     * <pre class="code">
+     * StringUtils.sortStringArray(new String[]{"hello","boy","amazing"}); //---> [amazing,boy,hello]
+     * </pre>
+     *
+     * @param array 数组
+     */
+    public static String[] sortStringArray(String[] array) {
+        if (ArrayUtils.isEmpty(array)) {
+            return new String[0];
+        }
+        Arrays.sort(array);
+        return array;
+    }
 
     /**
      * 集合对象转为数组
@@ -626,29 +555,29 @@ public class StringUtils {
      * @return 返回数组对象
      */
     public static String[] toStringArray(Collection<String> collection) {
-        if (collection == null) {
-            return null;
+        if (CollectionUtils.isEmpty(collection)) {
+            return new String[0];
         }
         return collection.toArray(new String[collection.size()]);
     }
 
-    /**
-     * 将枚举类中的所有枚举值转为数组
-     * <p/>
-     * <pre class="code">
-     * StringUtils.toStringArray(genderEnum); //---> [male,female]
-     * </pre>
-     *
-     * @param enumeration 枚举对象
-     * @return 字符串数组
-     */
-    public static String[] toStringArray(Enumeration<String> enumeration) {
-        if (enumeration == null) {
-            return null;
-        }
-        List<String> list = Collections.list(enumeration);
-        return list.toArray(new String[list.size()]);
-    }
+//    /**
+//     * 将枚举类中的所有枚举值转为数组
+//     * <p/>
+//     * <pre class="code">
+//     * StringUtils.toStringArray(genderEnum); //---> [male,female]
+//     * </pre>
+//     *
+//     * @param enumeration 枚举对象
+//     * @return 字符串数组
+//     */
+//    public static String[] toStringArray(Enumeration<String> enumeration) {
+//        if (enumeration == null) {
+//            return new String[0];
+//        }
+//        List<String> list = Collections.list(enumeration);
+//        return list.toArray(new String[list.size()]);
+//    }
 
     /**
      * 从识别的第一处分割字符串
@@ -658,12 +587,15 @@ public class StringUtils {
      * @return 返回分割后的字符串数组
      */
     public static String[] splitAtFirst(String toSplit, String delimiter) {
-        if (StringUtils.isEmpty(toSplit) || StringUtils.isEmpty(delimiter)) {
-            return null;
+        if (StringUtils.isEmpty(toSplit)) {
+            return new String[0];
+        }
+        if (StringUtils.isEmpty(delimiter)) {
+            return new String[0];
         }
         int offset = toSplit.indexOf(delimiter);
         if (offset < 0) {
-            return null;
+            return new String[0];
         }
         return new String[]{toSplit.substring(0, offset), toSplit.substring(offset + delimiter.length())};
     }
@@ -677,8 +609,11 @@ public class StringUtils {
      * @see StringTokenizer
      */
     public static String[] split(String toSplit, String delimiter) {
-        if (StringUtils.isEmpty(toSplit) || StringUtils.isEmpty(delimiter)) {
-            return null;
+        if (StringUtils.isEmpty(toSplit)) {
+            return new String[0];
+        }
+        if (StringUtils.isEmpty(delimiter)) {
+            return new String[0];
         }
         StringTokenizer st = new StringTokenizer(toSplit, delimiter);
         List<String> values = new ArrayList<>();
@@ -694,9 +629,8 @@ public class StringUtils {
             values.toArray(splitOfStrs);
             return splitOfStrs;
         }
-        return null;
+        return new String[0];
     }
-
 
     /**
      * 将驼峰式命名的字符串转换为下划线字符串。如果转换前的驼峰式命名的字符串为空，则返回空字符串。
@@ -707,8 +641,8 @@ public class StringUtils {
      * @param name 驼峰式的字符串
      * @return 返回下划线式的字符串
      */
-    public static String toUnderScore(String name) {
-        return toUnderScore(name, false);
+    public static String toUnderline(String name) {
+        return toUnderline(name, false);
     }
 
     /**
@@ -718,7 +652,7 @@ public class StringUtils {
      * @param upper 如果为{@code true}则将字符串均转为大写
      * @return
      */
-    public static String toUnderScore(String name, boolean upper) {
+    public static String toUnderline(String name, boolean upper) {
         if (!hasText(name)) {
             return null;
         }
@@ -750,7 +684,7 @@ public class StringUtils {
      */
     public static String toCamelCase(String name) {
         if (!hasText(name)) {
-            return null;
+            return name;
         }
         boolean headerFirstUnderline = false;
         StringBuilder builder = new StringBuilder(name.length());
@@ -777,28 +711,6 @@ public class StringUtils {
         }
         return builder.toString();
     }
-
-//
-//    public static String[] split(String toSplit, String delimter) {
-//        if (StringUtils.isEmpty(toSplit) || StringUtils.isEmpty(delimter)) {
-//            return null;
-//        }
-//        StringTokenizer st = new StringTokenizer(toSplit, delimter);
-//        List<String> values = new ArrayList<String>();
-//        String token;
-//        while (st.hasMoreTokens()) {
-//            token = st.nextToken();
-//            if (StringUtils.hasText(token)) {
-//                values.add(token);
-//            }
-//        }
-//        if (CollectionUtils.isNotEmpty(values)) {
-//            String[] splitOfStrs = new String[values.size()];
-//            values.toArray(splitOfStrs);
-//            return splitOfStrs;
-//        }
-//        return null;
-//    }
 
     /**
      * 判断字符串是否为纯数字组成
