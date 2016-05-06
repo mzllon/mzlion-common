@@ -37,6 +37,13 @@ public class CommonPostRequest extends AbstractHttpRequest<CommonPostRequest> {
         return this;
     }
 
+    public CommonPostRequest parameters(Map<String, String> parameters) {
+        if (CollectionUtils.isNotEmpty(parameters)) {
+            this.builder.parameter(parameters);
+        }
+        return this;
+    }
+
     @Override
     protected RequestBody generateRequestBody() {
         FormBody.Builder builder = new FormBody.Builder();

@@ -1,19 +1,16 @@
 package com.mzlion.core.prop;
 
 
-import com.mzlion.core.io.ResourceUtils;
+import com.mzlion.core.io.DefaultResourceDescriptorLoader;
+import com.mzlion.core.io.ResourceDescriptor;
 import com.mzlion.core.lang.ArrayUtils;
 import com.mzlion.core.lang.StringUtils;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.BooleanDV;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.security.interfaces.ECKey;
 import java.util.*;
 
 /**
@@ -44,14 +41,12 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
      */
     private void processFile(List<String> pathEntries) {
         logger.debug(" ===> 处理属性文件->{}", pathEntries);
-        List<File> fileList = new ArrayList<>(pathEntries.size());
-        File file;
+        List<ResourceDescriptor> fileList = new ArrayList<>(pathEntries.size());
+        DefaultResourceDescriptorLoader defaultResourceDescriptorLoader = new DefaultResourceDescriptorLoader();
+        ResourceDescriptor resourceDescriptor;
         for (String pathEntry : pathEntries) {
-            file = ResourceUtils.getFile(pathEntry);
-            if (file == null) {
-                throw new IllegalArgumentException("The pathEntry [" + pathEntry + "] cannot be resolved.");
-            }
-            fileList.add(file);
+            resourceDescriptor = defaultResourceDescriptorLoader.getResourceDescriptor(pathEntry);
+            fileList.add(resourceDescriptor);
         }
 
         //==============解析properties文件=============
@@ -62,8 +57,8 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
         Properties properties;
         int count = 0;
         for (i = 0; i < size; i++) {
-            file = fileList.get(i);
-            try (FileInputStream in = new FileInputStream(file)) {
+            resourceDescriptor = fileList.get(i);
+            try (InputStream in = resourceDescriptor.getInputStream()) {
                 properties = new Properties();
                 properties.load(in);
                 propertiesList.add(properties);
