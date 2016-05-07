@@ -55,7 +55,7 @@ public class ClassLoaderUtils {
             }
         }
 
-        ClassLoader parent = getDefaultClassloader();
+        ClassLoader parent = getDefaultClassLoader();
         URLClassLoader urlClassLoader = new URLClassLoader(urls, parent);
         logger.debug("得到的类加载器为->{}", Arrays.toString(urls));
         return urlClassLoader;
@@ -67,7 +67,7 @@ public class ClassLoaderUtils {
      * @return 返回类类加载器
      * @see Thread#getContextClassLoader()
      */
-    public static ClassLoader getDefaultClassloader() {
+    public static ClassLoader getDefaultClassLoader() {
         ClassLoader classLoader = null;
         try {
             classLoader = Thread.currentThread().getContextClassLoader();

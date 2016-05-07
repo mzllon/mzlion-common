@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import org.springframework.util.ObjectUtils;
+import com.mzlion.core.lang.ArrayUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +63,7 @@ public abstract class JsonUtil {
         PropertyFilter filter = new PropertyFilter() {
             @Override
             public boolean apply(Object object, String name, Object value) {
-                if (ObjectUtils.containsElement(propertyNames, name)) {
+                if (ArrayUtils.containsElement(propertyNames, name)) {
                     return false;
                 }
                 return true;

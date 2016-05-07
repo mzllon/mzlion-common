@@ -39,7 +39,7 @@ public class ResourceUtils {
                 logger.error("The classpath has not a real path.");
                 return null;
             }
-            ClassLoader classLoader = ClassLoaderUtils.getDefaultClassloader();
+            ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
             URL url = classLoader.getResource(realPath);
             if (url == null) {
                 url = ClassLoader.getSystemResource(realPath);

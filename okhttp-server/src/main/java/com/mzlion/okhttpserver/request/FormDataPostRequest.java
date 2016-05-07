@@ -7,8 +7,6 @@ import com.mzlion.okhttpserver.bean.HttpParameter;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.FormBodyPartBuilder;
 
 import java.io.File;
 import java.util.Map;

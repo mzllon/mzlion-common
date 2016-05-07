@@ -28,7 +28,7 @@ import java.net.URL;
             throw new IllegalArgumentException("Path must not be null.");
         }
         this.path = path;
-        this.classLoader = (classLoader == null) ? ClassLoaderUtils.getDefaultClassloader() : classLoader;
+        this.classLoader = (classLoader == null) ? ClassLoaderUtils.getDefaultClassLoader() : classLoader;
     }
 
     public ClassPathResourceDescriptor(String path, Class<?> clazz) {
