@@ -3,7 +3,6 @@ package com.mzlion.okhttpserver.request;
 import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.okhttpserver.AbstractHttpRequest;
 import com.mzlion.okhttpserver.bean.HttpParameter;
-import javafx.scene.control.ScrollBar;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 

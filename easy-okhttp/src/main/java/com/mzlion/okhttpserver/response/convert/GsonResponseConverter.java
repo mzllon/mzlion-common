@@ -4,8 +4,6 @@ import com.mzlion.core.json.gson.JsonUtil;
 import com.mzlion.core.lang.StringUtils;
 import okhttp3.Response;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
