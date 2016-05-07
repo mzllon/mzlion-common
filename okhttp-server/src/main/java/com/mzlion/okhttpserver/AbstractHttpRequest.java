@@ -20,20 +20,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by mzlion on 2016/4/16.
+ * <p>
+ * 2016-04-16 {@linkplain HttpRequest}的抽象实现，实现了大部分方法.
+ * </p>
+ *
+ * @author mzlion
  */
-@SuppressWarnings("all")
+@SuppressWarnings("unchecked")
 public abstract class AbstractHttpRequest<Req extends HttpRequest<Req>> implements HttpRequest<Req> {
 
     private static String acceptLanguage;
 
     protected String url;
-    protected int connectionTimeout;
-    protected int readTimeout;
-    protected Map<String, String> headers;
+
+    /**
+     * 连接超时时间
+     */
+    private int connectionTimeout;
+
+    /**
+     * 流读取超时时间
+     */
+    private int readTimeout;
+
+    /**
+     * 存储请求头信息
+     */
+    private Map<String, String> headers;
+
     protected HttpParameter.Builder builder;
 
-    protected List<File> sslFileList;
+    /**
+     * SSL证书文件列表
+     */
+    private List<File> sslFileList;
 
     public AbstractHttpRequest(String url) {
         this.url = url;
@@ -53,48 +73,76 @@ public abstract class AbstractHttpRequest<Req extends HttpRequest<Req>> implemen
         }
     }
 
+    /**
+     * 设置请求地址
+     *
+     * @param url 请求地址
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req url(String url) {
-        this.url = url;
         return (Req) this;
     }
 
+    /**
+     * 添加请求头信息
+     *
+     * @param key   请求头键名
+     * @param value 请求头值
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req header(String key, String value) {
-        if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
+        if (StringUtils.hasLength(key) && StringUtils.hasLength(value)) {
             this.headers.put(key, value);
         }
         return (Req) this;
     }
 
+    /**
+     * 从请求头中移除键值
+     *
+     * @param key 请求头键名
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req removeHeader(String key) {
-        if (StringUtils.isNotEmpty(key)) {
+        if (StringUtils.hasLength(key)) {
             this.headers.remove(key);
         }
         return (Req) this;
     }
 
+    /**
+     * 为构建本次{@linkplain HttpRequest}设置单独连接超时时间。调用此方法会重新创建{@linkplain okhttp3.OkHttpClient}。
+     *
+     * @param connectionTimeout 连接超时时间
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req connectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
         return (Req) this;
     }
 
+    /**
+     * 为构建本次{@linkplain HttpRequest}设置单独读取流超时。
+     *
+     * @param readTimeout 流读取超时时间
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req readTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
         return (Req) this;
     }
 
-    @Override
-    public Req sslCertificate(String sslPathname) {
-        if (StringUtils.isNotEmpty(sslPathname)) {
-            sslCertificate(new File(sslPathname));
-        }
-        return (Req) this;
-    }
-
+    /**
+     * 为构建本次{@linkplain HttpRequest}设置单独SSL证书
+     *
+     * @param sslFile SSL证书文件
+     * @return 返回当前类{@linkplain Req}的对象自己
+     */
     @Override
     public Req sslCertificate(File sslFile) {
         if (null != sslFile)
@@ -102,11 +150,13 @@ public abstract class AbstractHttpRequest<Req extends HttpRequest<Req>> implemen
         return (Req) this;
     }
 
-    @Override
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
+    /**
+     * 执行HTTP请求,获取响应结果
+     *
+     * @param responseConverter 响应结果处理器
+     * @param <E>               泛型类
+     * @return 将响应结果转为具体的JavaBean
+     */
     @Override
     public <E> HttpResponse<E> execute(ResponseConverter<E> responseConverter) {
         RequestBody requestBody = this.generateRequestBody();
@@ -136,6 +186,9 @@ public abstract class AbstractHttpRequest<Req extends HttpRequest<Req>> implemen
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 获取{@linkplain RequestBody}对象
+     */
     protected abstract RequestBody generateRequestBody();
 
     /**
@@ -147,7 +200,13 @@ public abstract class AbstractHttpRequest<Req extends HttpRequest<Req>> implemen
      */
     protected abstract Request generateRequest(RequestBody requestBody);
 
-    protected Call generateCall(final Request request) {
+    /**
+     * 执行请求调用
+     *
+     * @param request Request对象
+     * @return {@linkplain Call}
+     */
+    private Call generateCall(final Request request) {
         if (this.readTimeout <= 0 && this.connectionTimeout <= 0 && CollectionUtils.isEmpty(this.sslFileList)) {
             return HttpClient.INSTANCE.getOkHttpClient().newCall(request);
         }

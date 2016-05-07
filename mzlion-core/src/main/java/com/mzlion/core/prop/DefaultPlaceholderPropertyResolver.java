@@ -157,7 +157,7 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
      */
     @Override
     public boolean containsProperty(String key) {
-        return StringUtils.isNotEmpty(key) && propertyStringValue.get(key) != null;
+        return StringUtils.hasLength(key) && propertyStringValue.get(key) != null;
     }
 
     /**
@@ -292,7 +292,7 @@ public class DefaultPlaceholderPropertyResolver implements PropertyResolver {
          * @return {@link Builder}
          */
         public Builder path(String path) {
-            if (StringUtils.isNotEmpty(path)) {
+            if (StringUtils.hasLength(path)) {
                 pathEntries.add(path);
             }
             return this;

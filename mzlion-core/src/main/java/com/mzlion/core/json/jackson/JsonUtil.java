@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +155,7 @@ public abstract class JsonUtil {
      */
     private static <T> String toJson(T value, boolean enableUnicode) {
         if (value == null) {
-            return StringUtils.EMPTY_STRING;
+            return "";
         }
         if (value instanceof String) {
             return (String) value;

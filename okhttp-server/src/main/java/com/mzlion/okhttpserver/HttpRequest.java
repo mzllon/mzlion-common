@@ -5,10 +5,13 @@ import com.mzlion.okhttpserver.response.HttpResponse;
 import com.mzlion.okhttpserver.response.convert.ResponseConverter;
 
 import java.io.File;
-import java.util.Map;
 
 /**
- * Created by mzlion on 2016/4/16.
+ * <p>
+ * 2016-04-16 构建HTTP的请求对象,接口中的大部分方法均返回接口本身便于链式写法.
+ * </p>
+ *
+ * @author mzlion
  */
 public interface HttpRequest<Req extends HttpRequest<Req>> {
 
@@ -21,7 +24,7 @@ public interface HttpRequest<Req extends HttpRequest<Req>> {
     Req url(String url);
 
     /**
-     * 添加请求请求头信息
+     * 添加请求头信息
      *
      * @param key   请求头键名
      * @param value 请求头值
@@ -56,23 +59,25 @@ public interface HttpRequest<Req extends HttpRequest<Req>> {
     /**
      * 为构建本次{@linkplain HttpRequest}设置单独SSL证书
      *
-     * @param sslPathname SSL证书路径
-     * @return 返回当前类{@linkplain Req}的对象自己
-     */
-    Req sslCertificate(String sslPathname);
-
-    /**
-     * 为构建本次{@linkplain HttpRequest}设置单独SSL证书
-     *
      * @param sslFile SSL证书文件
      * @return 返回当前类{@linkplain Req}的对象自己
      */
     Req sslCertificate(File sslFile);
 
-    Map<String, String> getHeaders();
-
+    /**
+     * 执行HTTP请求,获取响应结果
+     *
+     * @param responseConverter 响应结果处理器
+     * @param <E>               泛型类
+     * @return 将响应结果转为具体的JavaBean
+     */
     <E> HttpResponse<E> execute(ResponseConverter<E> responseConverter);
 
+    /**
+     * 异步执行HTTP请求，
+     *
+     * @param callback 回调接口
+     */
     void execute(Callback callback);
 
 }

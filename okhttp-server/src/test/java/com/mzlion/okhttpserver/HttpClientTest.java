@@ -1,9 +1,6 @@
 package com.mzlion.okhttpserver;
 
-import com.mzlion.okhttpserver.response.HttpResponse;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by mzlion on 2016/4/17.
@@ -11,7 +8,6 @@ import static org.junit.Assert.*;
 public class HttpClientTest {
     @Test
     public void setConnectionTimeout() throws Exception {
-
     }
 
     @Test
