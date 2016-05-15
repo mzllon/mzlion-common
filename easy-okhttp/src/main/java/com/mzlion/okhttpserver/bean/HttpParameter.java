@@ -6,10 +6,6 @@ import com.mzlion.okhttpserver.utils.MediaTypeParser;
 
 import java.io.File;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,17 +43,8 @@ public class HttpParameter implements Serializable {
         }
 
         public Builder parameter(String name, String value) {
-            return parameter(name, value, StandardCharsets.UTF_8);
-        }
-
-        public Builder parameter(String name, String value, Charset charset) {
-            if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
-                try {
-                    this.urlParameters.put(name, URLEncoder.encode(value, charset.name()));
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
+            if (StringUtils.hasText(name) && StringUtils.hasLength(value))
+                this.urlParameters.put(name, value);
             return this;
         }
 
@@ -66,7 +53,7 @@ public class HttpParameter implements Serializable {
         }
 
         public Builder parameter(String name, File file, String filename) {
-            if (StringUtils.isNotEmpty(name) && file != null) {
+            if (StringUtils.hasText(name) && file != null) {
                 if (StringUtils.isEmpty(filename)) {
                     filename = file.getName();
                 }

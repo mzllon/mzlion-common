@@ -34,8 +34,9 @@ public class UserInfoController {
      * Query for list of UserInfo
      */
     @RequestMapping(value = "/pageSelect", method = RequestMethod.GET)
-    public List<UserInfo> pageSelect(String gender, String userName) {
-        logger.info(" <=== query for userInfo result list,query parameters->gender={},userName={}", gender, userName);
+    public CommonResponse<List<UserInfo>> pageSelect(String gender, String userName, String nickName) {
+        logger.info(" <=== query for userInfo result list,query parameters->gender={},userName={},nickName={}",
+                gender, userName, nickName);
         List<UserInfo> userInfoList;
 
         UserInfo userInfo = new UserInfo();
@@ -45,10 +46,17 @@ public class UserInfoController {
         if (StringUtils.hasLength(gender)) {
             userInfo.setGender(gender);
         }
+        if (StringUtils.hasLength(nickName)) {
+            userInfo.setNickName(nickName);
+        }
         userInfoList = this.userInfoService.queryForList(userInfo);
 
         logger.info(" ===> query for userInfo result list is successful,result->{}", userInfoList);
-        return userInfoList;
+        CommonResponse<List<UserInfo>> commonResponse = new CommonResponse<>();
+        commonResponse.setResultCode("0000");
+        commonResponse.setResultDesc("execute success.");
+        commonResponse.setResult(userInfoList);
+        return commonResponse;
     }
 
     /**

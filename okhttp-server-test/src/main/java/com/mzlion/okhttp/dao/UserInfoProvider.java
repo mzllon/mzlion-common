@@ -12,7 +12,7 @@ import static org.apache.ibatis.jdbc.SqlBuilder.*;
  *
  * @author mzlion
  */
-class UserInfoProvider {
+public class UserInfoProvider {
     private static final String TABLE_NAME = "user_info";
 
     /**

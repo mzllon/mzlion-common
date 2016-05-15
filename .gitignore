@@ -1,4 +1,5 @@
 .idea
 *.iml
-springweb-test
-
+target
+.classpath
+.project
