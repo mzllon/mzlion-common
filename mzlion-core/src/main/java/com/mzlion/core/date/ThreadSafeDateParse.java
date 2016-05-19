@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,11 +18,17 @@ import java.util.Map;
  * @author mzlion
  */
 class ThreadSafeDateParse {
-    //log
+    //logger
     private static final Logger logger = LoggerFactory.getLogger(ThreadSafeDateParse.class);
 
     //线程
-    private static final ThreadLocal<Map<String, DateFormat>> PARSERS = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, DateFormat>> PARSERS = new ThreadLocal<Map<String, DateFormat>>() {
+        @Override
+        protected Map<String, DateFormat> initialValue() {
+            return new HashMap<>();
+        }
+    };
+
 
     /**
      * 得到日期格式化类
