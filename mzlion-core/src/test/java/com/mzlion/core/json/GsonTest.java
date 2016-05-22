@@ -1,7 +1,7 @@
 package com.mzlion.core.json;
 
 import com.google.gson.Gson;
-import com.mzlion.core.bean.Person;
+import com.mzlion.core.vo.Person;
 import io.github.benas.randombeans.EnhancedRandomBuilder;
 import io.github.benas.randombeans.api.EnhancedRandom;
 import org.junit.Test;

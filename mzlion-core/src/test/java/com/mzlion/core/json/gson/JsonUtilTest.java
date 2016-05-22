@@ -1,6 +1,6 @@
 package com.mzlion.core.json.gson;
 
-import com.mzlion.core.bean.Person;
+import com.mzlion.core.vo.Person;
 import org.junit.Test;
 
 import java.util.ArrayList;

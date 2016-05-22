@@ -1,6 +1,5 @@
 package com.mzlion.core;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,7 +13,7 @@ public class CommonsIOFileUtilsTest {
     public void copyDirectory() throws Exception {
         File srcDir = new File("E:\\c1-commons-lang");
         File destDir = new File("E:\\c1-commons-lang\\src\\main");
-        FileUtils.copyDirectoryToDirectory(srcDir, destDir);
+//        FileUtils.copyDirectoryToDirectory(srcDir, destDir);
     }
 
 }

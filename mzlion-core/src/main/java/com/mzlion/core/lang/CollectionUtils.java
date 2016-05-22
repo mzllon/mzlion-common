@@ -76,7 +76,7 @@ public abstract class CollectionUtils {
         if (ArrayUtils.isEmpty(values)) {
             return new ArrayList<>(0);
         }
-        List<T> list = new ArrayList<>((int) (values.length / 0.75));
+        List<T> list = new ArrayList<>(values.length);
         for (T element : values) {
             list.add(element);
         }
@@ -153,8 +153,8 @@ public abstract class CollectionUtils {
      * @param urlParam url请求参数
      * @return 返回Map对象
      */
-    public static Map<String, String> urlParameters2Map(String urlParam) {
-        if (!StringUtils.hasText(urlParam)) {
+    public static Map<String, String> urlParam2Map(String urlParam) {
+        if (StringUtils.isEmpty(urlParam)) {
             return Collections.emptyMap();
         }
         String[] arr = StringUtils.split(urlParam, "&");
@@ -172,6 +172,11 @@ public abstract class CollectionUtils {
             }
         }
         return params;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map<String, String> bean2UrlMap(Object value) {
+        return BeanUtils.toMapAsValueString(value);
     }
 
 }

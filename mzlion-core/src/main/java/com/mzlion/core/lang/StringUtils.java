@@ -405,13 +405,13 @@ public class StringUtils {
      * 将字符串的第一个字符(必须在{@linkplain Character#toLowerCase(char)}中，否则就不会改变)转换为小写.
      * <p/>
      * <pre class="code">
-     * StringUtils.uncapitalize("Hello"); //---> "hello"
+     * StringUtils.unCapitalize("Hello"); //---> "hello"
      * </pre>
      *
      * @param str 字符串
      * @return 返回字符串中的第一个字符转换为小写
      */
-    public static String uncapitalize(String str) {
+    public static String unCapitalize(String str) {
         return changeCharacterCase(str, 0, false);
     }
 
@@ -423,7 +423,7 @@ public class StringUtils {
      *
      * @param str     字符串
      * @param index   大小写更改位置
-     * @param capital 大写还是小写，但值为{@code true}时则大写，值为{@code false}时则小写
+     * @param capital 大写还是小写，当值为{@code true}时则大写，值为{@code false}时则小写
      * @return 返回修改后的字符串
      */
     public static String changeCharacterCase(String str, int index, boolean capital) {
@@ -703,8 +703,10 @@ public class StringUtils {
                 }
                 i++;
                 ch = chars[i];
-                if (headerFirstUnderline) builder.append(Character.toLowerCase(ch));
-                else builder.append(Character.toUpperCase(ch));
+                if (headerFirstUnderline) {
+                    builder.append(Character.toLowerCase(ch));
+                    headerFirstUnderline = false;
+                } else builder.append(Character.toUpperCase(ch));
             } else {
                 builder.append(Character.toLowerCase(ch));
             }
@@ -719,6 +721,9 @@ public class StringUtils {
      * @return {@link Boolean}
      */
     public static boolean isDigital(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return false;
+        }
         for (int i = 0; i < str.length(); i++) {
             if (!Character.isDigit(str.charAt(i))) {
                 return false;
