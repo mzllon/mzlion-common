@@ -149,6 +149,11 @@ public abstract class CollectionUtils {
 
     /**
      * 将url中的请求参数转为Map对象
+     * <pre>
+     *     String urlParams = "username=admin&password=123456";
+     *     Map<String,String> urlMap = </>CollectionUtils.urlParam2Map(urlParams);
+     *     //那么得到的结果为：{"username":"admin","password":"123456"}
+     * </pre>
      *
      * @param urlParam url请求参数
      * @return 返回Map对象
@@ -172,11 +177,6 @@ public abstract class CollectionUtils {
             }
         }
         return params;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Map<String, String> bean2UrlMap(Object value) {
-        return BeanUtils.toMapAsValueString(value);
     }
 
 }

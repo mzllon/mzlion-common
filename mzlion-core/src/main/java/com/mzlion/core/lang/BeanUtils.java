@@ -40,6 +40,13 @@ public class BeanUtils {
 
     /**
      * 将Javabean对象转为Map,其中值的类型为{@code String}
+     * <pre>
+     *     Person person = new Person();
+     *     person.setUserId("uid-9900-01");
+     *     person.setUsername("张三");
+     *     BeanUtils.toMapAsValueString(person);
+     *     //打印的结果为 {"userId":"uid-9900-01","username":"张三"}
+     * </pre>
      *
      * @param bean 对象
      * @return Map对象
