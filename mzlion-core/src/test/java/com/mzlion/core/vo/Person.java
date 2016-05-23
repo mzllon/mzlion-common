@@ -1,4 +1,4 @@
-package com.mzlion.core.bean;
+package com.mzlion.core.vo;
 
 /**
  * Created by mzlion on 2016/4/14.

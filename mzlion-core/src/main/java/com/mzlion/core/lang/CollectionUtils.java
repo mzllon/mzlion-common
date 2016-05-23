@@ -76,7 +76,7 @@ public abstract class CollectionUtils {
         if (ArrayUtils.isEmpty(values)) {
             return new ArrayList<>(0);
         }
-        List<T> list = new ArrayList<>((int) (values.length / 0.75));
+        List<T> list = new ArrayList<>(values.length);
         for (T element : values) {
             list.add(element);
         }
@@ -149,12 +149,17 @@ public abstract class CollectionUtils {
 
     /**
      * 将url中的请求参数转为Map对象
+     * <pre>
+     *     String urlParams = "username=admin&password=123456";
+     *     Map<String,String> urlMap = </>CollectionUtils.urlParam2Map(urlParams);
+     *     //那么得到的结果为：{"username":"admin","password":"123456"}
+     * </pre>
      *
      * @param urlParam url请求参数
      * @return 返回Map对象
      */
-    public static Map<String, String> urlParameters2Map(String urlParam) {
-        if (!StringUtils.hasText(urlParam)) {
+    public static Map<String, String> urlParam2Map(String urlParam) {
+        if (StringUtils.isEmpty(urlParam)) {
             return Collections.emptyMap();
         }
         String[] arr = StringUtils.split(urlParam, "&");
