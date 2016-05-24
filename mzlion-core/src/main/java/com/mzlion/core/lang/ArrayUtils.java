@@ -37,6 +37,76 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final long[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final short[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final char[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final boolean[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final float[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final double[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断是否为空或者为{@code null}
+     *
+     * @param array 数组
+     * @return 当数组为空或{@code null}时返回{@code true}
+     */
+    public static boolean isEmpty(final byte[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
      * 判断是否为空或为{@code null}
      *
      * @param array 数组
@@ -119,6 +189,312 @@ public class ArrayUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(Object[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(Object[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(String.valueOf(array[i]));
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(int[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(int[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(long[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(long[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(short[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(short[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(char[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(char[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(byte[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(byte[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(boolean[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(boolean[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(float[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(float[] array) {
+        return toString(array, ",");
+    }
+
+    /**
+     * 将数组转为字符串，使用英文半角逗号连接
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(double[] array, String delimiter) {
+        if (isEmpty(array)) {
+            return "";
+        }
+        if (delimiter == null) {
+            delimiter = "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int length = array.length - 1;
+        for (int i = 0; ; i++) {
+            builder.append(array[i]);
+            if (i == length) {
+                return builder.toString();
+            }
+            builder.append(delimiter);
+        }
+    }
+
+    /**
+     * 将数组转为字符串，使用{@code delimiter}将元素连接起来
+     *
+     * @param array 数组
+     * @return 如果数组为空则返回空字符串
+     */
+    public static String toString(double[] array) {
+        return toString(array, ",");
     }
 
 }
