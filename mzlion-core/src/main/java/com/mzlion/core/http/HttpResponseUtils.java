@@ -170,7 +170,7 @@ public class HttpResponseUtils {
      * @return 返回转义后的下载名
      * @throws UnsupportedEncodingException 忽略异常
      */
-    private static String getDownloadFilename(HttpServletRequest request, String downloadFilename) throws UnsupportedEncodingException {
+    public static String getDownloadFilename(HttpServletRequest request, String downloadFilename) {
         String browser = getBrowser(request);
         if (BROWSER_IE.equals(browser) || BROWSER_EDGE.equals(browser)) {
             //IE浏览器，采用URLEncoder编码
