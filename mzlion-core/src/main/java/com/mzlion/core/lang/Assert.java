@@ -79,7 +79,7 @@ public class Assert {
      * @param array   被检查的数组
      * @param message 校验失败时异常消息
      */
-    public static void assertNotEmpty(int[] array, String message) {
+    public static void assertNotEmpty(char[] array, String message) {
         if (null == array || array.length == 0) {
             throw new IllegalArgumentException(message);
         }
@@ -91,7 +91,7 @@ public class Assert {
      * @param array   被检查的数组
      * @param message 校验失败时异常消息
      */
-    public static void assertNotEmpty(long[] array, String message) {
+    public static void assertNotEmpty(boolean[] array, String message) {
         if (null == array || array.length == 0) {
             throw new IllegalArgumentException(message);
         }
@@ -115,7 +115,7 @@ public class Assert {
      * @param array   被检查的数组
      * @param message 校验失败时异常消息
      */
-    public static void assertNotEmpty(char[] array, String message) {
+    public static void assertNotEmpty(short[] array, String message) {
         if (null == array || array.length == 0) {
             throw new IllegalArgumentException(message);
         }
@@ -127,7 +127,19 @@ public class Assert {
      * @param array   被检查的数组
      * @param message 校验失败时异常消息
      */
-    public static void assertNotEmpty(short[] array, String message) {
+    public static void assertNotEmpty(int[] array, String message) {
+        if (null == array || array.length == 0) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    /**
+     * 校验数组非null及非空数组
+     *
+     * @param array   被检查的数组
+     * @param message 校验失败时异常消息
+     */
+    public static void assertNotEmpty(long[] array, String message) {
         if (null == array || array.length == 0) {
             throw new IllegalArgumentException(message);
         }
@@ -156,18 +168,5 @@ public class Assert {
             throw new IllegalArgumentException(message);
         }
     }
-
-    /**
-     * 校验数组非null及非空数组
-     *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
-     */
-    public static void assertNotEmpty(boolean[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
 
 }

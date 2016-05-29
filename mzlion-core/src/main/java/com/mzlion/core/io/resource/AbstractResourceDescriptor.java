@@ -1,4 +1,7 @@
-package com.mzlion.core.io;
+package com.mzlion.core.io.resource;
+
+import com.mzlion.core.io.IOUtils;
+import com.mzlion.core.io.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -25,17 +25,6 @@ public abstract class CollectionUtils {
     }
 
     /**
-     * 判断集合是否为不为空
-     * <pre class="code">CollectionUtils.isNotEmpty(list);</pre>
-     *
-     * @param collection 集合
-     * @return 如果集合不为{@code null}且不为空是则返回{@code true}，否则返回{@code false}
-     */
-    public static boolean isNotEmpty(Collection<?> collection) {
-        return !isEmpty(collection);
-    }
-
-    /**
      * 判断map是否为空
      * <pre class="code">CollectionUtils.isEmpty(hashmap);</pre>
      *
@@ -44,6 +33,17 @@ public abstract class CollectionUtils {
      */
     public static boolean isEmpty(Map<?, ?> map) {
         return (map == null || map.isEmpty());
+    }
+
+    /**
+     * 判断集合是否为不为空
+     * <pre class="code">CollectionUtils.isNotEmpty(list);</pre>
+     *
+     * @param collection 集合
+     * @return 如果集合不为{@code null}且不为空是则返回{@code true}，否则返回{@code false}
+     */
+    public static boolean isNotEmpty(Collection<?> collection) {
+        return !isEmpty(collection);
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class CollectionUtils {
 
         //两个数组只能取长度较短的那个至
         final int size = Math.min(keys.length, values.length);
-        Map<K, V> map = new HashMap<>(size * 4 / 3);
+        Map<K, V> map = new HashMap<>(size);
 
         for (int index = 0; index < size; index++) {
             map.put(keys[index], values[index]);

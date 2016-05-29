@@ -1,4 +1,4 @@
-package com.mzlion.core.io;
+package com.mzlion.core.io.resource;
 
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.ClassLoaderUtils;

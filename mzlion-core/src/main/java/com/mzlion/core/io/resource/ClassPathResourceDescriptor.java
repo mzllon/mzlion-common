@@ -1,5 +1,6 @@
-package com.mzlion.core.io;
+package com.mzlion.core.io.resource;
 
+import com.mzlion.core.io.FilenameUtils;
 import com.mzlion.core.lang.ClassLoaderUtils;
 import com.mzlion.core.lang.StringUtils;
 

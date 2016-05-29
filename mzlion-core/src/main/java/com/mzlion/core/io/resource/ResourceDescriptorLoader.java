@@ -1,4 +1,6 @@
-package com.mzlion.core.io;
+package com.mzlion.core.io.resource;
+
+import com.mzlion.core.io.ResourceUtils;
 
 /**
  * Created by mzlion on 2016/5/6.

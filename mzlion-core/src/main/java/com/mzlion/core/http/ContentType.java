@@ -7,7 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
- * Created by mzlion on 2016/4/15.
+ * <p>
+ * 针对MIME的一些封装
+ * </p>
+ *
+ * @author mzlion
  */
 public final class ContentType {
 

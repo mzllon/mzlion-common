@@ -34,6 +34,14 @@ public class ClassUtils {
         }
     }
 
+    /**
+     * 判断sourceType是否是targetType父类或接口，期类的本身
+     *
+     * @param sourceType 被检查的类型
+     * @param targetType 被检查的类型
+     * @return 如果是则返回{@code true}，否则返回{@code false}
+     * @see Class#isAssignableFrom(Class)
+     */
     public static boolean isAssignable(Class<?> sourceType, Class<?> targetType) {
         Assert.assertNotNull(sourceType, "Source type must not be null");
         Assert.assertNotNull(targetType, "Target side type must not be null");

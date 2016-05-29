@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 /**
+ * <p>
+ * Javabean属性工具类
+ * </p>
  * Created by mzlion on 2016/5/22.
  */
 public class PropertyUtilBean {

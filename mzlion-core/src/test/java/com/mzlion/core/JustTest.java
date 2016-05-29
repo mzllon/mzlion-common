@@ -1,5 +1,6 @@
 package com.mzlion.core;
 
+import com.mzlion.core.date.DateUtils;
 import org.junit.Test;
 
 /**
@@ -9,14 +10,8 @@ public class JustTest {
 
     @Test
     public void test() throws Exception {
-        int cap = 17;
-        int n = cap - 1;
-        n |= n >>> 1;
-        n |= n >>> 2;
-        n |= n >>> 4;
-        n |= n >>> 8;
-        n |= n >>> 16;
-        System.out.println(n);
+        System.out.println(DateUtils.formatDate(DateUtils.parseDateByLongStr("1464710400000")));
+        System.out.println(DateUtils.formatDate(DateUtils.parseDateByLongStr("1464753600000")));
     }
 
 }

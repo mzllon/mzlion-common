@@ -3,21 +3,18 @@
 package com.mzlion.core.date;
 
 import com.mzlion.core.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
- * 2016-04-14 日期工具类
+ * <p>
+ * 2016-04-14 日期工具类，提供了日期格式化和日期解析功能。
+ * </p>
  *
  * @author mzlion
  */
 public abstract class DateUtils {
-    //log
-    private static Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
     /**
      * 日期格式化规则：yyyyMMddHHmmss
@@ -45,38 +42,26 @@ public abstract class DateUtils {
     /**
      * 获取下N天（可为负值）转为字符串
      *
-     * @param n       整数
      * @param date    参照日期
+     * @param next    天，如果为负值则表示以前
      * @param pattern 日期字符串样式
      * @return 日期字符串
+     * @see DateCalcUtils#addDate(Date, int)
      */
-    public static String getNextDate(int n, Date date, String pattern) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE, n);//把日期往后增加一天.整数往后推,负数往前移动
-        date = calendar.getTime();
-
-        return formatDate(date, pattern);
+    public static String getNextDate(Date date, int next, String pattern) {
+        Date nextDate = DateCalcUtils.addDate(date, next);
+        return formatDate(nextDate, pattern);
     }
 
     /**
-     * @param n       正数当前日期后N月 负数当前日期前N月
-     * @param date
-     * @param pattern
-     * @return String    返回类型
-     * @throws
-     * @Title: getNextMonth
-     * @Description: 获取下N月后的日期（可为负值）转为字符串
+     * @param next    正数当前日期后N月 负数当前日期前N月
+     * @param date    参照日期
+     * @param pattern 月，如果为负值则表示以前
+     * @return 日期字符串
      */
-    public static String getNextMonth(int n, Date date, String pattern) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.MONTH, n);//
-        date = calendar.getTime();
-
-        return formatDate(date, pattern);
+    public static String getNextMonth(Date date, int next, String pattern) {
+        Date nextMonth = DateCalcUtils.addMonth(date, next);
+        return formatDate(nextMonth, pattern);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.mzlion.core.io;
+package com.mzlion.core.io.resource;
 
 import java.io.File;
 import java.io.IOException;
