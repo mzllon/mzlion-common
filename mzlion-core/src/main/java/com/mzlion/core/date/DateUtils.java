@@ -27,6 +27,25 @@ public abstract class DateUtils {
     public static final String PATTERN = "yyyyMMdd";
 
     /**
+     * 格式化当前时间，格式化规则为{@link #PATTERN_FULL}
+     *
+     * @return 日期字符串
+     */
+    public static String formatDate() {
+        return formatDate(PATTERN_FULL);
+    }
+
+    /**
+     * 按照格式化规则对当前日期进行格式化返回
+     *
+     * @param pattern 格式化规则
+     * @return 日期字符串
+     */
+    public static String formatDate(String pattern) {
+        return formatDate(System.currentTimeMillis(), pattern);
+    }
+
+    /**
      * 将日期转为字符串，格式化规则yyyyMMddHHmmss
      *
      * @param date 日期对象
