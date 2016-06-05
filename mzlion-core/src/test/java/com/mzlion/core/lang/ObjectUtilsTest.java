@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
- * 2016-05-22 12:18 对{@link ObjectUtils}的测试
+ * 2016-05-22 12:18 Testing for {@link ObjectUtils}
  * </p>
  *
  * @author mzlion

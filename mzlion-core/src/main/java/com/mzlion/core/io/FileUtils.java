@@ -51,7 +51,7 @@ public class FileUtils {
             logger.error(" ===> 文件拷贝失败", e);
             return -1;
         } finally {
-            IOUtils.closeCloseable(output);
+            IOUtils.closeQuietly(output);
         }
     }
 
@@ -370,8 +370,8 @@ public class FileUtils {
             }
             return IOUtils.copy(source, out) > 0;
         } finally {
-            IOUtils.closeCloseable(out);
-            IOUtils.closeCloseable(source);
+            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(source);
         }
     }
 

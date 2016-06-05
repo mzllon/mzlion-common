@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Testing for {@linkplain DateCalcUtils}
+ * <p>
  * Created by mzlion on 2016/5/28.
  */
 public class DateCalcUtilsTest {

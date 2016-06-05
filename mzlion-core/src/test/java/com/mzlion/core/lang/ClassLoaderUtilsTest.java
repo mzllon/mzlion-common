@@ -6,7 +6,7 @@ import sun.misc.Launcher;
 import static org.junit.Assert.assertEquals;
 
 /**
- * 测试类
+ * Testing for {@link ClassLoaderUtils}
  * <p>
  * Created by mzlion on 2016/5/29.
  */

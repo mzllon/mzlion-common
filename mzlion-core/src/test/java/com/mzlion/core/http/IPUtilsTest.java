@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 测试类
+ * Testing for {@linkplain IPUtils}
  * <p>
  * Created by mzlion on 2016/5/29.
  */

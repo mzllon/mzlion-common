@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -19,6 +20,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
+ * Testing for {@linkplain HttpResponseUtils}
+ * <p>
  * Created by mzlion on 2016/5/28.
  */
 public class HttpResponseUtilsTest {
@@ -153,6 +156,16 @@ public class HttpResponseUtilsTest {
         private String getDataAsString() throws IOException {
             byte[] data = getData();
             return new String(data);
+        }
+
+        @Override
+        public boolean isReady() {
+            return false;
+        }
+
+        @Override
+        public void setWriteListener(WriteListener writeListener) {
+
         }
     }
 

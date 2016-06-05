@@ -9,7 +9,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 
 /**
- * 测试类
+ * Testing for {@link DateUtils}
  * <p>
  * Created by mzlion on 2016/5/28.
  */

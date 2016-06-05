@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * 测试类
+ * Testing for {@linkplain CollectionUtils}
  * <p>
  * Created by mzlion on 2016/5/29.
  */

@@ -7,6 +7,8 @@ import java.beans.PropertyDescriptor;
 import java.util.List;
 
 /**
+ * Testing for {@linkplain PropertyUtilBean}
+ * <p>
  * Created by mzlion on 2016/5/22.
  */
 public class PropertyUtilBeanTest {

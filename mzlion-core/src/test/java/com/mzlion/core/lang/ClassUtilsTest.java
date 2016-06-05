@@ -6,6 +6,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Testing for {@linkplain ClassUtils}
+ * <p>
  * Created by mzlion on 2016/5/29.
  */
 public class ClassUtilsTest {

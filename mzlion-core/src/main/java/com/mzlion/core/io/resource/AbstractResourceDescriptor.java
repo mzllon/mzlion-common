@@ -92,7 +92,7 @@ public abstract class AbstractResourceDescriptor implements ResourceDescriptor {
         } catch (IOException e) {
             return -1;
         } finally {
-            IOUtils.closeCloseable(in);
+            IOUtils.closeQuietly(in);
         }
     }
 

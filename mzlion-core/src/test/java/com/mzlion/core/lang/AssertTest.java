@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.Collections;
 
 /**
- * 测试类
+ * Testing for {@linkplain Assert}
  * <p>
  * Created by mzlion on 2016/5/29.
  */

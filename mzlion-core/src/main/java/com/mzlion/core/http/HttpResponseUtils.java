@@ -29,8 +29,6 @@ public class HttpResponseUtils {
     //log
     private static Logger logger = LoggerFactory.getLogger(HttpResponseUtils.class);
 
-    public static final String ACCEPT_LANGUAGE = "Accept-Language";
-
     /**
      * 文件输出，针对Image等支持的格式会直接在浏览器显示，不会提示下载；如果是浏览器不能识别的文件，则浏览器会下载。
      *
@@ -114,9 +112,8 @@ public class HttpResponseUtils {
      * @param contentLength 内容长度
      */
     public static void downloadAttachment(HttpServletRequest request, HttpServletResponse response, String filename, InputStream in, long contentLength) {
-        logger.debug(" <=== 文件下载，请求参数->filename={}", filename);
-        Assert.assertNotNull(request, " ===> Request must not be null.");
-        Assert.assertNotNull(response, " ===> Response must not be null.");
+        Assert.assertNotNull(request, "Request must not be null.");
+        Assert.assertNotNull(response, "Response must not be null.");
         Assert.assertHasLength(filename, "Filename must not be null or empty.");
         Assert.assertNotNull(in, "InputStream must not be null.");
 
@@ -125,21 +122,20 @@ public class HttpResponseUtils {
         response.setHeader("Content-disposition", "attachment; filename=" + getDownloadFilename(request, filename));
         try (OutputStream out = response.getOutputStream()) {
             if (IOUtils.copy(in, out) == -1) {
-                throw new IOException("文件下载失败，文件拷贝失败");
+                throw new IOException("Copy input stream to output stream failed.");
             }
         } catch (IOException e) {
-            logger.error(" ===> 下载文件出现异常", e);
+            logger.error(" ===> Download error->", e);
         }
     }
 
     //内部方法实现文件下载
     private static void doDownload(HttpServletRequest request, HttpServletResponse response, String filename, File downloadFile,
                                    boolean isDeleted, boolean tryDisplay) {
-        logger.debug(" ===> 对外输出文件，请求参数->{}", filename);
-        Assert.assertNotNull(request, " ===> Request must not be null.");
-        Assert.assertNotNull(response, " ===> Response must not be null.");
+        Assert.assertNotNull(request, "Request must not be null.");
+        Assert.assertNotNull(response, "Response must not be null.");
         Assert.assertHasLength(filename, "Filename must not be null or empty.");
-        Assert.assertNotNull(downloadFile, " ===> Download file must not be null.");
+        Assert.assertNotNull(downloadFile, "Download file must not be null.");
 
         if (!downloadFile.exists()) {
             throw new IllegalArgumentException("File can not be found.");
@@ -166,18 +162,17 @@ public class HttpResponseUtils {
             }
             out = response.getOutputStream();
             if (FileUtils.copyFile(downloadFile, out) == -1) {
-                logger.error(" ===> 下载文件失败->{}", downloadFile);
-                throw new IOException("Copy file error");
+                throw new IOException("Copy input stream to output stream failed.");
             }
             if (isDeleted) {
-                logger.debug(" ===> 即将删除下载文件->{}", downloadFile);
+                logger.debug(" ===> File [{}] will be deleted.", downloadFile);
                 downloadFile.delete();
             }
         } catch (IOException e) {
-            logger.error(" ===> 下载文件出现异常", e);
+            logger.error(" ===> Download error->", e);
             throw new RuntimeException(e);
         } finally {
-            IOUtils.closeCloseable(out);
+            IOUtils.closeQuietly(out);
         }
     }
 
@@ -218,8 +213,10 @@ public class HttpResponseUtils {
         String language = locale.getLanguage();
         String country = locale.getCountry();
         StringBuilder acceptLanguageBuilder = new StringBuilder(language);
-        if (!StringUtils.isEmpty(country))
+        if (!StringUtils.isEmpty(country)) {
             acceptLanguageBuilder.append('-').append(country).append(',').append(language).append(";q=0.8");
+        }
+        logger.debug(" ===> Append Http header accept-language->{}", acceptLanguageBuilder.toString());
         return acceptLanguageBuilder.toString();
     }
 
@@ -348,7 +345,7 @@ public class HttpResponseUtils {
         pattern = Pattern.compile("Firefox", Pattern.CASE_INSENSITIVE);
         if (pattern.matcher(userAgent).find()) return BROWSER_FIREFOX;
 
-        logger.debug(" ===> 无法识别浏览器类型，置为默认类型");
+        logger.warn(" ===> Browser type is unknown.");
         return BROWSER_CHROME;
     }
 
