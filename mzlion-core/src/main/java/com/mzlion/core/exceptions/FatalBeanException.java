@@ -1,4 +1,4 @@
-package com.mzlion.core.beans;
+package com.mzlion.core.exceptions;
 
 /**
  * Thrown on an unrecoverable problem encountered in the

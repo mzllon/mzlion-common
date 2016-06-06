@@ -1,7 +1,7 @@
 package com.mzlion.core.lang;
 
-import com.mzlion.core.beans.FatalBeanException;
 import com.mzlion.core.beans.PropertyUtilBean;
+import com.mzlion.core.exceptions.FatalBeanException;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;

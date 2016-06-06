@@ -1,5 +1,6 @@
 package com.mzlion.core.beans;
 
+import com.mzlion.core.exceptions.FatalBeanException;
 import com.mzlion.core.lang.Assert;
 
 import java.beans.BeanInfo;

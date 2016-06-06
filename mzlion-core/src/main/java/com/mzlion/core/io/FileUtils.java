@@ -1,41 +1,76 @@
 package com.mzlion.core.io;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mzlion.core.exceptions.FatalFileException;
+import com.mzlion.core.lang.Assert;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 
 
 /**
- * Created by mzlion on 2016/4/14.
+ * <p>
+ * 2016-06-05 09:30 文件工具类
+ * </p>
+ * <p>
+ * 该工具类的部分实现参照了<s>commons-io</s>框架提供的方法。
+ * </P>
+ *
+ * @author mzlion
  */
 public class FileUtils {
-    //log
-    private static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     /**
      * 1kb
      */
-    public static final long _1_KB = 1024;
+    public static final long ONE_KB = 1024;
 
     /**
      * 1MB
      */
-    public static final long _1_MB = _1_KB * _1_KB;
+    public static final long ONE_MB = ONE_KB * ONE_KB;
 
     /**
      * The file copy buffer size (30 MB)
      */
-    private static final long FILE_COPY_BUFFER_SIZE = _1_MB * 30;
+    private static final long FILE_COPY_BUFFER_SIZE = ONE_MB * 30;
 
+    /**
+     * 平台临时目录{@link File}
+     *
+     * @return 目录
+     */
+    public static File getTempDirectory() {
+        return new File(getTempDirectoryPath());
+    }
 
-    //=================================================================
-    //==========================复制===================================
-    //=================================================================
+    /**
+     * 平台的临时目录
+     *
+     * @return 目录
+     */
+    public static String getTempDirectoryPath() {
+        return System.getProperty("java.io.tmpdir");
+    }
 
-    //========================文件复制==================================
+    /**
+     * 用户主目录
+     *
+     * @return 用户主目录{@code File}
+     */
+    public static File getUserDirectory() {
+        return new File(getUserDirectoryPath());
+    }
+
+    /**
+     * 返回用户的主目录
+     *
+     * @return 用户主目录路径
+     */
+    public static String getUserDirectoryPath() {
+        return System.getProperty("user.home");
+    }
+
+    //========================File copy==================================
 
     /**
      * 文件拷贝，如果拷贝文件失败则返回-1
@@ -45,13 +80,13 @@ public class FileUtils {
      * @return 返回文件的大小
      */
     public static long copyFile(File srcFile, OutputStream output) {
+        Assert.assertNotNull(output, "OutputStream must not be null.");
+        Assert.assertNotNull(srcFile, "Source file must not be null.");
+        FileInputStream in = openFileInputStream(srcFile);
         try {
-            return Files.copy(srcFile.toPath(), output);
-        } catch (IOException e) {
-            logger.error(" ===> 文件拷贝失败", e);
-            return -1;
+            return IOUtils.copyLarge(in, output);
         } finally {
-            IOUtils.closeQuietly(output);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -60,10 +95,9 @@ public class FileUtils {
      *
      * @param srcFile  原文件
      * @param destFile 目标文件
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyFile(File srcFile, File destFile) {
-        return copyFile(srcFile, destFile, true);
+    public static void copyFile(File srcFile, File destFile) {
+        copyFile(srcFile, destFile, true);
     }
 
     /**
@@ -72,74 +106,57 @@ public class FileUtils {
      * @param srcFile      原文件
      * @param destFile     目标文件
      * @param holdFileDate 保持最后修改日期不变
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyFile(File srcFile, File destFile, boolean holdFileDate) {
-        if (srcFile == null) {
-            logger.error(" ===> SrcFile must not be null.");
-            return false;
-        }
-        if (destFile == null) {
-            logger.error(" ===> DestFile must not be null.");
-            return false;
-        }
-        if (!srcFile.exists()) {
-            logger.error(" ===> Source [{}] does not exist.", srcFile);
-            return false;
-        }
-        if (srcFile.isDirectory()) {
-            logger.error(" ===> Source [{}] exists but it is a directory.");
-            return false;
-        }
+    public static void copyFile(File srcFile, File destFile, boolean holdFileDate) {
+        Assert.assertNotNull(srcFile, "Source file must not be null.");
+        Assert.assertNotNull(destFile, "Destination file must not be null.");
+        if (!srcFile.exists()) throw new FatalFileException("Source [" + srcFile + "] does not exist.");
+        if (srcFile.isDirectory())
+            throw new FatalFileException("Source [" + srcFile + "] exists but it is a directory.");
+
         try {
-            if (srcFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
-                logger.error(" ===> Source [{}] and destination [{}] are the same.", srcFile, destFile);
-                return false;
-            }
+            if (srcFile.getCanonicalPath().equals(destFile.getCanonicalPath()))
+                throw new FatalFileException(String.format("Source [%s] and destination [%s] are the same.", srcFile, destFile));
             File parentFile = destFile.getParentFile();
             if (parentFile != null) {
-                if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
-                    logger.error(" ===> Destination [{}] directory cannot be created.", parentFile);
-                    return false;
-                }
+                if (!parentFile.mkdirs() && !parentFile.isDirectory())
+                    throw new FatalFileException("Destination [" + parentFile + "] directory cannot be created.");
             }
-            if (destFile.exists() && !destFile.canWrite()) {
-                logger.error(" ===> Destination [{}] directory cannot be written.", parentFile);
-                return false;
-            }
+            if (destFile.exists() && !destFile.canWrite())
+                throw new FatalFileException(" ===> Destination [" + parentFile + "] directory cannot be written.");
             doCopyFile(srcFile, destFile, holdFileDate);
-            return true;
         } catch (IOException e) {
-            logger.error(" ===> Process File throw IOException->", e);
-            return false;
+            throw new FatalFileException(e);
         }
     }
 
-    private static boolean doCopyFile(File srcFile, File destFile, boolean holdFileDate) throws IOException {
-        if (destFile.exists() && destFile.isDirectory()) {
-            logger.error(" ===> Destination [{}] exists but it is a directory.");
-            return false;
-        }
+    /**
+     * 文件复制内部方法
+     *
+     * @param srcFile      原文件
+     * @param destFile     目标文件
+     * @param holdFileDate 保持最后修改日期不变
+     * @throws IOException I/O异常
+     */
+    private static void doCopyFile(File srcFile, File destFile, boolean holdFileDate) throws IOException {
+        if (destFile.exists() && destFile.isDirectory())
+            throw new FatalFileException("Destination [" + destFile + "] exists but it is a directory.");
 
-        try (
-                FileInputStream inputStream = new FileInputStream(srcFile);
-                FileOutputStream outputStream = new FileOutputStream(destFile);
-                FileChannel input = inputStream.getChannel();
-                FileChannel output = outputStream.getChannel();
-        ) {
-            long size = input.size(), pos = 0, count = 0;
+        try (FileInputStream in = new FileInputStream(srcFile);
+             FileOutputStream out = new FileOutputStream(destFile);
+             FileChannel inChannel = in.getChannel();
+             FileChannel outChannel = out.getChannel()) {
+            long size = inChannel.size(), pos = 0, count;
             while (pos < size) {
                 count = size - pos > FILE_COPY_BUFFER_SIZE ? FILE_COPY_BUFFER_SIZE : size - pos;
-                pos += output.transferFrom(input, pos, count);
+                pos += outChannel.transferFrom(inChannel, pos, count);
             }
-            if (srcFile.length() != destFile.length()) {
-                throw new IOException(String.format(" ===> Failed to copy full contents from [%s] to [%s]", srcFile.getPath(), destFile.getPath()));
-            }
-            if (holdFileDate) {
-                destFile.setLastModified(srcFile.lastModified());
-            }
-            return true;
         }
+        //必须放在try(){}之外，否则该修改无效
+        if (srcFile.length() != destFile.length()) {
+            throw new IOException(String.format("Failed to copy full contents from [%s] to [%s]", srcFile.getPath(), destFile.getPath()));
+        }
+        if (holdFileDate) destFile.setLastModified(srcFile.lastModified());
     }
 
     /**
@@ -149,11 +166,9 @@ public class FileUtils {
      * @param destDir 目标目录
      * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyFileToDirectory(File srcFile, File destDir) {
-        return copyFileToDirectory(srcFile, destDir, true);
+    public static void copyFileToDirectory(File srcFile, File destDir) {
+        copyFileToDirectory(srcFile, destDir, true);
     }
-
-    //========================目录复制==================================
 
     /**
      * 将文件拷贝到目录
@@ -163,28 +178,27 @@ public class FileUtils {
      * @param holdFileDate 保持最后修改日期不变
      * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    private static boolean copyFileToDirectory(File srcFile, File destDir, boolean holdFileDate) {
-        if (destDir == null) {
-            logger.error(" ===> DestDir must not be null.");
-            return false;
-        }
-        if (destDir.exists() && !destDir.isDirectory()) {
-            logger.error(" ===> Destination [{}] is not a directory.");
-            return false;
-        }
+    private static void copyFileToDirectory(File srcFile, File destDir, boolean holdFileDate) {
+        Assert.assertNotNull(srcFile, "Source file must not be null.");
+        Assert.assertNotNull(destDir, "Destination Directory must not be null.");
+        if (destDir.exists() && !destDir.isDirectory())
+            throw new FatalFileException("Destination [" + destDir + "] is not a directory.");
+
         File destFile = new File(destDir, srcFile.getName());
-        return copyFile(srcFile, destFile, holdFileDate);
+        copyFile(srcFile, destFile, holdFileDate);
     }
+
+
+    //--------------------------------Directory copy--------------------------------
 
     /**
      * 目录复制
      *
      * @param srcDir  原目录
      * @param destDir 目标目录
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyDirectory(File srcDir, File destDir) {
-        return copyDirectory(srcDir, destDir, true);
+    public static void copyDirectory(File srcDir, File destDir) {
+        copyDirectory(srcDir, destDir, true);
     }
 
     /**
@@ -193,10 +207,9 @@ public class FileUtils {
      * @param srcDir       原目录
      * @param destDir      目标目录
      * @param holdFileDate 保持最后修改日期不变
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyDirectory(File srcDir, File destDir, boolean holdFileDate) {
-        return copyDirectory(srcDir, destDir, holdFileDate, null);
+    public static void copyDirectory(File srcDir, File destDir, boolean holdFileDate) {
+        copyDirectory(srcDir, destDir, holdFileDate, null);
     }
 
     /**
@@ -206,40 +219,23 @@ public class FileUtils {
      * @param destDir      目标目录
      * @param holdFileDate 保持最后修改日期不变
      * @param filter       文件过滤器
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
-    public static boolean copyDirectory(File srcDir, File destDir, boolean holdFileDate, FileFilter filter) {
-        if (srcDir == null) {
-            logger.error(" ===> SrcDir must not be null.");
-            return false;
-        }
-        if (destDir == null) {
-            logger.error(" ===> DestDir must not be null.");
-            return false;
-        }
-        if (!srcDir.exists()) {
-            logger.error(" ===> Source [{}] does not exist.", srcDir);
-            return false;
-        }
-        if (destDir.isDirectory()) {
-            logger.error(" ===> Destination [{}] exists but it is a directory.");
-            return false;
-        }
+    public static void copyDirectory(File srcDir, File destDir, boolean holdFileDate, FileFilter filter) {
+        Assert.assertNotNull(srcDir, "Source Directory must not be null.");
+        Assert.assertNotNull(destDir, "Destination Directory must not be null.");
+        if (!srcDir.exists()) throw new FatalFileException("Source [" + srcDir + "] does not exist.");
+        if (destDir.isFile())
+            throw new FatalFileException("Destination [" + destDir + "] exists but is not a directory.");
 
         try {
-            if (srcDir.getCanonicalPath().equals(destDir.getCanonicalPath())) {
-                logger.error(" ===> Source [{}] and destination [{}] are the same.", srcDir, destDir);
-                return false;
-            }
+            if (srcDir.getCanonicalPath().equals(destDir.getCanonicalPath()))
+                throw new FatalFileException(String.format("Source [%s] and destination [%s] are the same.", srcDir, destDir));
             //当目标目录是原目录的子目录时,不支持复制.
-            if (destDir.getCanonicalPath().startsWith(srcDir.getCanonicalPath())) {
-                logger.error(" ===> Destination [{}] is child Directory of source [{}] are the same.", destDir, srcDir);
-                return false;
-            }
-            return doCopyDirectory(srcDir, destDir, holdFileDate, filter);
+            if (destDir.getCanonicalPath().startsWith(srcDir.getCanonicalPath() + File.separator))
+                throw new FatalFileException(String.format("Destination [%s] is child directory of source [%s].", destDir, srcDir));
+            doCopyDirectory(srcDir, destDir, holdFileDate, filter);
         } catch (IOException e) {
-            logger.error(" ===> Process File throw IOException->", e);
-            return false;
+            throw new FatalFileException(e);
         }
     }
 
@@ -250,85 +246,54 @@ public class FileUtils {
      * @param destDir      目标目录
      * @param holdFileDate 保持最后修改日期不变
      * @param filter       文件过滤器
-     * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      * @throws IOException 拷贝异常
      */
-    private static boolean doCopyDirectory(File srcDir, File destDir, boolean holdFileDate, FileFilter filter) throws IOException {
+    private static void doCopyDirectory(File srcDir, File destDir, boolean holdFileDate, FileFilter filter) throws IOException {
         File[] srcFiles = filter == null ? srcDir.listFiles() : srcDir.listFiles(filter);
         if (srcFiles == null) {
-            logger.error(" ===> Failed to list contents of [{}].", srcDir);
-            return false;
+            throw new IOException("Failed to list contents of [" + srcDir + "]");
         }
-        if (destDir.exists() && !destDir.isDirectory()) {
-            logger.error(" ===> Destination [{}] exists but is not a directory", destDir);
-            return false;
-        }
-        if (!destDir.mkdirs() && !destDir.isDirectory()) {
-            logger.error(" ===> Destination [{}] directory cannot be created.");
-            return false;
-        }
-        if (!destDir.canWrite()) {
-            logger.error("Destination [{}] cannot be written to.", destDir);
-            return false;
-        }
+        if (destDir.exists() && !destDir.isDirectory())
+            throw new IOException("Destination [" + destDir + "] exists but is not a directory.");
+        if (!destDir.mkdirs() && !destDir.isDirectory())
+            throw new IOException("Destination [" + destDir + "] directory cannot be created.");
+        if (!destDir.canWrite()) throw new IOException("Destination [" + destDir + "] cannot be written to.");
+
         for (File srcFile : srcFiles) {
             File destFile = new File(destDir, srcFile.getName());
             if (srcFile.isDirectory()) {
-                if (!doCopyDirectory(srcFile, destFile, holdFileDate, filter)) {
-                    logger.error(" ===> Copy directory failed.");
-                    return false;
-                }
+                doCopyDirectory(srcFile, destFile, holdFileDate, filter);
             } else {
-                if (!doCopyFile(srcFile, destFile, holdFileDate)) {
-                    logger.error(" ===> Copy file failed.");
-                    return false;
-                }
+                doCopyFile(srcFile, destFile, holdFileDate);
             }
         }
 
         if (holdFileDate) {
             destDir.setLastModified(srcDir.lastModified());
         }
-        return true;
     }
 
 
-    //=================================================================
-    //========================剪切/移动=================================
-    //=================================================================
+    //--------------------------------move--------------------------------
 
-    //========================移动文件=================================
+    /**
+     * 移动文件
+     *
+     * @param srcFile  原文件
+     * @param destFile 目标文件
+     * @throws FatalFileException
+     */
+    public static void moveFile(File srcFile, File destFile) {
+        Assert.assertNotNull(srcFile, "Source must not be null.");
+        Assert.assertNotNull(destFile, "Destination must not be null.");
+        if (!srcFile.exists()) throw new FatalFileException("Source [" + srcFile + "] does not exist.");
+        if (srcFile.isDirectory()) throw new FatalFileException("Source [" + srcFile + "] is a directory.");
+//        if (!destFile.exists()) throw new FatalFileException("Destination [" + destFile + "] does not exist.");
+        if (destFile.isFile() && destFile.exists())
+            throw new FatalFileException("Destination [" + destFile + "] already exists.");
+        if (destFile.isDirectory() && !destFile.canWrite())
+            throw new FatalFileException("Destination [" + destFile + "] cannot be written to.");
 
-
-    public static boolean moveFile(File srcFile, File destFile) {
-        if (srcFile == null) {
-            logger.error(" ===> Source must not be null.");
-            return false;
-        }
-        if (destFile == null) {
-            logger.error(" ===> Destination must not be null.");
-            return false;
-        }
-        if (!srcFile.exists()) {
-            logger.error(" ===> Source [{}] does not exist.", srcFile);
-            return false;
-        }
-        if (!destFile.exists()) {
-            logger.error(" ===> Destination [{}] does not exist.", destFile);
-            return false;
-        }
-        if (srcFile.isDirectory()) {
-            logger.error(" ===> Source [{}] is a directory.", destFile);
-            return false;
-        }
-        if (srcFile.isFile() && srcFile.exists()) {
-            logger.error(" ===> Destination [{}] already exists.", destFile);
-            return false;
-        }
-        if (destFile.isDirectory() && !destFile.canWrite()) {
-            logger.error(" ===> Destination [{}] cannot be written to.", destFile);
-            return false;
-        }
         File targetFile;
         if (destFile.isDirectory()) {
             targetFile = new File(destFile, srcFile.getName());
@@ -338,75 +303,167 @@ public class FileUtils {
         boolean renameTo = srcFile.renameTo(targetFile);
         if (!renameTo) {
             //调用系统的重命名失败(移动),可能属于不同FS文件系统
-            if (!copyFile(srcFile, targetFile)) {
-                logger.error(" ===> File does copy failed.", destFile);
-                return false;
-            }
+            copyFile(srcFile, targetFile);
             if (!srcFile.delete()) {
-                logger.error(" ===> Failed to delete original file [{}], after copy to [{}}", srcFile, targetFile);
                 targetFile.delete();
-                return false;
+                throw new FatalFileException(String.format("Failed to delete original file [%s], after copy to [%s]", srcFile, destFile));
             }
-        }
-        logger.info(" ===> Original file [{}] moved destination [{}] success.", srcFile, targetFile);
-        return true;
-    }
-
-    public static boolean copyInputStreamToFile(InputStream source, File destination) {
-        if (source == null) {
-            logger.error("Source must not be null.");
-            return false;
-        }
-        if (destination == null) {
-            logger.error("Destination must not be null.");
-            return false;
-        }
-        FileOutputStream out = null;
-        try {
-            out = openFileOutputStream(destination);
-            if (out == null) {
-                logger.error("Open file output stream error");
-                return false;
-            }
-            return IOUtils.copy(source, out) > 0;
-        } finally {
-            IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(source);
         }
     }
 
+    /**
+     * 移动目录
+     *
+     * @param source  原文件或目录
+     * @param destDir 目标目录
+     * @throws FatalFileException
+     */
+    public static void moveDirectory(File source, File destDir) {
+        moveDirectory(source, destDir, false);
+    }
+
+    /**
+     * 移动目录
+     *
+     * @param srcDir  原文件或目录
+     * @param destDir 目标目录
+     * @param toDir   如果目录不存在，是否创建
+     * @throws FatalFileException
+     */
+    public static void moveDirectory(File srcDir, File destDir, boolean toDir) {
+        Assert.assertNotNull(srcDir, "Source must not be null.");
+        Assert.assertNotNull(destDir, "Destination must not be null.");
+        if (!srcDir.exists()) throw new FatalFileException("Source [" + srcDir + "] does not exist.");
+        if (!srcDir.isDirectory()) throw new FatalFileException("Destination [" + srcDir + "] is not a directory.");
+        if (destDir.exists() && !destDir.isDirectory())
+            throw new FatalFileException("Destination [" + destDir + "] is not a directory.");
+
+        File targetDir = toDir ? new File(destDir, srcDir.getName()) : destDir;
+
+        if (!targetDir.mkdirs()) throw new FatalFileException("Directory [" + targetDir + "] could not be created.");
+        boolean renameTo = srcDir.renameTo(targetDir);
+        if (!renameTo) {
+            copyDirectory(srcDir, targetDir);
+            delete(srcDir);
+            if (srcDir.exists())
+                throw new FatalFileException(String.format("Failed to delete original directory '%s' after copy to '%s'", srcDir, destDir));
+        }
+    }
+
+
+    //--------------------------------delete--------------------------------
+
+    /**
+     * 文件删除，支持目录删除
+     *
+     * @param file 文件
+     * @throws FatalFileException
+     */
+    public static void delete(File file) {
+        Assert.assertNotNull(file, "File must not be null.");
+        if (!file.exists()) return;
+        if (file.isDirectory()) {
+            cleanDirectory(file);
+        }
+        if (!file.delete()) {
+            throw new FatalFileException("Unable to delete file: " + file);
+        }
+    }
+
+    /**
+     * 清理目录
+     *
+     * @param directory 目录
+     * @throws FatalFileException
+     */
+    public static void cleanDirectory(File directory) {
+        Assert.assertNotNull(directory, "Directory must not be null.");
+        if (!directory.exists()) throw new FatalFileException("Directory [" + directory + "] does not exist.");
+        if (!directory.isDirectory()) throw new FatalFileException("The [" + directory + "] is not a directory.");
+        File[] listFiles = directory.listFiles();
+        if (listFiles == null) {
+            throw new FatalFileException("Failed to list contents of " + directory);
+        }
+        for (File listFile : listFiles) {
+            if (listFile.isDirectory()) {
+                cleanDirectory(listFile);
+            }
+            if (!listFile.delete()) {
+                throw new FatalFileException("Unable to delete file: " + listFile);
+            }
+        }
+    }
+
+    /**
+     * 打开文件的输入流，提供了比<code>new FileInputStream(file)</code>更好更优雅的方式.
+     *
+     * @param file 文件
+     * @return {@link FileInputStream}
+     * @throws FatalFileException
+     */
+    public static FileInputStream openFileInputStream(File file) {
+        Assert.assertNotNull(file, "File must not be null.");
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                throw new FatalFileException("File '" + file + "' exists but is a directory");
+            }
+            if (!file.canRead()) {
+                throw new FatalFileException("File '" + file + "' cannot be read");
+            }
+            try {
+                return new FileInputStream(file);
+            } catch (IOException e) {
+                throw new FatalFileException(e);
+            }
+        }
+        throw new FatalFileException("File '" + file + "' does not exist");
+    }
+
+    /**
+     * 打开件输出流
+     *
+     * @param file 文件
+     * @return {@link FileOutputStream}
+     */
     public static FileOutputStream openFileOutputStream(File file) {
         return openFileOutputStream(file, false);
     }
 
+    /**
+     * 打开件输出流
+     *
+     * @param file   文件
+     * @param append 附加
+     * @return {@link FileOutputStream}
+     */
     private static FileOutputStream openFileOutputStream(File file, boolean append) {
-        if (file == null) {
-            logger.error("File must not be null.");
-            return null;
-        }
+        Assert.assertNotNull(file, "File must not be null.");
         if (file.exists()) {
-            if (file.isDirectory()) {
-                logger.error("Destination [{}] exists but is a directory.", file);
-                return null;
-            }
-            if (!file.canWrite()) {
-                logger.error("Destination [%s] exists but cannot write.");
-                return null;
-            }
+            if (file.isDirectory())
+                throw new FatalFileException("Destination [" + file + "] exists but is a directory.");
+            if (!file.canWrite())
+                throw new FatalFileException(String.format("Destination [%s] exists but cannot write.", file));
         } else {
             File parent = file.getParentFile();
             if (parent != null) {
-                if (!parent.mkdirs() && !parent.isDirectory()) {
-                    logger.error("Directory [{}] could not be created.", parent);
-                    return null;
-                }
+                if (!parent.mkdirs() && !parent.isDirectory())
+                    throw new FatalFileException("Directory [" + parent + "] could not be created.");
             }
         }
         try {
             return new FileOutputStream(file, append);
         } catch (IOException e) {
-            logger.error("Create FleOutputStream error->", e);
-            return null;
+            throw new FatalFileException(e);
         }
     }
+
+
+    //--------------------------------checksum--------------------------------
+
+    public static String md5(File file) {
+        Assert.assertNotNull(file, "File must not be null.");
+        FileInputStream in = openFileInputStream(file);
+        return IOUtils.md5(in);
+    }
+
 }

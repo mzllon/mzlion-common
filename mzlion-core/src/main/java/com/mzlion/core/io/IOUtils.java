@@ -1,6 +1,7 @@
 package com.mzlion.core.io;
 
 
+import com.mzlion.core.exceptions.FatalFileException;
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;
@@ -184,8 +185,8 @@ public abstract class IOUtils {
      * @return 返回流大小，如果拷贝失败则返回-1
      */
     public static long copyLarge(InputStream in, OutputStream out, byte[] buffer) {
-        Assert.assertNotNull(in, "Input stream must not be null.");
-        Assert.assertNotNull(out, "Output stream must not be null.");
+        Assert.assertNotNull(in, "InputStream must not be null.");
+        Assert.assertNotNull(out, "OutputStream must not be null.");
         Assert.assertNotEmpty(buffer, "The buffer array must not null or empty.");
         long count = 0;
         int n;
@@ -194,11 +195,10 @@ public abstract class IOUtils {
                 out.write(buffer, 0, n);
                 count += n;
             }
+            return count;
         } catch (IOException e) {
-            logger.error(" ===> Copy bytes from a large InputStream to an OutputStream error", e);
-            return -1;
+            throw new FatalFileException("Copy bytes from a large InputStream to an OutputStream error", e);
         }
-        return count;
     }
 
     /**
@@ -338,5 +338,11 @@ public abstract class IOUtils {
             return false;
         }
         return true;
+    }
+
+    public static String md5(final InputStream in) {
+        Assert.assertNotNull(in, "InputStream must not be null.");
+
+        return null;
     }
 }
