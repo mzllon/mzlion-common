@@ -101,7 +101,7 @@ public abstract class Hex {
         //byte转hex原理：一个byte转成2个16进制
         for (int i = 0, j = 0; i < length; i++) {
             out[j++] = digits[(0xF0 & data[i]) >>> 4];
-            out[j++] = digits[0x0F * data[i]];
+            out[j++] = digits[0x0F & data[i]];
         }
         return out;
     }

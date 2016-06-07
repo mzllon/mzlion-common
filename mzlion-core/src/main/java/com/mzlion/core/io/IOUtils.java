@@ -1,7 +1,7 @@
 package com.mzlion.core.io;
 
 
-import com.mzlion.core.exceptions.FatalFileException;
+import com.mzlion.core.exceptions.FatalStreamException;
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;
@@ -78,6 +78,36 @@ public abstract class IOUtils {
             return null;
         }
         return out.toByteArray();
+    }
+
+    /**
+     * 从输入流中读取指定长度的字节数组
+     *
+     * @param in   输入流
+     * @param size 读取长度，不能小于0
+     * @return 返回读取的数据
+     */
+    public static byte[] toByteArray(InputStream in, int size) {
+        Assert.assertNotNull(in, "Input stream must not be null.");
+        if (size < 0) throw new IllegalArgumentException("Size must be equal or greater than zero: " + size);
+        if (size == 0) return new byte[0];
+
+        byte[] data = new byte[size];
+        int offset = 0;
+        int readed;
+
+        try {
+            while (offset < size && (readed = in.read(data, offset, size - offset)) != EOF) {
+                offset += readed;
+            }
+            if (offset != size) {
+                throw new IOException("Unexpected readed size. current: " + offset + ", excepted: " + size);
+            }
+        } catch (IOException e) {
+            throw new FatalStreamException(e);
+        }
+
+        return data;
     }
 
     /**
@@ -197,7 +227,7 @@ public abstract class IOUtils {
             }
             return count;
         } catch (IOException e) {
-            throw new FatalFileException("Copy bytes from a large InputStream to an OutputStream error", e);
+            throw new FatalStreamException("Copy bytes from a large InputStream to an OutputStream error", e);
         }
     }
 
