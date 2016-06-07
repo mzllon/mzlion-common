@@ -1,5 +1,6 @@
 package com.mzlion.core.beans;
 
+import com.mzlion.core.exceptions.FatalBeanException;
 import com.mzlion.core.lang.Assert;
 
 import java.beans.BeanInfo;
@@ -11,6 +12,9 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 /**
+ * <p>
+ * Javabean属性工具类
+ * </p>
  * Created by mzlion on 2016/5/22.
  */
 public class PropertyUtilBean {

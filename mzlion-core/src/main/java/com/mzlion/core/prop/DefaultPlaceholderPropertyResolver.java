@@ -1,8 +1,8 @@
 package com.mzlion.core.prop;
 
 
-import com.mzlion.core.io.DefaultResourceDescriptorLoader;
-import com.mzlion.core.io.ResourceDescriptor;
+import com.mzlion.core.io.resource.DefaultResourceDescriptorLoader;
+import com.mzlion.core.io.resource.ResourceDescriptor;
 import com.mzlion.core.lang.ArrayUtils;
 import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;

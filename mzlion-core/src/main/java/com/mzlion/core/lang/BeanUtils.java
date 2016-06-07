@@ -1,7 +1,7 @@
 package com.mzlion.core.lang;
 
-import com.mzlion.core.beans.FatalBeanException;
 import com.mzlion.core.beans.PropertyUtilBean;
+import com.mzlion.core.exceptions.FatalBeanException;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -13,6 +13,8 @@ import java.util.*;
  * <p>
  * 2016-05-22 21:13 JavaBean的工具类
  * </p>
+ *
+ * @author mzlion
  */
 public class BeanUtils {
 
@@ -39,7 +41,7 @@ public class BeanUtils {
     }
 
     /**
-     * 将Javabean对象转为Map,其中值的类型为{@code String}
+     * 将Javabean对象转为Map,其中值的类型为{@code String}，空值的属性会被忽略。
      * <pre>
      *     Person person = new Person();
      *     person.setUserId("uid-9900-01");
@@ -58,7 +60,8 @@ public class BeanUtils {
     /**
      * 将Javabean对象转为Map,其中值的类型为{@code String}
      *
-     * @param bean 对象
+     * @param bean       对象
+     * @param ignoreNull 是否忽略空值
      * @return Map对象
      */
     public static Map<String, String> toMapAsValueString(Object bean, boolean ignoreNull) {
@@ -68,8 +71,9 @@ public class BeanUtils {
         Object _value;
         for (String propertyName : propertiesMap.keySet()) {
             _value = propertiesMap.get(propertyName);
-            if (_value == null && !ignoreNull) {
-                resultMap.put(propertyName, null);
+            if (_value == null) {
+                if (!ignoreNull)
+                    resultMap.put(propertyName, null);
             } else {
                 if (_value instanceof Number) {
                     Number number = (Number) _value;
@@ -86,10 +90,23 @@ public class BeanUtils {
         return resultMap;
     }
 
+    /**
+     * Javabean的属性值拷贝，即对象的拷贝
+     *
+     * @param source 原始对象
+     * @param target 目标对象
+     */
     public static void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String) null);
     }
 
+    /**
+     * Javabean的属性值拷贝，即对象的拷贝
+     *
+     * @param source           原始对象
+     * @param target           目标对象
+     * @param ignoreProperties 过滤的属性名
+     */
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
         Assert.assertNotNull(source, "Source must not be null");
         Assert.assertNotNull(target, "Target must not be null");

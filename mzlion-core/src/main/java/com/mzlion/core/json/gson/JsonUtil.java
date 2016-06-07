@@ -6,7 +6,6 @@ import com.google.gson.reflect.TypeToken;
 import com.mzlion.core.lang.StringUtils;
 
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -81,15 +80,16 @@ public abstract class JsonUtil {
     }
 
     /**
-     * 将Json字符串转为集合对象
+     * 将Json字符串转为对象
      *
-     * @param json Json字符串
-     * @param <T>  泛型类
-     * @return 集合对象
+     * @param json      Json字符串
+     * @param <T>       泛型类
+     * @param typeToken 泛型帮助类
+     * @return 对象
      */
-    public static <T> List<T> toList(String json, Class<T> clazz) {
+    public static <T> T toBean(String json, TypeToken<T> typeToken) {
         if (StringUtils.isEmpty(json)) return null;
-        return gson.fromJson(json, new ListParameterizedType(clazz));
+        return gson.fromJson(json, typeToken.getType());
     }
 }
 

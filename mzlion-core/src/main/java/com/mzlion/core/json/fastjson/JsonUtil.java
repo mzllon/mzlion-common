@@ -7,6 +7,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.mzlion.core.lang.ArrayUtils;
+import com.mzlion.core.lang.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,7 @@ public abstract class JsonUtil {
      * @return json字符串
      */
     public static String toJson(Object value) {
-        return JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect,
-                SerializerFeature.BrowserCompatible);
+        return JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.BrowserCompatible);
     }
 
     /**
@@ -63,13 +63,11 @@ public abstract class JsonUtil {
         PropertyFilter filter = new PropertyFilter() {
             @Override
             public boolean apply(Object object, String name, Object value) {
-                if (ArrayUtils.containsElement(propertyNames, name)) {
-                    return false;
-                }
-                return true;
+                return !ArrayUtils.containsElement(propertyNames, name);
             }
         };
-        return JSON.toJSONString(value, filter);
+        return JSON.toJSONString(value, filter, SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.BrowserCompatible);
     }
 
     /**
@@ -90,12 +88,9 @@ public abstract class JsonUtil {
             @Override
             public boolean apply(Object object, String name, Object value) {
                 List<String> props = classOfProps.get(object.getClass());
-                if (props.contains(name)) {
-                    return false;
-                }
-                return true;
+                return !props.contains(name);
             }
-        }, SerializerFeature.DisableCircularReferenceDetect);
+        }, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.BrowserCompatible);
     }
 
     /**
@@ -117,6 +112,7 @@ public abstract class JsonUtil {
      * @return json字符串
      */
     public static String toJson(Object value, SerializerFeature... features) {
+        Assert.assertNotNull(features, "Array SerializerFeature is null or empty.");
         return JSON.toJSONString(value, features);
     }
 
@@ -128,23 +124,15 @@ public abstract class JsonUtil {
      * @return json字符串
      */
     public static String toJsonWithDateFormat(Object value, String datePattern) {
-        return JSON.toJSONStringWithDateFormat(value, datePattern, SerializerFeature.DisableCircularReferenceDetect);
+        return JSON.toJSONStringWithDateFormat(value, datePattern,
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.BrowserCompatible);
     }
 
 
     //---------------------------------------------------------------------
     // convert JSON String to Java instance
     // ---------------------------------------------------------------------
-
-    /**
-     * 将json字符串转为Java对象，本方法非常适合json字符串已经带有类的信息，即有"@type"标记。当然没有也是可以调用该方法的。
-     *
-     * @param json json字符串
-     * @return Java对象
-     */
-    public static Object toObject(String json) {
-        return JSON.parse(json);
-    }
 
     /**
      * 将json字符串转为Java对象
@@ -156,18 +144,6 @@ public abstract class JsonUtil {
      */
     public static <T> T toBean(String json, Class<T> clazz) {
         return JSON.parseObject(json, clazz);
-    }
-
-    /**
-     * 将json字符串转为Java集合对象
-     *
-     * @param json  字符串
-     * @param clazz 转换的类型
-     * @param <E>   泛型类型
-     * @return Java集合对象
-     */
-    public static <E> List<E> toList(String json, Class<E> clazz) {
-        return JSON.parseArray(json, clazz);
     }
 
     /**

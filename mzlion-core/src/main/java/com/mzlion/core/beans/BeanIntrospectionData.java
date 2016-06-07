@@ -4,6 +4,9 @@ import java.beans.PropertyDescriptor;
 import java.util.List;
 
 /**
+ * <p>
+ * Javabean的内省缓存封装对象
+ * </p>
  * Created by mzlion on 2016/5/22.
  */
 public class BeanIntrospectionData {

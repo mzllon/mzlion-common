@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 /**
  * <p>
- * 2016-05-21 22:58 针对{@link StringUtils}类的测试
+ * 2016-05-21 22:58 Testing for {@link StringUtils}
  * </p>
  *
  * @author mzlion

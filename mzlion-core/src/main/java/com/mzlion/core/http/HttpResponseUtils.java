@@ -3,6 +3,7 @@ package com.mzlion.core.http;
 import com.mzlion.core.io.FileUtils;
 import com.mzlion.core.io.FilenameUtils;
 import com.mzlion.core.io.IOUtils;
+import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -28,13 +30,10 @@ public class HttpResponseUtils {
     private static Logger logger = LoggerFactory.getLogger(HttpResponseUtils.class);
 
     /**
-     * 下载文件，针对Image等支持的格式会直接在浏览器显示，不会提示下载。
-     * <p>
-     * 下载成功后原文件不会被删除。
-     * </p>
+     * 文件输出，针对Image等支持的格式会直接在浏览器显示，不会提示下载；如果是浏览器不能识别的文件，则浏览器会下载。
      *
-     * @param request      请求对象
-     * @param response     响应对象
+     * @param request      HTTP请求对象
+     * @param response     HTTP响应对象
      * @param downloadFile 下载文件
      */
     public static void downloadInline(HttpServletRequest request, HttpServletResponse response, File downloadFile) {
@@ -42,35 +41,36 @@ public class HttpResponseUtils {
     }
 
     /**
-     * 下载文件，针对Image等支持的格式会直接在浏览器显示，不会提示下载。
+     * 文件输出，针对Image等支持的格式会直接在浏览器显示，不会提示下载；如果是浏览器不能识别的文件，则浏览器会下载。
      *
-     * @param request      请求对象
-     * @param response     响应对象
+     * @param request      HTTP请求对象
+     * @param response     HTTP响应对象
      * @param downloadFile 下载文件
-     * @param isDeleted    下载后是否需要删除
+     * @param isDeleted    下载后是否需要删除原始文件
      */
     public static void downloadInline(HttpServletRequest request, HttpServletResponse response, File downloadFile, boolean isDeleted) {
         downloadInline(request, response, downloadFile.getName(), downloadFile, isDeleted);
     }
 
     /**
-     * 下载文件，针对Image等支持的格式会直接在浏览器显示，不会提示下载。
+     * 文件输出，针对Image等支持的格式会直接在浏览器显示，不会提示下载；如果是浏览器不能识别的文件，则浏览器会下载。
      *
-     * @param request      请求对象
-     * @param response     响应对象
+     * @param request      HTTP请求对象
+     * @param response     HTTP响应对象
      * @param filename     对外的显示的文件名
      * @param downloadFile 下载文件
-     * @param isDeleted    下载后是否需要删除
+     * @param isDeleted    下载后是否需要删除原始文件
      */
     public static void downloadInline(HttpServletRequest request, HttpServletResponse response, String filename, File downloadFile, boolean isDeleted) {
         doDownload(request, response, filename, downloadFile, isDeleted, true);
     }
 
+
     /**
-     * 下载文件，原文件不会被删除
+     * 下载文件，原文件不会被删除。
      *
-     * @param request      请求对象
-     * @param response     响应对象
+     * @param request      HTTP请求对象
+     * @param response     HTTP响应对象
      * @param downloadFile 下载文件对象
      */
     public static void downloadAttachment(HttpServletRequest request, HttpServletResponse response, File downloadFile) {
@@ -80,7 +80,7 @@ public class HttpResponseUtils {
     /**
      * 下载文件
      *
-     * @param request      请求对象
+     * @param request      HTTP请求对象
      * @param response     HTTP响应对象
      * @param downloadFile 要下载的文件
      * @param isDeleted    是否需要删除当前文件
@@ -92,7 +92,7 @@ public class HttpResponseUtils {
     /**
      * 下载文件
      *
-     * @param request      请求对象
+     * @param request      HTTP请求对象
      * @param response     HTTP响应对象
      * @param filename     对外显示的下载文件名
      * @param downloadFile 要下载的文件
@@ -102,37 +102,49 @@ public class HttpResponseUtils {
         doDownload(request, response, filename, downloadFile, isDeleted, false);
     }
 
+    /**
+     * 下载文件
+     *
+     * @param request       HTTP请求对象
+     * @param response      HTTP响应对象
+     * @param filename      对外显示的下载文件名
+     * @param in            输入流，要下载的内容
+     * @param contentLength 内容长度
+     */
+    public static void downloadAttachment(HttpServletRequest request, HttpServletResponse response, String filename, InputStream in, long contentLength) {
+        Assert.assertNotNull(request, "Request must not be null.");
+        Assert.assertNotNull(response, "Response must not be null.");
+        Assert.assertHasLength(filename, "Filename must not be null or empty.");
+        Assert.assertNotNull(in, "InputStream must not be null.");
+
+        response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
+        response.setHeader("content-length", String.valueOf(contentLength));
+        response.setHeader("Content-disposition", "attachment; filename=" + getDownloadFilename(request, filename));
+        try (OutputStream out = response.getOutputStream()) {
+            if (IOUtils.copy(in, out) == -1) {
+                throw new IOException("Copy input stream to output stream failed.");
+            }
+        } catch (IOException e) {
+            logger.error(" ===> Download error->", e);
+        }
+    }
+
     //内部方法实现文件下载
     private static void doDownload(HttpServletRequest request, HttpServletResponse response, String filename, File downloadFile,
                                    boolean isDeleted, boolean tryDisplay) {
-        logger.debug(" ===> 对外输出文件，请求参数->{}", filename);
-        if (request == null) {
-            logger.error(" ===> Request must not be null.");
-            return;
-        }
-        if (response == null) {
-            logger.error(" ===> Response must not be null.");
-            return;
-        }
-        if (StringUtils.isEmpty(filename)) {
-            logger.error(" ===> The response filename must not be null.");
-            return;
-        }
-        if (downloadFile == null) {
-            logger.error(" ===> Download file must not be null.");
-            return;
-        }
+        Assert.assertNotNull(request, "Request must not be null.");
+        Assert.assertNotNull(response, "Response must not be null.");
+        Assert.assertHasLength(filename, "Filename must not be null or empty.");
+        Assert.assertNotNull(downloadFile, "Download file must not be null.");
+
         if (!downloadFile.exists()) {
-            logger.error(" ===> Download file does not exist.");
-            return;
+            throw new IllegalArgumentException("File can not be found.");
         }
         if (downloadFile.isDirectory()) {
-            logger.error(" ===> Download file exists but is a directory.");
-            return;
+            throw new IllegalArgumentException("File exists but is a directory.");
         }
         if (!downloadFile.canRead()) {
-            logger.error(" ===> Download file cannot read.");
-            return;
+            throw new IllegalArgumentException("File exists but cannot read.");
         }
 
         //设置响应输出类型
@@ -143,22 +155,24 @@ public class HttpResponseUtils {
         OutputStream out = null;
         try {
             //设置响应头
-            if (tryDisplay)
+            if (tryDisplay) {
                 response.setHeader("Content-disposition", "inline; filename=" + getDownloadFilename(request, filename));
-            else
+            } else {
                 response.setHeader("Content-disposition", "attachment; filename=" + getDownloadFilename(request, filename));
+            }
             out = response.getOutputStream();
             if (FileUtils.copyFile(downloadFile, out) == -1) {
-                logger.error(" ===> 下载文件失败->{}", downloadFile);
+                throw new IOException("Copy input stream to output stream failed.");
             }
             if (isDeleted) {
-                logger.debug(" ===> 即将删除下载文件->{}", downloadFile);
+                logger.debug(" ===> File [{}] will be deleted.", downloadFile);
                 downloadFile.delete();
             }
         } catch (IOException e) {
-            logger.error(" ===> 下载文件出现异常", e);
+            logger.error(" ===> Download error->", e);
+            throw new RuntimeException(e);
         } finally {
-            IOUtils.closeCloseable(out);
+            IOUtils.closeQuietly(out);
         }
     }
 
@@ -168,7 +182,6 @@ public class HttpResponseUtils {
      * @param request          HTTP请求对象
      * @param downloadFilename 原下载文件名
      * @return 返回转义后的下载名
-     * @throws UnsupportedEncodingException 忽略异常
      */
     public static String getDownloadFilename(HttpServletRequest request, String downloadFilename) {
         String browser = getBrowser(request);
@@ -190,6 +203,21 @@ public class HttpResponseUtils {
         //FireFox浏览器，可以使用MimeUtility或filename*或ISO编码的中文输出
         //MimeUtility.encodeText(downloadFilename,)
         return new String(downloadFilename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * 返回支持支持的语言,格式为:Accept-Language: zh-CN,zh;q=0.8
+     */
+    public static String getAcceptLanguage() {
+        Locale locale = Locale.getDefault();
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+        StringBuilder acceptLanguageBuilder = new StringBuilder(language);
+        if (!StringUtils.isEmpty(country)) {
+            acceptLanguageBuilder.append('-').append(country).append(',').append(language).append(";q=0.8");
+        }
+        logger.debug(" ===> Append Http header accept-language->{}", acceptLanguageBuilder.toString());
+        return acceptLanguageBuilder.toString();
     }
 
     /**
@@ -291,9 +319,13 @@ public class HttpResponseUtils {
      * @see #BROWSER_SAFARI
      * @see #BROWSER_FIREFOX
      */
-    public static String getBrowser(HttpServletRequest request) {
+    private static String getBrowser(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         logger.debug(" ===> User-Agent={}", userAgent);
+        if (StringUtils.isEmpty(userAgent)) {
+            logger.warn(" ===> User-Agent cannot find.");
+            return BROWSER_CHROME;
+        }
         /*首先判断是否是IE浏览器*/
         Pattern pattern = Pattern.compile("MISE", Pattern.CASE_INSENSITIVE);
         if (pattern.matcher(userAgent).find()) return BROWSER_IE;
@@ -313,7 +345,7 @@ public class HttpResponseUtils {
         pattern = Pattern.compile("Firefox", Pattern.CASE_INSENSITIVE);
         if (pattern.matcher(userAgent).find()) return BROWSER_FIREFOX;
 
-        logger.debug(" ===> 无法识别浏览器类型，置为默认类型");
+        logger.warn(" ===> Browser type is unknown.");
         return BROWSER_CHROME;
     }
 

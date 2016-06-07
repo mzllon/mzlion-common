@@ -5,7 +5,11 @@ import com.mzlion.core.lang.StringUtils;
 import java.io.File;
 
 /**
- * Created by mzlion on 2016/4/15.
+ * <p>
+ * 2016-06-05 09:25 文件名相关的工具类
+ * </p>
+ *
+ * @author mzlion
  */
 public class FilenameUtils {
 
@@ -30,7 +34,7 @@ public class FilenameUtils {
     /**
      * 从文件路径中提取文件名,不支持Windows系统下的路径
      * <pre class="code">
-     * StringUtils.getFilename("/opt/app/config.proerties"); //---> config.proerties
+     * StringUtils.getFilename("/opt/app/config.properties"); //---> config.properties
      * </pre>
      *
      * @param path 文件路径
@@ -50,7 +54,7 @@ public class FilenameUtils {
     /**
      * 从文件路径中提取文件后缀名
      * <pre class="code">
-     * StringUtils.getFilenameExtension("/opt/app/config.proerties"); //---> properties
+     * StringUtils.getFilenameExtension("/opt/app/config.properties"); //---> properties
      * </pre>
      *
      * @param path 文件路径
@@ -58,6 +62,9 @@ public class FilenameUtils {
      */
     public static String getFilenameExtension(String path) {
         String filename = getFilename(path);
+        if (StringUtils.isEmpty(filename)) {
+            return null;
+        }
         int extIndex = filename.lastIndexOf(EXTENSION_SEPARATOR);
         if (extIndex == -1) {
             return null;
@@ -65,6 +72,15 @@ public class FilenameUtils {
         return filename.substring(extIndex + 1);
     }
 
+    /**
+     * 从文件路径中提取文件后缀名
+     * <pre class="code">
+     * StringUtils.getFilenameExtension("/opt/app/config.properties"); //---> properties
+     * </pre>
+     *
+     * @param file 文件路径
+     * @return 返回文件后缀名或者返回{@code null}如果为空时
+     */
     public static String getFilenameExtension(File file) {
         if (file == null) {
             return null;
@@ -75,7 +91,7 @@ public class FilenameUtils {
     /**
      * 从文件路径中删除文件后缀名
      * <pre class="code">
-     * StringUtils.stripFilenameExtension("/opt/app/config.proerties"); //---> /opt/app/config
+     * StringUtils.stripFilenameExtension("/opt/app/config.properties"); //---> /opt/app/config
      * </pre>
      *
      * @param path 文件路径
@@ -83,6 +99,9 @@ public class FilenameUtils {
      */
     public static String stripFilenameExtension(String path) {
         String filename = getFilename(path);
+        if (StringUtils.isEmpty(filename)) {
+            return null;
+        }
         int extIndex = filename.lastIndexOf(EXTENSION_SEPARATOR);
         if (extIndex == -1) {
             return path;
@@ -95,7 +114,7 @@ public class FilenameUtils {
      * 将相对路径{@code relativePath}转为相对于{@code path}路径下的文件路径
      * <p/>
      * <pre class="code">
-     * StringUtils.applyRelativePath("/opt/app/config.proerties", "/xml/jdbc.xml"); //---> /opt/app/xml/jdbc.properties
+     * StringUtils.applyRelativePath("/opt/app/config.properties", "/xml/jdbc.xml"); //---> /opt/app/xml/jdbc.properties
      * StringUtils.applyRelativePath("/opt/app/config/", "/xml/jdbc.xml"); //---> /opt/app/config/xml/jdbc.properties
      * </pre>
      *

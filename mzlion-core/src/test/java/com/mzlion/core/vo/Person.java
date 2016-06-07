@@ -99,4 +99,35 @@ public class Person {
         sb.append('}');
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Person person = (Person) o;
+
+        if (sort != person.sort) return false;
+        if (!userId.equals(person.userId)) return false;
+        if (username != null ? !username.equals(person.username) : person.username != null) return false;
+        if (password != null ? !password.equals(person.password) : person.password != null) return false;
+        if (sex != null ? !sex.equals(person.sex) : person.sex != null) return false;
+        if (birth != null ? !birth.equals(person.birth) : person.birth != null) return false;
+        if (mobile != null ? !mobile.equals(person.mobile) : person.mobile != null) return false;
+        return email != null ? email.equals(person.email) : person.email == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userId.hashCode();
+        result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (sex != null ? sex.hashCode() : 0);
+        result = 31 * result + sort;
+        result = 31 * result + (birth != null ? birth.hashCode() : 0);
+        result = 31 * result + (mobile != null ? mobile.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        return result;
+    }
 }
