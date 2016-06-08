@@ -17,7 +17,7 @@ public @interface ExcelCell {
     /**
      * Excel的标题
      */
-    String title();
+    String value();
 
     /**
      * 是否是必要的

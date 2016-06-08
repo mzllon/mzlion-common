@@ -8,8 +8,9 @@ import com.mzlion.core.lang.StringUtils;
 import com.mzlion.core.reflect.StaticFieldFilter;
 import com.mzlion.core.util.ReflectionUtils;
 import com.mzlion.poi.annotation.ExcelCell;
-import com.mzlion.poi.beans.ExcelCellDescriptor;
+import com.mzlion.poi.beans.CellDescriptor;
 import com.mzlion.poi.config.ExcelImportConfig;
+import com.mzlion.poi.excel.imports.CellParser;
 import com.mzlion.poi.exception.ExcelCellConfigException;
 import com.mzlion.poi.exception.ExcelParseException;
 import org.apache.poi.POIXMLDocument;
@@ -85,7 +86,7 @@ public class ExcelUtils {
             ExcelImportConfig excelImportConfig = builder.build();
             //按照sheet读取
             for (int i = excelImportConfig.getSheetIndex() - 1; i < excelImportConfig.getSheetNum(); i++) {
-                dataset.addAll(parseDataRows(workbook.getSheetAt(i), targetClass, excelImportConfig));
+                dataset.addAll(parseDataRows(workbook, workbook.getSheetAt(i), targetClass, excelImportConfig));
             }
             return dataset;
         } catch (IOException | InvalidFormatException e) {
@@ -93,22 +94,22 @@ public class ExcelUtils {
         }
     }
 
-    private static <T> List<? extends T> parseDataRows(Sheet sheet, Class<T> targetClass, ExcelImportConfig importConfig) {
+    private static <T> List<? extends T> parseDataRows(Workbook workbook, Sheet sheet, Class<T> targetClass, ExcelImportConfig importConfig) {
         List<T> result = new ArrayList<>();
 
         if (Map.class.equals(targetClass)) {
 //            parseDataRowsByMap(sheet, importConfig, result);
         } else {
-            parseDataRowsByJavaBean(sheet, importConfig, targetClass, result);
+            parseDataRowsByJavaBean(workbook, sheet, importConfig, targetClass, result);
         }
         return result;
     }
 
-    private static <T> void parseDataRowsByJavaBean(Sheet sheet, ExcelImportConfig importConfig, Class<T> targetClass, List<T> result) {
+    private static <T> void parseDataRowsByJavaBean(Workbook workbook, Sheet sheet, ExcelImportConfig importConfig, Class<T> targetClass, List<T> result) {
         List<Field> fieldList = ReflectionUtils.getDeclaredFields(targetClass);
         fieldList = ReflectionUtils.filter(fieldList, new StaticFieldFilter());
         LOGGER.debug(" ===> Getting field list by bean->{}", fieldList);
-        List<ExcelCellDescriptor> excelCellDescriptorList = getExcelCellDescriptorList(fieldList);
+        List<CellDescriptor> cellDescriptorList = getExcelCellDescriptorList(fieldList);
 
         Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -121,20 +122,20 @@ public class ExcelUtils {
         Map<String, Integer> headerTitleMap = getExcelHeaderTitles(rowIterator, importConfig);
         if (importConfig.isStrict()) {
             //严格模式,Bean定义中的列并且是required的需要出现在Excel的header title中
-            for (ExcelCellDescriptor excelCellDescriptor : excelCellDescriptorList) {
-                if (!headerTitleMap.containsKey(excelCellDescriptor.getTitle())) {
-                    throw new ExcelCellConfigException("The excel header cells can not find '" + excelCellDescriptor.getTitle() + "'");
+            for (CellDescriptor cellDescriptor : cellDescriptorList) {
+                if (!headerTitleMap.containsKey(cellDescriptor.getTitle())) {
+                    throw new ExcelCellConfigException("The excel header cells can not find '" + cellDescriptor.getTitle() + "'");
                 }
             }
         }
 
         //将title在Excel的位置缓存
-        List<ExcelCellDescriptor> canReadExcelCellDescriptorList = new ArrayList<>(excelCellDescriptorList.size());
+        List<CellDescriptor> canReadCellDescriptorList = new ArrayList<>(cellDescriptorList.size());
         for (String headerTitle : headerTitleMap.keySet()) {
-            for (ExcelCellDescriptor excelCellDescriptor : excelCellDescriptorList) {
-                if (headerTitle.equals(excelCellDescriptor.getTitle())) {
-                    excelCellDescriptor.setCellIndex(headerTitleMap.get(headerTitle));
-                    canReadExcelCellDescriptorList.add(excelCellDescriptor);
+            for (CellDescriptor cellDescriptor : cellDescriptorList) {
+                if (headerTitle.equals(cellDescriptor.getTitle())) {
+                    cellDescriptor.setCellIndex(headerTitleMap.get(headerTitle));
+                    canReadCellDescriptorList.add(cellDescriptor);
                     break;
                 }
             }
@@ -143,31 +144,29 @@ public class ExcelUtils {
 
         //真正处理数据内容了
         try {
-            parseDataRowsInternal(sheet, rowIterator, result, targetClass, canReadExcelCellDescriptorList, importConfig);
+            parseDataRowsInternal(workbook, sheet, rowIterator, result, targetClass, canReadCellDescriptorList, importConfig);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static <T> void parseDataRowsInternal(Sheet sheet, Iterator<Row> rowIterator, List<T> result, Class<T> targetClass, List<ExcelCellDescriptor> excelCellDescriptorList,
+    private static <T> void parseDataRowsInternal(Workbook workbook, Sheet sheet, Iterator<Row> rowIterator, List<T> result, Class<T> targetClass, List<CellDescriptor> cellDescriptorList,
                                                   ExcelImportConfig importConfig) throws ReflectiveOperationException {
-        Collections.sort(excelCellDescriptorList);
+        Collections.sort(cellDescriptorList);
         Row row = null;
         while (rowIterator.hasNext() &&
                 (row == null || sheet.getLastRowNum() - row.getRowNum() > importConfig.getLastInvalidRow())) {
             row = rowIterator.next();
             T instance = targetClass.newInstance();
-            for (ExcelCellDescriptor excelCellDescriptor : excelCellDescriptorList) {
-                Cell cell = row.getCell(excelCellDescriptor.getCellIndex());
-                reflectFieldByCell(instance, cell, excelCellDescriptor);
+            for (CellDescriptor cellDescriptor : cellDescriptorList) {
+                Cell cell = row.getCell(cellDescriptor.getCellIndex());
+                new CellParser<>(row.getRowNum(), cell, cellDescriptor, instance, workbook.getCreationHelper().createFormulaEvaluator()).process();
             }
+            result.add(instance);
         }
     }
 
-    private static <T> void reflectFieldByCell(T instance, Cell cell, ExcelCellDescriptor excelCellDescriptor) {
-
-    }
 
     private static Map<String, Integer> getExcelHeaderTitles(Iterator<Row> rowIterator, ExcelImportConfig importConfig) {
         Map<String, Integer> headerTitleMap = new HashMap<>();
@@ -192,21 +191,21 @@ public class ExcelUtils {
         return headerTitleMap;
     }
 
-    private static List<ExcelCellDescriptor> getExcelCellDescriptorList(List<Field> fieldList) {
-        List<ExcelCellDescriptor> list = new ArrayList<>(fieldList.size());
+    private static List<CellDescriptor> getExcelCellDescriptorList(List<Field> fieldList) {
+        List<CellDescriptor> list = new ArrayList<>(fieldList.size());
         for (Field field : fieldList) {
             String fieldName = field.getName();
             ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
             if (excelCell != null) {
-                if (StringUtils.isEmpty(excelCell.title())) {
+                if (StringUtils.isEmpty(excelCell.value())) {
                     throw new ExcelCellConfigException(String.format("The property[%s] of annotation title is null", fieldName));
                 }
-                ExcelCellDescriptor excelCellDescriptor = new ExcelCellDescriptor();
-                excelCellDescriptor.setTitle(excelCell.title());
-                excelCellDescriptor.setRequired(excelCell.required());
-                excelCellDescriptor.setPropertyName(fieldName);
-                excelCellDescriptor.setType(excelCell.type());
-                list.add(excelCellDescriptor);
+                CellDescriptor cellDescriptor = new CellDescriptor();
+                cellDescriptor.setTitle(excelCell.value());
+                cellDescriptor.setRequired(excelCell.required());
+                cellDescriptor.setPropertyName(fieldName);
+                cellDescriptor.setType(excelCell.type());
+                list.add(cellDescriptor);
             }
         }
         return list;

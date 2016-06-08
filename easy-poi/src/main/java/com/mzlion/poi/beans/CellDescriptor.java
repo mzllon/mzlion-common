@@ -5,7 +5,7 @@ import com.mzlion.poi.constant.ExcelCellType;
 /**
  * Created by mzlion on 2016/6/8.
  */
-public class ExcelCellDescriptor implements Comparable<ExcelCellDescriptor> {
+public class CellDescriptor implements Comparable<CellDescriptor> {
 
     private String title;
 
@@ -16,6 +16,8 @@ public class ExcelCellDescriptor implements Comparable<ExcelCellDescriptor> {
     private String propertyName;
 
     private Integer cellIndex;
+
+    private String excelDateFormat;
 
     public String getTitle() {
         return title;
@@ -57,9 +59,17 @@ public class ExcelCellDescriptor implements Comparable<ExcelCellDescriptor> {
         this.cellIndex = cellIndex;
     }
 
+    public String getExcelDateFormat() {
+        return excelDateFormat;
+    }
+
+    public void setExcelDateFormat(String excelDateFormat) {
+        this.excelDateFormat = excelDateFormat;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ExcelCellDescriptor{");
+        final StringBuilder sb = new StringBuilder("CellDescriptor{");
         sb.append("title='").append(title).append('\'');
         sb.append(", required=").append(required);
         sb.append(", type=").append(type);
@@ -69,7 +79,7 @@ public class ExcelCellDescriptor implements Comparable<ExcelCellDescriptor> {
     }
 
     @Override
-    public int compareTo(ExcelCellDescriptor o) {
+    public int compareTo(CellDescriptor o) {
         return this.cellIndex.compareTo(o.cellIndex);
     }
 }

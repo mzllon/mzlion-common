@@ -750,4 +750,5 @@ public class StringUtils {
         return false;
     }
 
+    public static final String EMPTY_STRING = "";
 }
