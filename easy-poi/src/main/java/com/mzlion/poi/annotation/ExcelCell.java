@@ -42,7 +42,7 @@ public @interface ExcelCell {
     /**
      * 单元格排序序号
      */
-    short order() default 0;
+    int order() default 0;
 
     /**
      * 是否换行 即支持\n
