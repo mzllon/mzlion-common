@@ -3,7 +3,7 @@ package com.mzlion.poi.exception;
 /**
  * Created by mzlion on 2016/6/8.
  */
-public class ExcelParseException extends RuntimeException {
+public class ExcelReadException extends RuntimeException {
 
     /**
      * Constructs a new runtime exception with the specified detail message.
@@ -13,7 +13,7 @@ public class ExcelParseException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public ExcelParseException(String message) {
+    public ExcelReadException(String message) {
         super(message);
     }
 
@@ -30,7 +30,7 @@ public class ExcelParseException extends RuntimeException {
      *              unknown.)
      * @since 1.4
      */
-    public ExcelParseException(Throwable cause) {
+    public ExcelReadException(Throwable cause) {
         super(cause);
     }
 }

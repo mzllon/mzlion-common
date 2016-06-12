@@ -5,19 +5,47 @@ import com.mzlion.poi.constant.ExcelCellType;
 /**
  * Created by mzlion on 2016/6/8.
  */
-public class CellDescriptor implements Comparable<CellDescriptor> {
+public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDescriptor> {
 
+    /**
+     * cell标题
+     */
     private String title;
 
+    /**
+     * cell列是否必须
+     */
     private boolean required;
 
+    /**
+     * cell类型
+     */
     private ExcelCellType type;
 
+    /**
+     * cell对应JavaBean属性名
+     */
     private String propertyName;
 
-    private Integer cellIndex;
+    /**
+     * 所处Excel的cell位置
+     */
+    private int cellIndex;
 
+    /**
+     * Excel的日期格式化风格
+     */
     private String excelDateFormat;
+
+    /**
+     * Java中的日期格式化风格
+     */
+    private String javaDateFormat;
+
+    /**
+     * cell的宽度
+     */
+    private float width;
 
     public String getTitle() {
         return title;
@@ -51,11 +79,11 @@ public class CellDescriptor implements Comparable<CellDescriptor> {
         this.propertyName = propertyName;
     }
 
-    public Integer getCellIndex() {
+    public int getCellIndex() {
         return cellIndex;
     }
 
-    public void setCellIndex(Integer cellIndex) {
+    public void setCellIndex(int cellIndex) {
         this.cellIndex = cellIndex;
     }
 
@@ -67,19 +95,37 @@ public class CellDescriptor implements Comparable<CellDescriptor> {
         this.excelDateFormat = excelDateFormat;
     }
 
+    public String getJavaDateFormat() {
+        return javaDateFormat;
+    }
+
+    public void setJavaDateFormat(String javaDateFormat) {
+        this.javaDateFormat = javaDateFormat;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CellDescriptor{");
+        final StringBuilder sb = new StringBuilder("BeanPropertyCellDescriptor{");
         sb.append("title='").append(title).append('\'');
         sb.append(", required=").append(required);
         sb.append(", type=").append(type);
         sb.append(", propertyName='").append(propertyName).append('\'');
+        sb.append(", cellIndex=").append(cellIndex);
+        sb.append(", excelDateFormat='").append(excelDateFormat).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
     @Override
-    public int compareTo(CellDescriptor o) {
-        return this.cellIndex.compareTo(o.cellIndex);
+    public int compareTo(BeanPropertyCellDescriptor o) {
+        return this.cellIndex - o.cellIndex;
     }
 }

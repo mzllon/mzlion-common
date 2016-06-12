@@ -3,14 +3,10 @@ package com.mzlion.poi.exception;
 /**
  * Created by mzlion on 2016/6/8.
  */
-public class ExcelDateFormatException extends RuntimeException {
+public class ExcelDateFormatException extends ExcelImportException {
 
-    /**
-     * Constructs a new runtime exception with {@code null} as its
-     * detail message.  The cause is not initialized, and may subsequently be
-     * initialized by a call to {@link #initCause}.
-     */
-    public ExcelDateFormatException(String message) {
-        super(message);
+    public ExcelDateFormatException(String headerTitle, Object cellValue, int rowIndex, int cellIndex) {
+        super(String.format("The cell header [%s], mapped cell value [%s] need convert java.util.Date at coordinate [%d,%d],but 'dateFormat is empty."
+                , headerTitle, cellValue, rowIndex, cellIndex));
     }
 }

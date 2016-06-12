@@ -54,13 +54,13 @@ public class FilenameUtils {
     /**
      * 从文件路径中提取文件后缀名
      * <pre class="code">
-     * StringUtils.getFilenameExtension("/opt/app/config.properties"); //---> properties
+     * StringUtils.getFilenameSuffix("/opt/app/config.properties"); //---> properties
      * </pre>
      *
      * @param path 文件路径
      * @return 返回文件后缀名或者返回{@code null}如果为空时
      */
-    public static String getFilenameExtension(String path) {
+    public static String getFilenameSuffix(String path) {
         String filename = getFilename(path);
         if (StringUtils.isEmpty(filename)) {
             return null;
@@ -75,31 +75,31 @@ public class FilenameUtils {
     /**
      * 从文件路径中提取文件后缀名
      * <pre class="code">
-     * StringUtils.getFilenameExtension("/opt/app/config.properties"); //---> properties
+     * StringUtils.getFilenameSuffix("/opt/app/config.properties"); //---> properties
      * </pre>
      *
      * @param file 文件路径
      * @return 返回文件后缀名或者返回{@code null}如果为空时
      */
-    public static String getFilenameExtension(File file) {
+    public static String getFilenameSuffix(File file) {
         if (file == null) {
             return null;
         }
-        return getFilenameExtension(file.getName());
+        return getFilenameSuffix(file.getName());
     }
 
     /**
      * 从文件路径中删除文件后缀名
      * <pre class="code">
-     * StringUtils.stripFilenameExtension("/opt/app/config.properties"); //---> /opt/app/config
+     * StringUtils.stripFilenameSuffix("/opt/app/config.properties"); //---> /opt/app/config
      * </pre>
      *
      * @param path 文件路径
      * @return 返回不带文件后缀名的文件路径
      */
-    public static String stripFilenameExtension(String path) {
+    public static String stripFilenameSuffix(String path) {
         String filename = getFilename(path);
-        if (StringUtils.isEmpty(filename)) {
+        if (filename == null) {
             return null;
         }
         int extIndex = filename.lastIndexOf(EXTENSION_SEPARATOR);

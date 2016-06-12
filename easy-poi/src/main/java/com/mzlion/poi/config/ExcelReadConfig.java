@@ -1,9 +1,13 @@
 package com.mzlion.poi.config;
 
 /**
- * Created by mzlion on 2016/6/7.
+ * <p>
+ * Excel导入配置选项
+ * </p>
+ *
+ * @author mzlion
  */
-public class ExcelImportConfig {
+public class ExcelReadConfig<E> {
 
     private int titleRowUsed;
     private int headerTitleRowUsed;
@@ -15,6 +19,8 @@ public class ExcelImportConfig {
     private int lastInvalidRow;
 
     private boolean strict;
+
+    private Class<E> beanClass;
 
     public int getTitleRowUsed() {
         return titleRowUsed;
@@ -44,7 +50,11 @@ public class ExcelImportConfig {
         return strict;
     }
 
-    private ExcelImportConfig(Builder builder) {
+    public Class<E> getBeanClass() {
+        return beanClass;
+    }
+
+    private ExcelReadConfig(Builder<E> builder) {
         this.titleRowUsed = builder.titleRowUsed;
         this.headerTitleRowUsed = builder.headerTitleRowUsed;
         this.dataRowStart = builder.dataRowStart;
@@ -52,9 +62,10 @@ public class ExcelImportConfig {
         this.sheetNum = builder.sheetNum;
         this.lastInvalidRow = builder.lastInvalidRow;
         this.strict = builder.strict;
+        this.beanClass = builder.beanClass;
     }
 
-    public static class Builder {
+    public static class Builder<E> {
 
         /**
          * 标题行占用行数，默认占用1行
@@ -91,11 +102,13 @@ public class ExcelImportConfig {
          */
         private boolean strict = false;
 
+        private Class<E> beanClass;
+
         /**
          * @param titleRowUsed
          * @return
          */
-        public Builder titleRowUsed(int titleRowUsed) {
+        public Builder<E> titleRowUsed(int titleRowUsed) {
             this.titleRowUsed = titleRowUsed;
             return this;
         }
@@ -104,7 +117,7 @@ public class ExcelImportConfig {
          * @param headerTitleRowUsed
          * @return
          */
-        public Builder headerTitleRowUsed(int headerTitleRowUsed) {
+        public Builder<E> headerTitleRowUsed(int headerTitleRowUsed) {
             this.headerTitleRowUsed = headerTitleRowUsed;
             return this;
         }
@@ -113,7 +126,7 @@ public class ExcelImportConfig {
          * @param dataRowStart
          * @return
          */
-        public Builder dataRowStart(int dataRowStart) {
+        public Builder<E> dataRowStart(int dataRowStart) {
             this.dataRowStart = dataRowStart;
             return this;
         }
@@ -122,7 +135,7 @@ public class ExcelImportConfig {
          * @param sheetIndex
          * @return
          */
-        public Builder sheetIndex(int sheetIndex) {
+        public Builder<E> sheetIndex(int sheetIndex) {
             this.sheetIndex = sheetIndex;
             return this;
         }
@@ -131,7 +144,7 @@ public class ExcelImportConfig {
          * @param sheetNum
          * @return
          */
-        public Builder sheetNum(int sheetNum) {
+        public Builder<E> sheetNum(int sheetNum) {
             this.sheetNum = sheetNum;
             return this;
         }
@@ -140,7 +153,7 @@ public class ExcelImportConfig {
          * @param lastInvalidRow
          * @return
          */
-        public Builder lastInvalidRow(int lastInvalidRow) {
+        public Builder<E> lastInvalidRow(int lastInvalidRow) {
             this.lastInvalidRow = lastInvalidRow;
             return this;
         }
@@ -149,13 +162,18 @@ public class ExcelImportConfig {
          * @param strict
          * @return
          */
-        public Builder strict(boolean strict) {
+        public Builder<E> strict(boolean strict) {
             this.strict = strict;
             return this;
         }
 
-        public ExcelImportConfig build() {
-            return new ExcelImportConfig(this);
+        public Builder<E> beanClass(Class<E> beanClass) {
+            this.beanClass = beanClass;
+            return this;
+        }
+
+        public ExcelReadConfig<E> build() {
+            return new ExcelReadConfig<>(this);
         }
     }
 }

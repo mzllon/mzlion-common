@@ -8,45 +8,54 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by mzlion on 2016/6/7.
+ * <p>
+ * 2016-06-11 Excel的单元格注解，标记java属性和cell的关系
+ * </p>
+ *
+ * @author mzlion
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ExcelCell {
 
     /**
-     * Excel的标题
+     * cell的标题
      */
     String value();
 
     /**
-     * 是否是必要的
+     * 该cell 列是否是必须的
      */
     boolean required() default false;
 
     /**
-     * 单元格类型
+     * cell填充或解析的数据类型
      */
-    ExcelCellType type() default ExcelCellType.NORMAL;
+    ExcelCellType type() default ExcelCellType.TEXT;
 
     /**
-     * 导出时单元格的宽度，单位为字符，一个汉字为2个字符
+     * 导出时cell的宽度，单位为字符，一个汉字为2个字符
      */
-    double width() default 10.0;
+    float width() default 8.38f;
 
     /**
-     * 导出时在excel中每个列的高度 单位为字符，一个汉字=2个字符
-     */
-    double height() default 10;
-
-    /**
-     * 单元格排序序号
+     * 对应Excel的顺序
      */
     int order() default 0;
 
     /**
      * 是否换行 即支持\n
      */
-    boolean autoWrap() default true;
+    boolean autoWrap() default false;
+
+    /**
+     * 在Excel文件日期的格式化风格,默认为空则表示忽略
+     */
+    String excelDateFormat() default "";
+
+    /**
+     * 在JavaBean日期的格式化风格，默认为空则表示忽略
+     */
+    String javaDateFormat() default "";
 
 }

@@ -227,7 +227,7 @@ public class HttpResponseUtils {
      * @param downloadFile 下载文件
      */
     private static void setContentType(HttpServletResponse response, File downloadFile) {
-        String extension = FilenameUtils.getFilenameExtension(downloadFile);
+        String extension = FilenameUtils.getFilenameSuffix(downloadFile);
         if (StringUtils.isEmpty(extension)) {
             response.setContentType(ContentType.DEFAULT_BINARY.toString());
             return;

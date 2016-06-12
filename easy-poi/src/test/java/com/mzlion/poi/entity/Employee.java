@@ -21,7 +21,7 @@ public class Employee {
     /**
      * 姓名
      */
-    @ExcelCell(value = "姓名", height = 20, width = 30, required = true)
+    @ExcelCell(value = "姓名", height = 20, width = 30, required = true, order = 2)
     private String name;
 
     /**
@@ -33,7 +33,7 @@ public class Employee {
     @ExcelCell(value = "出生日期", width = 20, type = ExcelCellType.DATE)
     private Date birthDay;
 
-    @ExcelCell(value = "入职日期", type = ExcelCellType.DATE, order = 2)
+    @ExcelCell(value = "入职日期", type = ExcelCellType.DATE, order = 4, excelDateFormat = "yyyy-MM-dd")
     private Date regDate;
 
     @ExcelCell("家庭住址")
@@ -41,6 +41,12 @@ public class Employee {
 
     @ExcelCell("联系电话")
     private String mobile;
+
+    /**
+     * 转正日期
+     */
+    @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd")
+    private String obtainedDate;
 
     public String getNo() {
         return no;
@@ -98,6 +104,14 @@ public class Employee {
         this.mobile = mobile;
     }
 
+    public String getObtainedDate() {
+        return obtainedDate;
+    }
+
+    public void setObtainedDate(String obtainedDate) {
+        this.obtainedDate = obtainedDate;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Employee{");
@@ -108,6 +122,7 @@ public class Employee {
         sb.append(", regDate=").append(regDate);
         sb.append(", address='").append(address).append('\'');
         sb.append(", mobile='").append(mobile).append('\'');
+        sb.append(", obtainedDate='").append(obtainedDate).append('\'');
         sb.append('}');
         return sb.toString();
     }
