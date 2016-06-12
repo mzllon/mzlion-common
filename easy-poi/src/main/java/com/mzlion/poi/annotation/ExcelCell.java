@@ -8,11 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>
- * 2016-06-11 Excel的单元格注解，标记java属性和cell的关系
- * </p>
+ * Excel的单元格注解，标记java属性和cell的关系
  *
  * @author mzlion
+ * @date 2016-06-11
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -31,7 +30,7 @@ public @interface ExcelCell {
     /**
      * cell填充或解析的数据类型
      */
-    ExcelCellType type() default ExcelCellType.TEXT;
+    ExcelCellType type() default ExcelCellType.AUTO;
 
     /**
      * 导出时cell的宽度，单位为字符，一个汉字为2个字符

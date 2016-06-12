@@ -93,7 +93,7 @@ public class ExcelUtils {
      * @param <E>       泛型类型
      */
     public static <E> void write(Collection<E> dataSet, String title, Class<E> beanClass, File output) {
-        ExcelWriteConfig<E> excelWriteConfig = new ExcelWriteConfig.Builder<E>()
+        ExcelWriteConfig excelWriteConfig = new ExcelWriteConfig.Builder()
                 .beanClass(beanClass)
                 .title(title)
                 .build();
@@ -108,7 +108,7 @@ public class ExcelUtils {
      * @param output           Excel文件保存
      * @param <E>              泛型类型
      */
-    public static <E> void write(Collection<E> dataSet, ExcelWriteConfig<E> excelWriteConfig, File output) {
+    public static <E> void write(Collection<E> dataSet, ExcelWriteConfig excelWriteConfig, File output) {
         Assert.assertNotNull(output, "Output file must not be null.");
         Assert.assertNotNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
         FileOutputStream outputStream = null;
@@ -134,7 +134,7 @@ public class ExcelUtils {
      * @param output           Excel输出流
      * @param <E>              泛型类型
      */
-    public static <E> void write(Collection<E> dataSet, ExcelWriteConfig<E> excelWriteConfig, OutputStream output) {
+    public static <E> void write(Collection<E> dataSet, ExcelWriteConfig excelWriteConfig, OutputStream output) {
         Assert.assertNotEmpty(dataSet, "The dataset must not be null or empty.");
         Assert.assertNotNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
         Assert.assertNotNull(output, "Output must not be null.");

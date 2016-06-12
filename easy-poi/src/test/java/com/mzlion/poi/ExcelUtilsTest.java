@@ -2,7 +2,6 @@ package com.mzlion.poi;
 
 import com.mzlion.poi.config.ExcelWriteConfig;
 import com.mzlion.poi.entity.Employee;
-import com.mzlion.poi.excel.write.DefaultExcelCellStyle;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -11,6 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -22,28 +22,30 @@ public class ExcelUtilsTest {
 
     @Test
     public void write() throws Exception {
+        long start = System.currentTimeMillis();
         File output = new File("d:/emp.xlsx");
         ExcelUtils.write(this.genEmployeeList(), "测试导出", Employee.class, output);
+        System.out.println(System.currentTimeMillis() - start);
     }
 
     @Test
     public void write1() throws Exception {
+        long start = System.currentTimeMillis();
         File output = new File("d:/emp2.xlsx");
-        ExcelWriteConfig.Builder<Employee> builder = new ExcelWriteConfig.Builder<>();
+        ExcelWriteConfig.Builder builder = new ExcelWriteConfig.Builder();
         builder.title("测试导出标题")
-                .secondTitle("二级标题")
                 .beanClass(Employee.class)
-                .excelCellStyleClass(DefaultExcelCellStyle.class);
-
+                .excelCellStyleClass(null);
         ExcelUtils.write(this.genEmployeeList(), builder.build(), output);
+        System.out.println(System.currentTimeMillis() - start);
     }
 
     @Test
     public void write2() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ExcelWriteConfig<Employee> excelWriteConfig = new ExcelWriteConfig.Builder<Employee>()
-                .beanClass(Employee.class)
+        ExcelWriteConfig excelWriteConfig = new ExcelWriteConfig.Builder()
+                .beanClass(Map.class)
                 .build();
         ExcelUtils.write(this.genEmployeeList(), excelWriteConfig, baos);
     }

@@ -1,6 +1,5 @@
 package com.mzlion.poi.excel.write;
 
-import com.mzlion.core.beans.PropertyUtilBean;
 import com.mzlion.core.lang.StringUtils;
 import com.mzlion.core.reflect.StaticFieldFilter;
 import com.mzlion.core.util.ReflectionUtils;
@@ -20,12 +19,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyDescriptor;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
@@ -39,14 +39,14 @@ public class ExcelWriterEngine<E> {
     //slf4j
     private final Logger logger = LoggerFactory.getLogger(ExcelWriterEngine.class);
     //导出配置对象
-    private final ExcelWriteConfig<E> excelWriteConfig;
+    private final ExcelWriteConfig excelWriteConfig;
 
     private Workbook workbook;
     private List<BeanPropertyCellDescriptor> beanPropertyCellDescriptorList = new ArrayList<>();
     //Excel单元格样式接口
     private ExcelCellStyle excelCellStyle;
 
-    public ExcelWriterEngine(ExcelWriteConfig<E> excelWriteConfig) {
+    public ExcelWriterEngine(ExcelWriteConfig excelWriteConfig) {
         this.excelWriteConfig = excelWriteConfig;
         this.parseBeanPropertyCellDescriptor();
     }
@@ -67,9 +67,9 @@ public class ExcelWriterEngine<E> {
                 Constructor<? extends ExcelCellStyle> excelCellStyleClassConstructor = excelCellStyleClass.getConstructor(Workbook.class);
                 this.excelCellStyle = excelCellStyleClassConstructor.newInstance(workbook);
             }
-
+//            long start = System.currentTimeMillis();
             logger.debug(" ===> Excel export is starting,bean class is {},excel version is {}",
-                    this.excelWriteConfig.getBeanClass().getName(), this.excelWriteConfig.getExcelType().toString());
+                    this.excelWriteConfig.getRawClass(), this.excelWriteConfig.getExcelType().toString());
             Sheet sheet;
             if (StringUtils.hasText(this.excelWriteConfig.getSheetName())) {
                 sheet = this.workbook.createSheet(this.excelWriteConfig.getSheetName());
@@ -84,6 +84,7 @@ public class ExcelWriterEngine<E> {
             this.createDataRows(sheet, row, dataSet);
 
             workbook.write(outputStream);
+//            System.out.println("create sheet cost " + (System.currentTimeMillis() - start));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -150,62 +151,20 @@ public class ExcelWriterEngine<E> {
             cell = row.createCell(i);
             beanPropertyCellDescriptor = this.beanPropertyCellDescriptorList.get(i);
             cell.setCellValue(beanPropertyCellDescriptor.getTitle());
+            if (this.excelCellStyle != null)
+                cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(beanPropertyCellDescriptor.getTitle(), i));
         }
         return 1;
     }
 
     private int createDataRows(Sheet sheet, int startRow, Collection<E> dataSet) {
         Row row;
-        Cell cell;
-        int index = 0, beanPropertyCellSize = this.beanPropertyCellDescriptorList.size();
+        int index = 0;
         for (E entity : dataSet) {
             row = sheet.createRow(index + startRow);
-            for (int i = 0; i < beanPropertyCellSize; i++) {
-                cell = row.createCell(i);
-                BeanPropertyCellDescriptor beanPropertyCellDescriptor = this.beanPropertyCellDescriptorList.get(i);
-                String propertyName = beanPropertyCellDescriptor.getPropertyName();
-                PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, propertyName);
-                Method readMethod = propertyDescriptor.getReadMethod();
-                try {
-                    Object value = readMethod.invoke(entity);
-                    if (value == null) {
-                        continue;
-                    }
-                    switch (beanPropertyCellDescriptor.getType()) {
-                        case TEXT:
-
-                            break;
-                        case NUMBERIC:
-                            break;
-                        case DATE:
-                            break;
-                        case HYPER_LINK:
-                            break;
-                        case PICTURE:
-                            break;
-                        case FORMULA:
-                            break;
-                    }
-                    Class<?> returnType = readMethod.getReturnType();
-                    if (returnType.equals(int.class) || returnType.equals(Integer.class) ||
-                            returnType.equals(float.class) || returnType.equals(Float.class) ||
-                            returnType.equals(double.class) || returnType.equals(Double.class) ||
-                            returnType.equals(long.class) || returnType.equals(Long.class) ||
-                            returnType.equals(short.class) || returnType.equals(Short.class)) {
-                        Number number = (Number) value;
-                        cell.setCellValue(number.doubleValue());
-                    } else if (returnType.equals(boolean.class) || returnType.equals(Boolean.class)) {
-                        cell.setCellValue((Boolean) value);
-                    } else if (returnType.equals(String.class)) {
-                        cell.setCellValue(value.toString());
-                    } else if (returnType.equals(Date.class)) {
-                        cell.setCellValue((Date) value);
-                    } else {
-                        logger.warn(" ===> The value[{}->{}] can not put to cell", propertyDescriptor.getName(), value);
-                    }
-                } catch (ReflectiveOperationException e) {
-                    e.printStackTrace();
-                }
+            for (BeanPropertyCellDescriptor beanPropertyCellDescriptor : this.beanPropertyCellDescriptorList) {
+                CellGenerator<E> cellGenerator = new CellGenerator<>(row, entity, beanPropertyCellDescriptor, this.excelCellStyle);
+                cellGenerator.generate();
             }
             index++;
         }
@@ -213,7 +172,7 @@ public class ExcelWriterEngine<E> {
     }
 
     private void parseBeanPropertyCellDescriptor() {
-        List<Field> fieldList = ReflectionUtils.getDeclaredFields(this.excelWriteConfig.getBeanClass());
+        List<Field> fieldList = ReflectionUtils.getDeclaredFields(this.excelWriteConfig.getRawClass());
         fieldList = ReflectionUtils.filter(fieldList, new StaticFieldFilter());
         List<BeanPropertyCellDescriptor> noOrderList = new ArrayList<>(fieldList.size());
         List<BeanPropertyCellDescriptor> orderList = new ArrayList<>(fieldList.size());
@@ -229,6 +188,7 @@ public class ExcelWriterEngine<E> {
                 beanPropertyCellDescriptor.setExcelDateFormat(excelCell.excelDateFormat());
                 beanPropertyCellDescriptor.setJavaDateFormat(excelCell.javaDateFormat());
                 beanPropertyCellDescriptor.setWidth(excelCell.width());
+                beanPropertyCellDescriptor.setAutoWrap(excelCell.autoWrap());
                 if (excelCell.order() == 0) {
                     noOrderList.add(beanPropertyCellDescriptor);
                 } else {

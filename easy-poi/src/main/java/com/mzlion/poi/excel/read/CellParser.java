@@ -69,7 +69,8 @@ public class CellParser<E> {
                     if (StringUtils.hasLength(this.beanPropertyCellDescriptor.getExcelDateFormat())) {
                         writeMethod.invoke(this.entity, DateUtils.parseDate((String) cellValue, this.beanPropertyCellDescriptor.getExcelDateFormat()));
                     } else {
-                        throw new ExcelDateFormatException(beanPropertyCellDescriptor.getTitle(), cellValue, rowIndex, cellIndex);
+                        throw new ExcelDateFormatException(String.format("The cell header [%s], mapped cell value [%s] need convert java.util.Date at coordinate [%d,%d],but 'dateFormat is empty."
+                                , beanPropertyCellDescriptor.getTitle(), cellValue, rowIndex, cellIndex));
                     }
                 } else {
                     logger.warn(" ===> The cell value can not cast java.util.Date instance->{}", cellValue);

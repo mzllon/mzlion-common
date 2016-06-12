@@ -3,7 +3,10 @@ package com.mzlion.poi.beans;
 import com.mzlion.poi.constant.ExcelCellType;
 
 /**
- * Created by mzlion on 2016/6/8.
+ * JavaBean的属性和Excel的cell映射关系对象
+ *
+ * @author mzlion
+ * @date 2016-06-08
  */
 public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDescriptor> {
 
@@ -46,6 +49,11 @@ public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDe
      * cell的宽度
      */
     private float width;
+
+    /**
+     * 自动换行
+     */
+    private boolean autoWrap;
 
     public String getTitle() {
         return title;
@@ -111,6 +119,19 @@ public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDe
         this.width = width;
     }
 
+    public boolean isAutoWrap() {
+        return autoWrap;
+    }
+
+    public void setAutoWrap(boolean autoWrap) {
+        this.autoWrap = autoWrap;
+    }
+
+    @Override
+    public int compareTo(BeanPropertyCellDescriptor o) {
+        return this.cellIndex - o.cellIndex;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("BeanPropertyCellDescriptor{");
@@ -120,12 +141,11 @@ public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDe
         sb.append(", propertyName='").append(propertyName).append('\'');
         sb.append(", cellIndex=").append(cellIndex);
         sb.append(", excelDateFormat='").append(excelDateFormat).append('\'');
+        sb.append(", javaDateFormat='").append(javaDateFormat).append('\'');
+        sb.append(", width=").append(width);
+        sb.append(", autoWrap=").append(autoWrap);
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
-    public int compareTo(BeanPropertyCellDescriptor o) {
-        return this.cellIndex - o.cellIndex;
-    }
 }

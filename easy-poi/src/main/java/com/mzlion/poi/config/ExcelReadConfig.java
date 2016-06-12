@@ -1,11 +1,12 @@
 package com.mzlion.poi.config;
 
+import java.util.Map;
+
 /**
- * <p>
  * Excel导入配置选项
- * </p>
  *
  * @author mzlion
+ * @date 2016-06-08
  */
 public class ExcelReadConfig<E> {
 
@@ -70,43 +71,59 @@ public class ExcelReadConfig<E> {
         /**
          * 标题行占用行数，默认占用1行
          */
-        private int titleRowUsed = 1;
+        private int titleRowUsed;
 
         /**
-         * 标题行占用行数，默认占用1行
+         * 列标题行占用行数，默认占用1行
          */
-        private int headerTitleRowUsed = 1;
+        private int headerTitleRowUsed;
 
         /**
-         * 数据行和标题行相差行数，默认0行
+         * 数据行和列标题行相差行数，默认0行
          */
-        private int dataRowStart = 0;
+        private int dataRowStart;
 
         /**
-         * 读取第一个sheet
+         * 从第几个sheet开始读取，默认是第一个
          */
-        private int sheetIndex = 1;
+        private int sheetIndex;
 
         /**
          * 读取sheet个数控制，默认读取1个
          */
-        private int sheetNum = 1;
+        private int sheetNum;
 
         /**
          * 最后几行无效判定读取结束，默认0表示一直读取到结束。
          */
-        private int lastInvalidRow = 0;
+        private int lastInvalidRow;
 
         /**
          * 是否严格校验列标题
          */
-        private boolean strict = false;
-
-        private Class<E> beanClass;
+        private boolean strict;
 
         /**
-         * @param titleRowUsed
-         * @return
+         * JavaBean class
+         */
+        private Class<E> beanClass;
+
+        public Builder() {
+            this.titleRowUsed = 1;
+            this.headerTitleRowUsed = 1;
+            this.dataRowStart = 0;
+            this.sheetIndex = 1;
+            this.sheetNum = 1;
+            this.lastInvalidRow = 0;
+            this.strict = false;
+            this.beanClass = (Class<E>) Map.class;
+        }
+
+        /**
+         * 标题行占用行数
+         *
+         * @param titleRowUsed 标题行占用行数
+         * @return {@link Builder}
          */
         public Builder<E> titleRowUsed(int titleRowUsed) {
             this.titleRowUsed = titleRowUsed;
@@ -114,8 +131,10 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param headerTitleRowUsed
-         * @return
+         * 列标题行占用行数
+         *
+         * @param headerTitleRowUsed the title row use num.
+         * @return {@link Builder}
          */
         public Builder<E> headerTitleRowUsed(int headerTitleRowUsed) {
             this.headerTitleRowUsed = headerTitleRowUsed;
@@ -123,8 +142,10 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param dataRowStart
-         * @return
+         * 数据行和列标题行相差行数
+         *
+         * @param dataRowStart data row start num
+         * @return {@link Builder}
          */
         public Builder<E> dataRowStart(int dataRowStart) {
             this.dataRowStart = dataRowStart;
@@ -132,8 +153,10 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param sheetIndex
-         * @return
+         * 从第几个sheet开始读取
+         *
+         * @param sheetIndex start sheet index
+         * @return {@link Builder}
          */
         public Builder<E> sheetIndex(int sheetIndex) {
             this.sheetIndex = sheetIndex;
@@ -141,8 +164,10 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param sheetNum
-         * @return
+         * 读取sheet个数控制
+         *
+         * @param sheetNum sheet num.
+         * @return {@link Builder}
          */
         public Builder<E> sheetNum(int sheetNum) {
             this.sheetNum = sheetNum;
@@ -150,8 +175,10 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param lastInvalidRow
-         * @return
+         * 最后几行无效判定读取结束
+         *
+         * @param lastInvalidRow the last invalid of row num.
+         * @return {@link Builder}
          */
         public Builder<E> lastInvalidRow(int lastInvalidRow) {
             this.lastInvalidRow = lastInvalidRow;
@@ -159,19 +186,32 @@ public class ExcelReadConfig<E> {
         }
 
         /**
-         * @param strict
-         * @return
+         * 是否严格校验列标题
+         *
+         * @param strict strict to valid cell
+         * @return {@link Builder}
          */
         public Builder<E> strict(boolean strict) {
             this.strict = strict;
             return this;
         }
 
+        /**
+         * Set JavaBean class
+         *
+         * @param beanClass JavaBean class
+         * @return {@link Builder}
+         */
         public Builder<E> beanClass(Class<E> beanClass) {
             this.beanClass = beanClass;
             return this;
         }
 
+        /**
+         * 构建{@code ExcelReadConfig}对象
+         *
+         * @return {@link ExcelReadConfig}
+         */
         public ExcelReadConfig<E> build() {
             return new ExcelReadConfig<>(this);
         }

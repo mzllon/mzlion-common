@@ -1,7 +1,6 @@
 package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
-import com.mzlion.poi.constant.ExcelCellType;
 
 import java.util.Date;
 
@@ -15,13 +14,13 @@ public class Employee {
     /**
      * 工号
      */
-    @ExcelCell(value = "工号", required = true)
+    @ExcelCell(value = "工号", required = true, width = 12)
     private String no;
 
     /**
      * 姓名
      */
-    @ExcelCell(value = "姓名", height = 20, width = 30, required = true, order = 2)
+    @ExcelCell(value = "姓名", required = true, order = 2)
     private String name;
 
     /**
@@ -30,22 +29,22 @@ public class Employee {
     @ExcelCell("性别")
     private String sex;
 
-    @ExcelCell(value = "出生日期", width = 20, type = ExcelCellType.DATE)
+    @ExcelCell(value = "出生日期", width = 10, excelDateFormat = "yyyy/MM/dd")
     private Date birthDay;
 
-    @ExcelCell(value = "入职日期", type = ExcelCellType.DATE, order = 4, excelDateFormat = "yyyy-MM-dd")
+    @ExcelCell(value = "入职日期", order = 4, excelDateFormat = "yyyy-MM-dd")
     private Date regDate;
 
-    @ExcelCell("家庭住址")
+    @ExcelCell(value = "家庭住址", width = 30, autoWrap = true)
     private String address;
 
-    @ExcelCell("联系电话")
+    @ExcelCell(value = "联系电话", width = 12)
     private String mobile;
 
     /**
      * 转正日期
      */
-    @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd")
+    @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd", width = 12)
     private String obtainedDate;
 
     public String getNo() {

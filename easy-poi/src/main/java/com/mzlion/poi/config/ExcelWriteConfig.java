@@ -1,12 +1,21 @@
 package com.mzlion.poi.config;
 
+import com.mzlion.poi.beans.TypeReference;
 import com.mzlion.poi.constant.ExcelType;
+import com.mzlion.poi.excel.write.DefaultExcelCellStyle;
 import com.mzlion.poi.excel.write.ExcelCellStyle;
+import net.jodah.typetools.TypeResolver;
+
+import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
- * Created by mzlion on 2016/6/7.
+ * Excel导出配置选项
+ *
+ * @author mzlion
+ * @date 2016-06-07
  */
-public class ExcelWriteConfig<E> {
+public class ExcelWriteConfig {
 
     /**
      * Excel标题
@@ -32,11 +41,13 @@ public class ExcelWriteConfig<E> {
 
     private boolean headerRowCreate;
 
-    private Class<E> beanClass;
+    private Type type;
+
+    private Class<?> rawClass;
 
     private Class<? extends ExcelCellStyle> excelCellStyleClass;
 
-    private ExcelWriteConfig(Builder<E> builder) {
+    private ExcelWriteConfig(Builder builder) {
         this.title = builder.title;
         this.secondTitle = builder.secondTitle;
         this.excelType = builder.excelType;
@@ -45,8 +56,9 @@ public class ExcelWriteConfig<E> {
         this.dataRowHeight = builder.dataRowHeight;
         this.sheetName = builder.sheetName;
         this.headerRowCreate = builder.headerRowCreate;
-        this.beanClass = builder.beanClass;
+        this.type = builder.type;
         this.excelCellStyleClass = builder.excelCellStyleClass;
+        this.rawClass = TypeResolver.resolveRawClass(this.type, null);
     }
 
     public String getTitle() {
@@ -81,8 +93,12 @@ public class ExcelWriteConfig<E> {
         return headerRowCreate;
     }
 
-    public Class<E> getBeanClass() {
-        return beanClass;
+    public Type getType() {
+        return type;
+    }
+
+    public Class<?> getRawClass() {
+        return rawClass;
     }
 
     public Class<? extends ExcelCellStyle> getExcelCellStyleClass() {
@@ -100,13 +116,13 @@ public class ExcelWriteConfig<E> {
         sb.append(", dataRowHeight=").append(dataRowHeight);
         sb.append(", sheetName='").append(sheetName).append('\'');
         sb.append(", headerRowCreate=").append(headerRowCreate);
-        sb.append(", beanClass=").append(beanClass);
+        sb.append(", type=").append(type);
         sb.append(", excelCellStyleClass=").append(excelCellStyleClass);
         sb.append('}');
         return sb.toString();
     }
 
-    public static class Builder<E> {
+    public static class Builder {
 
         private String title;
 
@@ -124,56 +140,66 @@ public class ExcelWriteConfig<E> {
 
         private boolean headerRowCreate;
 
-        private Class<E> beanClass;
+        private Type type;
 
         private Class<? extends ExcelCellStyle> excelCellStyleClass;
 
-        public Builder<E> title(String title) {
+        public Builder title(String title) {
             this.title = title;
             return this;
         }
 
-        public Builder<E> secondTitle(String secondTitle) {
+        public Builder secondTitle(String secondTitle) {
             this.secondTitle = secondTitle;
             return this;
         }
 
-        public Builder<E> excelType(ExcelType excelType) {
+        public Builder excelType(ExcelType excelType) {
             this.excelType = excelType;
             return this;
         }
 
-        public Builder<E> titleRowHeight(float titleRowHeight) {
+        public Builder titleRowHeight(float titleRowHeight) {
             this.titleRowHeight = titleRowHeight;
             return this;
         }
 
-        public Builder<E> secondTitleRowHeight(float secondTitleRowHeight) {
+        public Builder secondTitleRowHeight(float secondTitleRowHeight) {
             this.secondTitleRowHeight = secondTitleRowHeight;
             return this;
         }
 
-        public Builder<E> dataRowHeight(float dataRowHeight) {
+        public Builder dataRowHeight(float dataRowHeight) {
             this.dataRowHeight = dataRowHeight;
             return this;
         }
 
-        public Builder<E> sheetName(String sheetName) {
+        public Builder sheetName(String sheetName) {
             this.sheetName = sheetName;
             return this;
         }
 
-        public Builder<E> headerRowCreate(boolean headerRowCreate) {
+        public Builder headerRowCreate(boolean headerRowCreate) {
             this.headerRowCreate = headerRowCreate;
             return this;
         }
 
-        public Builder<E> beanClass(Class<E> beanClass) {
-            this.beanClass = beanClass;
+        public Builder beanClass(Class<?> beanClass) {
+            this.type = beanClass;
             return this;
         }
 
-        public Builder<E> excelCellStyleClass(Class<? extends ExcelCellStyle> excelCellStyleClass) {
+        public Builder type(Type type) {
+            this.type = type;
+            return this;
+        }
+
+        public <T> Builder type(TypeReference<T> typeReference) {
+            this.type = typeReference.getType();
+            return this;
+        }
+
+        public Builder excelCellStyleClass(Class<? extends ExcelCellStyle> excelCellStyleClass) {
             this.excelCellStyleClass = excelCellStyleClass;
             return this;
         }
@@ -184,9 +210,11 @@ public class ExcelWriteConfig<E> {
             this.titleRowHeight = 20;
             this.secondTitleRowHeight = 16;
             this.dataRowHeight = 13.5f;
+            this.excelCellStyleClass = DefaultExcelCellStyle.class;
+            this.type(Map.class);
         }
 
-        Builder(ExcelWriteConfig<E> excelWriteConfig) {
+        Builder(ExcelWriteConfig excelWriteConfig) {
             this.title = excelWriteConfig.title;
             this.secondTitle = excelWriteConfig.secondTitle;
             this.excelType = excelWriteConfig.excelType;
@@ -195,17 +223,17 @@ public class ExcelWriteConfig<E> {
             this.dataRowHeight = excelWriteConfig.dataRowHeight;
             this.sheetName = excelWriteConfig.sheetName;
             this.headerRowCreate = excelWriteConfig.headerRowCreate;
-            this.beanClass = excelWriteConfig.beanClass;
+            this.type = excelWriteConfig.type;
             this.excelCellStyleClass = excelWriteConfig.excelCellStyleClass;
         }
 
-        public ExcelWriteConfig<E> build() {
-            return new ExcelWriteConfig<>(this);
+        public ExcelWriteConfig build() {
+            return new ExcelWriteConfig(this);
         }
 
     }
 
-    public Builder<E> newBuilder() {
-        return new Builder<>(this);
+    public Builder newBuilder() {
+        return new Builder(this);
     }
 }

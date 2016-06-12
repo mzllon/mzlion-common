@@ -21,8 +21,8 @@ public class ExcelCellTest {
             System.out.println(declaredField);
             ExcelCell excelCell = declaredField.getAnnotation(ExcelCell.class);
             if (excelCell != null) {
-                System.out.println("title=" + excelCell.value() + ",width=" + excelCell.width() + ",height=" + excelCell.height() +
-                        ",autoWrap=" + excelCell.autoWrap() + ",order=" + excelCell.order() + ",required=" + excelCell.required() +
+                System.out.println("title=" + excelCell.value() + ",width=" + excelCell.width() + ",autoWrap=" +
+                        excelCell.autoWrap() + ",order=" + excelCell.order() + ",required=" + excelCell.required() +
                         ",type=" + excelCell.type());
             }
         }
