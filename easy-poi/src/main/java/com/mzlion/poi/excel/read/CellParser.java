@@ -4,7 +4,7 @@ import com.mzlion.core.beans.PropertyUtilBean;
 import com.mzlion.core.date.DateUtils;
 import com.mzlion.core.lang.DigitalUtils;
 import com.mzlion.core.lang.StringUtils;
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.exception.ExcelCellProcessException;
 import com.mzlion.poi.exception.ExcelDateFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -34,12 +34,12 @@ public class CellParser<E> {
     //公式处理
     private FormulaEvaluator evaluator;
 
-    private BeanPropertyCellDescriptor beanPropertyCellDescriptor;
+    private PropertyCellMapping propertyCellMapping;
 
     private E entity;
 
-    public CellParser(E entity, BeanPropertyCellDescriptor beanPropertyCellDescriptor, FormulaEvaluator evaluator) {
-        this.beanPropertyCellDescriptor = beanPropertyCellDescriptor;
+    public CellParser(E entity, PropertyCellMapping propertyCellMapping, FormulaEvaluator evaluator) {
+        this.propertyCellMapping = propertyCellMapping;
         this.entity = entity;
         this.evaluator = evaluator;
     }
@@ -50,7 +50,7 @@ public class CellParser<E> {
             return;
         }
         int rowIndex = cell.getRowIndex() + 1;
-        int cellIndex = beanPropertyCellDescriptor.getCellIndex() + 1;
+        int cellIndex = propertyCellMapping.getCellIndex() + 1;
         Object cellValue = this.getCellValue(cell);
         logger.debug(" ===> Processing cell at [{},{}],the content is {}", rowIndex, cellIndex, cellValue);
         if (cellValue == null) {
@@ -58,7 +58,7 @@ public class CellParser<E> {
             return;
         }
 
-        PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity.getClass(), beanPropertyCellDescriptor.getPropertyName());
+        PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity.getClass(), propertyCellMapping.getPropertyName());
         Class<?> propertyTypeClass = propertyDescriptor.getPropertyType();
         try {
             Method writeMethod = propertyDescriptor.getWriteMethod();
@@ -66,11 +66,11 @@ public class CellParser<E> {
                 if (cellValue instanceof Date) {
                     writeMethod.invoke(this.entity, cellValue);
                 } else if (cellValue instanceof String) {
-                    if (StringUtils.hasLength(this.beanPropertyCellDescriptor.getExcelDateFormat())) {
-                        writeMethod.invoke(this.entity, DateUtils.parseDate((String) cellValue, this.beanPropertyCellDescriptor.getExcelDateFormat()));
+                    if (StringUtils.hasLength(this.propertyCellMapping.getExcelDateFormat())) {
+                        writeMethod.invoke(this.entity, DateUtils.parseDate((String) cellValue, this.propertyCellMapping.getExcelDateFormat()));
                     } else {
                         throw new ExcelDateFormatException(String.format("The cell header [%s], mapped cell value [%s] need convert java.util.Date at coordinate [%d,%d],but 'dateFormat is empty."
-                                , beanPropertyCellDescriptor.getTitle(), cellValue, rowIndex, cellIndex));
+                                , propertyCellMapping.getTitle(), cellValue, rowIndex, cellIndex));
                     }
                 } else {
                     logger.warn(" ===> The cell value can not cast java.util.Date instance->{}", cellValue);

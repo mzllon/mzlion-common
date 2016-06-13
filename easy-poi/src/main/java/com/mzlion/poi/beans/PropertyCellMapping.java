@@ -8,7 +8,7 @@ import com.mzlion.poi.constant.ExcelCellType;
  * @author mzlion
  * @date 2016-06-08
  */
-public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDescriptor> {
+public class PropertyCellMapping implements Comparable<PropertyCellMapping> {
 
     /**
      * cell标题
@@ -128,13 +128,13 @@ public class BeanPropertyCellDescriptor implements Comparable<BeanPropertyCellDe
     }
 
     @Override
-    public int compareTo(BeanPropertyCellDescriptor o) {
+    public int compareTo(PropertyCellMapping o) {
         return this.cellIndex - o.cellIndex;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("BeanPropertyCellDescriptor{");
+        final StringBuilder sb = new StringBuilder("PropertyCellMapping{");
         sb.append("title='").append(title).append('\'');
         sb.append(", required=").append(required);
         sb.append(", type=").append(type);

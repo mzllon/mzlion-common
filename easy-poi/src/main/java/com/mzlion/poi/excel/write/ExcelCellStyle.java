@@ -1,6 +1,6 @@
 package com.mzlion.poi.excel.write;
 
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
@@ -14,7 +14,7 @@ public interface ExcelCellStyle {
 
     CellStyle getHeaderCellStyle(String title, int cellIndex);
 
-    CellStyle getDataCellStyle(int rowIndex, Object entity, BeanPropertyCellDescriptor beanPropertyCellDescriptor);
+    CellStyle getDataCellStyle(int rowIndex, Object entity, PropertyCellMapping propertyCellMapping);
 
     CellStyle getStatisticsCellStyle(int order);
 

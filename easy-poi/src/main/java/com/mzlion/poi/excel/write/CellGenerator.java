@@ -2,7 +2,7 @@ package com.mzlion.poi.excel.write;
 
 import com.mzlion.core.beans.PropertyUtilBean;
 import com.mzlion.core.lang.StringUtils;
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.exception.BeanPropertyReflectException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -50,7 +50,7 @@ public class CellGenerator<E> {
     /**
      * the cell of config
      */
-    private final BeanPropertyCellDescriptor beanPropertyCellDescriptor;
+    private final PropertyCellMapping propertyCellMapping;
 
     /**
      * excel cell style
@@ -59,19 +59,19 @@ public class CellGenerator<E> {
 
     private Workbook workbook;
 
-    public CellGenerator(Row row, E entity, BeanPropertyCellDescriptor beanPropertyCellDescriptor, ExcelCellStyle excelCellStyle) {
+    public CellGenerator(Row row, E entity, PropertyCellMapping propertyCellMapping, ExcelCellStyle excelCellStyle) {
         this.row = row;
         this.entity = entity;
-        this.beanPropertyCellDescriptor = beanPropertyCellDescriptor;
+        this.propertyCellMapping = propertyCellMapping;
         this.excelCellStyle = excelCellStyle;
         this.workbook = this.row.getSheet().getWorkbook();
     }
 
     public Cell generate() {
-        Cell cell = this.row.createCell(this.beanPropertyCellDescriptor.getCellIndex());
+        Cell cell = this.row.createCell(this.propertyCellMapping.getCellIndex());
         if (this.excelCellStyle != null)
-            cell.setCellStyle(this.excelCellStyle.getDataCellStyle(row.getRowNum(), entity, beanPropertyCellDescriptor));
-        String propertyName = beanPropertyCellDescriptor.getPropertyName();
+            cell.setCellStyle(this.excelCellStyle.getDataCellStyle(row.getRowNum(), entity, propertyCellMapping));
+        String propertyName = propertyCellMapping.getPropertyName();
         PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, propertyName);
         Method readMethod = propertyDescriptor.getReadMethod();
         try {
@@ -81,7 +81,7 @@ public class CellGenerator<E> {
                 return cell;
             }
             Class<?> returnType = readMethod.getReturnType();
-            switch (beanPropertyCellDescriptor.getType()) {
+            switch (propertyCellMapping.getType()) {
                 case AUTO:
                     if (returnType.equals(int.class) || returnType.equals(Integer.class) ||
                             returnType.equals(float.class) || returnType.equals(Float.class) ||
@@ -100,9 +100,9 @@ public class CellGenerator<E> {
                         cell.setCellValue(value.toString());
                         cell.getCellStyle().setDataFormat(this.workbook.getCreationHelper().createDataFormat().getFormat("@"));
                     } else if (returnType.equals(Date.class)) {
-                        if (StringUtils.hasLength(this.beanPropertyCellDescriptor.getExcelDateFormat())) {
+                        if (StringUtils.hasLength(this.propertyCellMapping.getExcelDateFormat())) {
                             cell.getCellStyle().setDataFormat(this.workbook.getCreationHelper().createDataFormat()
-                                    .getFormat(beanPropertyCellDescriptor.getExcelDateFormat()));
+                                    .getFormat(propertyCellMapping.getExcelDateFormat()));
                             cell.setCellValue((Date) value);
                         } else {
                             cell.setCellValue((Date) value);
@@ -122,7 +122,7 @@ public class CellGenerator<E> {
                     break;
             }
         } catch (ReflectiveOperationException e) {
-            throw new BeanPropertyReflectException("The entity [" + entity.getClass().getName() + "] of property [" + beanPropertyCellDescriptor.getPropertyName() + "] can not reflect.", e);
+            throw new BeanPropertyReflectException("The entity [" + entity.getClass().getName() + "] of property [" + propertyCellMapping.getPropertyName() + "] can not reflect.", e);
         }
         return cell;
     }

@@ -4,7 +4,7 @@ import com.mzlion.core.lang.StringUtils;
 import com.mzlion.core.reflect.StaticFieldFilter;
 import com.mzlion.core.util.ReflectionUtils;
 import com.mzlion.poi.annotation.ExcelCell;
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelReadConfig;
 import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.exception.ExcelCellConfigException;
@@ -39,7 +39,7 @@ public class ExcelReaderEngine<E> {
     private final ExcelReadConfig<E> excelReadConfig;
 
     private ExcelType excelType = ExcelType.XLSX;
-    private List<BeanPropertyCellDescriptor> beanPropertyCellDescriptorList = new ArrayList<>();
+    private List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>();
 
     public ExcelReaderEngine(ExcelReadConfig<E> excelReadConfig) {
         this.excelReadConfig = excelReadConfig;
@@ -55,7 +55,7 @@ public class ExcelReaderEngine<E> {
             } else if (POIXMLDocument.hasOOXMLHeader(excelInputStream)) {
                 workbook = new XSSFWorkbook(OPCPackage.open(excelInputStream));
             } else {
-                throw new ExcelReadException("InputStream was not MS Excel stream.");
+                throw new ExcelReadException("InputStream was not MS ExcelEntity stream.");
             }
 
             //解析beanClass的属性列表
@@ -71,7 +71,7 @@ public class ExcelReaderEngine<E> {
                 logger.debug(" ===> Reading sheet at index[" + i + "]");
                 dataSet.addAll(this.parseSheet(workbook.getSheetAt(i), formulaEvaluator));
             }
-            logger.debug(" ===> Excel import process finish,it cost time is {} milliseconds", (System.currentTimeMillis() - startTime));
+            logger.debug(" ===> ExcelEntity import process finish,it cost time is {} milliseconds", (System.currentTimeMillis() - startTime));
             return dataSet;
         } catch (IOException | InvalidFormatException e) {
             throw new ExcelImportException("Reading excel failed.", e);
@@ -91,17 +91,17 @@ public class ExcelReaderEngine<E> {
         Map<String, Integer> headerTitleMap = getExcelHeaderTitles(rowIterator);
         if (this.excelReadConfig.isStrict()) {
             //严格模式,Bean定义中的列并且是required的需要出现在Excel的header title中
-            for (BeanPropertyCellDescriptor beanPropertyCellDescriptor : this.beanPropertyCellDescriptorList) {
-                if (!headerTitleMap.containsKey(beanPropertyCellDescriptor.getTitle())) {
-                    throw new ExcelCellConfigException("The excel header cells can not find '" + beanPropertyCellDescriptor.getTitle() + "'");
+            for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
+                if (!headerTitleMap.containsKey(propertyCellMapping.getTitle())) {
+                    throw new ExcelCellConfigException("The excel header cells can not find '" + propertyCellMapping.getTitle() + "'");
                 }
             }
         }
         //将title在Excel的位置缓存
         for (String headerTitle : headerTitleMap.keySet()) {
-            for (BeanPropertyCellDescriptor beanPropertyCellDescriptor : beanPropertyCellDescriptorList) {
-                if (headerTitle.equals(beanPropertyCellDescriptor.getTitle())) {
-                    beanPropertyCellDescriptor.setCellIndex(headerTitleMap.get(headerTitle));
+            for (PropertyCellMapping propertyCellMapping : propertyCellMappingList) {
+                if (headerTitle.equals(propertyCellMapping.getTitle())) {
+                    propertyCellMapping.setCellIndex(headerTitleMap.get(headerTitle));
                     break;
                 }
             }
@@ -112,7 +112,7 @@ public class ExcelReaderEngine<E> {
         Row row = null;
         while (rowIterator.hasNext() && (row == null || sheet.getLastRowNum() > row.getRowNum() + this.excelReadConfig.getLastInvalidRow())) {
             row = rowIterator.next();
-            DataRowParser<E> dataRowParser = new DataRowParser<>(this.excelReadConfig, this.beanPropertyCellDescriptorList, formulaEvaluator);
+            DataRowParser<E> dataRowParser = new DataRowParser<>(this.excelReadConfig, this.propertyCellMappingList, formulaEvaluator);
             list.add(dataRowParser.process(row));
         }
         return list;
@@ -152,13 +152,13 @@ public class ExcelReaderEngine<E> {
             String fieldName = field.getName();
             ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
             if (excelCell != null) {
-                BeanPropertyCellDescriptor beanPropertyCellDescriptor = new BeanPropertyCellDescriptor();
-                beanPropertyCellDescriptor.setTitle(excelCell.value());
-                beanPropertyCellDescriptor.setRequired(excelCell.required());
-                beanPropertyCellDescriptor.setPropertyName(fieldName);
-                beanPropertyCellDescriptor.setType(excelCell.type());
-                beanPropertyCellDescriptor.setExcelDateFormat(excelCell.excelDateFormat());
-                beanPropertyCellDescriptorList.add(beanPropertyCellDescriptor);
+                PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
+                propertyCellMapping.setTitle(excelCell.value());
+                propertyCellMapping.setRequired(excelCell.required());
+                propertyCellMapping.setPropertyName(fieldName);
+                propertyCellMapping.setType(excelCell.type());
+                propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
+                propertyCellMappingList.add(propertyCellMapping);
             }
         }
     }

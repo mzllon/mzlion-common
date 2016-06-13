@@ -1,6 +1,6 @@
 package com.mzlion.poi.excel.write;
 
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -68,8 +68,8 @@ public class DefaultExcelCellStyle extends AbsExcelCellStyle {
     }
 
     @Override
-    public CellStyle getDataCellStyle(int rowIndex, Object entity, BeanPropertyCellDescriptor beanPropertyCellDescriptor) {
-        CellStyle cellStyle = this.dataCellStyle.get(beanPropertyCellDescriptor.getCellIndex());
+    public CellStyle getDataCellStyle(int rowIndex, Object entity, PropertyCellMapping propertyCellMapping) {
+        CellStyle cellStyle = this.dataCellStyle.get(propertyCellMapping.getCellIndex());
         if (cellStyle == null) {
             cellStyle = this.workbook.createCellStyle();
             cellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
@@ -80,13 +80,13 @@ public class DefaultExcelCellStyle extends AbsExcelCellStyle {
             cellStyle.setBorderRight(CellStyle.BORDER_THIN);
             cellStyle.setBorderBottom(CellStyle.BORDER_THIN);
 
-            cellStyle.setWrapText(beanPropertyCellDescriptor.isAutoWrap());
+            cellStyle.setWrapText(propertyCellMapping.isAutoWrap());
 
             Font font = this.workbook.createFont();
             font.setFontHeightInPoints((short) 10);
             font.setFontName("宋体");
             cellStyle.setFont(font);
-            this.dataCellStyle.put(beanPropertyCellDescriptor.getCellIndex(), cellStyle);
+            this.dataCellStyle.put(propertyCellMapping.getCellIndex(), cellStyle);
         }
 
         return cellStyle;

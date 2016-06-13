@@ -1,6 +1,6 @@
 package com.mzlion.poi.excel.read;
 
-import com.mzlion.poi.beans.BeanPropertyCellDescriptor;
+import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelReadConfig;
 import com.mzlion.poi.exception.BeanNewInstanceException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -14,22 +14,22 @@ import java.util.List;
  */
 public class DataRowParser<E> {
     private final ExcelReadConfig<E> excelReadConfig;
-    private final List<BeanPropertyCellDescriptor> beanPropertyCellDescriptorList;
+    private final List<PropertyCellMapping> propertyCellMappingList;
     private final FormulaEvaluator formulaEvaluator;
 
-    public DataRowParser(ExcelReadConfig<E> excelReadConfig, List<BeanPropertyCellDescriptor> beanPropertyCellDescriptorList,
+    public DataRowParser(ExcelReadConfig<E> excelReadConfig, List<PropertyCellMapping> propertyCellMappingList,
                          FormulaEvaluator formulaEvaluator) {
         this.excelReadConfig = excelReadConfig;
-        this.beanPropertyCellDescriptorList = beanPropertyCellDescriptorList;
+        this.propertyCellMappingList = propertyCellMappingList;
         this.formulaEvaluator = formulaEvaluator;
     }
 
     public E process(Row row) {
         try {
             E entity = this.excelReadConfig.getBeanClass().newInstance();
-            for (BeanPropertyCellDescriptor beanPropertyCellDescriptor : this.beanPropertyCellDescriptorList) {
-                Cell cell = row.getCell(beanPropertyCellDescriptor.getCellIndex());
-                CellParser<E> cellParser = new CellParser<>(entity, beanPropertyCellDescriptor, this.formulaEvaluator);
+            for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
+                Cell cell = row.getCell(propertyCellMapping.getCellIndex());
+                CellParser<E> cellParser = new CellParser<>(entity, propertyCellMapping, this.formulaEvaluator);
                 cellParser.process(cell);
             }
             return entity;
