@@ -2,7 +2,7 @@ package com.mzlion.poi.exception;
 
 /**
  * <p>
- * Importing Excel exception
+ * Importing ExcelEntity exception
  * </p>
  *
  * @author mzlion

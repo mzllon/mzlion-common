@@ -3,6 +3,7 @@ package com.mzlion.core.util;
 import com.mzlion.core.lang.ArrayUtils;
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.reflect.FieldFilter;
+import com.mzlion.core.reflect.StaticFieldFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,5 +62,10 @@ public class ReflectionUtils {
             if (!filter) filterFieldList.add(field);
         }
         return filterFieldList;
+    }
+
+    public static List<Field> getDeclaredFieldsIgnoreStatic(Class<?> targetClass) {
+        List<Field> declaredFields = getDeclaredFields(targetClass);
+        return filter(declaredFields, new StaticFieldFilter());
     }
 }

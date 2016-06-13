@@ -1,6 +1,7 @@
 package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
+import com.mzlion.poi.annotation.ExcelEntity;
 
 import java.util.Date;
 
@@ -10,6 +11,7 @@ import java.util.Date;
  * @author mzlion
  * @version V1.0
  */
+@ExcelEntity
 public class Employee {
     /**
      * 工号
