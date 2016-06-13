@@ -14,7 +14,7 @@ public interface ExcelCellStyle {
 
     CellStyle getHeaderCellStyle(String title, int cellIndex);
 
-    CellStyle getDataCellStyle(int rowIndex, Object entity, PropertyCellMapping propertyCellMapping);
+    CellStyle getDataCellStyle(int rowIndex, Object value, Class<?> valueClass, PropertyCellMapping propertyCellMapping);
 
     CellStyle getStatisticsCellStyle(int order);
 

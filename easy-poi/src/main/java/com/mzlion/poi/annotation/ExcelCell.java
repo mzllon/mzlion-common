@@ -2,10 +2,7 @@ package com.mzlion.poi.annotation;
 
 import com.mzlion.poi.constant.ExcelCellType;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Excel的单元格注解，标记java属性和cell的关系
@@ -13,6 +10,7 @@ import java.lang.annotation.Target;
  * @author mzlion
  * @date 2016-06-11
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ExcelCell {

@@ -1,25 +1,27 @@
 package com.mzlion.poi.config;
 
 import com.mzlion.core.lang.Assert;
-import com.mzlion.core.reflect.StaticFieldFilter;
+import com.mzlion.core.lang.ClassUtils;
+import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.core.util.ReflectionUtils;
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
+import com.mzlion.poi.annotation.ExcelHyperLink;
+import com.mzlion.poi.annotation.ExcelMappedEntity;
 import com.mzlion.poi.beans.DefaultMapBeanTypeReference;
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.beans.TypeReference;
+import com.mzlion.poi.constant.ExcelHyperLinkType;
 import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.excel.write.DefaultExcelCellStyle;
 import com.mzlion.poi.excel.write.ExcelCellStyle;
 import com.mzlion.poi.exception.BeanNotConfigAnnotationException;
 import net.jodah.typetools.TypeResolver;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Excel导出配置选项
@@ -27,7 +29,7 @@ import java.util.Map;
  * @author mzlion
  * @date 2016-06-07
  */
-public class ExcelWriteConfig {
+public class ExcelWriteConfig implements Serializable {
 
     /**
      * Excel标题
@@ -61,6 +63,7 @@ public class ExcelWriteConfig {
 
     private List<PropertyCellMapping> propertyCellMappingList;
 
+    private List<PropertyCellMapConfig> propertyCellMapConfigList;
 
     private ExcelWriteConfig(Builder builder) {
         this.title = builder.title;
@@ -77,17 +80,27 @@ public class ExcelWriteConfig {
             throw new NullPointerException("The bean type is null.");
         }
         this.rawClass = TypeResolver.resolveRawClass(this.type, null);
-        if (this.rawClass.equals(Map.class)) {
-            Assert.assertNotEmpty(this.propertyCellMappingList, "The propertyCellMapping list must not be null or empty when the bean type is Map class.");
+        this.propertyCellMapConfigList = builder.propertyCellMapConfigList;
+
+        List<PropertyCellMapping> propertyCellMappingList;
+        if (ClassUtils.isAssignable(Map.class, this.rawClass)) {
+            Assert.assertNotEmpty(this.propertyCellMapConfigList, "The PropertyCellMapConfig list must not be null or empty when the bean type is Map class.");
+            propertyCellMappingList = this.generatePropertyCellMapByMap();
         } else {
             //check has @ExcelEntity annotation
             ExcelEntity excelEntity = this.rawClass.getAnnotation(ExcelEntity.class);
             if (excelEntity == null) {
                 throw new BeanNotConfigAnnotationException("The bean [" + this.rawClass.getName() + "] must config ExcelEntity annotation.");
             }
-
+            propertyCellMappingList = this.generatePropertyCellMapByBean(this.rawClass, new ArrayList<Class<?>>());
+            if (CollectionUtils.isEmpty(propertyCellMappingList)) {
+                throw new BeanNotConfigAnnotationException("The entity [" + this.rawClass.getName() + "] must config at least a '@ExcelCell' annotation on properties.");
+            }
         }
-        this.propertyCellMappingList = builder.propertyCellMappingList;
+
+
+        //sort
+        this.sortPropertyCellMappingList(propertyCellMappingList);
     }
 
     public String getTitle() {
@@ -177,7 +190,7 @@ public class ExcelWriteConfig {
 
         private Class<? extends ExcelCellStyle> excelCellStyleClass;
 
-        private List<PropertyCellMapping> propertyCellMappingList;
+        private List<PropertyCellMapConfig> propertyCellMapConfigList;
 
         public Builder title(String title) {
             this.title = title;
@@ -239,15 +252,15 @@ public class ExcelWriteConfig {
             return this;
         }
 
-        public Builder propertyCellMapping(PropertyCellMapping propertyCellMapping) {
-            Assert.assertNotNull(propertyCellMapping, "PropertyCellMapping is null.");
-            this.propertyCellMappingList.add(propertyCellMapping);
+        public Builder mapConfig(PropertyCellMapConfig config) {
+            Assert.assertNotNull(config, "PropertyCellMapConfig is null.");
+            this.propertyCellMapConfigList.add(config);
             return this;
         }
 
-        public Builder propertyCellMapping(List<PropertyCellMapping> propertyCellMappingList) {
-            Assert.assertNotEmpty(propertyCellMappingList, "The propertyCellMapping list is null.");
-            this.propertyCellMappingList.addAll(propertyCellMappingList);
+        public Builder mapConfig(List<PropertyCellMapConfig> configList) {
+            Assert.assertNotEmpty(configList, "The PropertyCellMapConfig list is null.");
+            this.propertyCellMapConfigList.addAll(configList);
             return this;
         }
 
@@ -260,7 +273,8 @@ public class ExcelWriteConfig {
             this.dataRowHeight = 13.5f;
             this.excelCellStyleClass = DefaultExcelCellStyle.class;
             this.type(new DefaultMapBeanTypeReference().getType());
-            this.propertyCellMappingList = new ArrayList<>();
+            this.propertyCellMapConfigList = new ArrayList<>();
+            this.headerRowCreate = true;
         }
 
         Builder(ExcelWriteConfig excelWriteConfig) {
@@ -274,7 +288,7 @@ public class ExcelWriteConfig {
             this.headerRowCreate = excelWriteConfig.headerRowCreate;
             this.type = excelWriteConfig.type;
             this.excelCellStyleClass = excelWriteConfig.excelCellStyleClass;
-            this.propertyCellMappingList = excelWriteConfig.propertyCellMappingList;
+            this.propertyCellMapConfigList = excelWriteConfig.propertyCellMapConfigList;
         }
 
         public ExcelWriteConfig build() {
@@ -287,11 +301,10 @@ public class ExcelWriteConfig {
         return new Builder(this);
     }
 
-    private void parseBeanPropertyCellDescriptor() {
+    private List<PropertyCellMapping> generatePropertyCellMapByBean(Class<?> clazz, List<Class<?>> excludeList) {
+        /*List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(this.propertyCellMapConfigList.size());
         List<Field> fieldList = ReflectionUtils.getDeclaredFieldsIgnoreStatic(this.rawClass);
         fieldList = ReflectionUtils.filter(fieldList, new StaticFieldFilter());
-        List<PropertyCellMapping> noOrderList = new ArrayList<>(fieldList.size());
-        List<PropertyCellMapping> orderList = new ArrayList<>(fieldList.size());
         for (Field field : fieldList) {
             String fieldName = field.getName();
             ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
@@ -305,12 +318,84 @@ public class ExcelWriteConfig {
                 propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
                 propertyCellMapping.setWidth(excelCell.width());
                 propertyCellMapping.setAutoWrap(excelCell.autoWrap());
-                if (excelCell.order() == 0) {
-                    noOrderList.add(propertyCellMapping);
-                } else {
-                    propertyCellMapping.setCellIndex(excelCell.order() - 1);
-                    orderList.add(propertyCellMapping);
+                switch (excelCell.type()) {
+                    case HYPER_LINK:
+                        ExcelHyperLink excelHyperLink = field.getAnnotation(ExcelHyperLink.class);
+                        if (excelHyperLink != null) {
+                            propertyCellMapping.setExcelHyperLinkType(excelHyperLink.value());
+                            propertyCellMapping.setHyperlinkName(excelHyperLink.linkName());
+                        } else {
+                            propertyCellMapping.setExcelHyperLinkType(ExcelHyperLinkType.URL);
+                        }
+                        break;
                 }
+
+                ExcelMappedEntity excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
+                if (excelMappedEntity != null) {
+                    Class<?> fieldType = field.getType();
+                    Class<?> fieldRawClass = field.isAnnotationPresent(ExcelEntity.class) ? fieldType : TypeResolver.resolveRawClass(fieldType.getGenericSuperclass(), null);
+
+                }
+
+                propertyCellMappingList.add(propertyCellMapping);
+            }
+        }
+        return propertyCellMappingList = this.annotationExcelCell(this.rawClass, new ArrayList<Class<?>>());
+        */
+        excludeList.add(clazz);
+        List<Field> fieldList = ReflectionUtils.getDeclaredFieldsIgnoreStatic(clazz);
+        List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(fieldList.size());
+        for (Field field : fieldList) {
+            String fieldName = field.getName();
+            ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
+            if (excelCell != null) {
+                PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
+                propertyCellMapping.setTitle(excelCell.value());
+                propertyCellMapping.setRequired(excelCell.required());
+                propertyCellMapping.setPropertyName(fieldName);
+                propertyCellMapping.setType(excelCell.type());
+                propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
+                propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
+                propertyCellMapping.setWidth(excelCell.width());
+                propertyCellMapping.setAutoWrap(excelCell.autoWrap());
+                switch (excelCell.type()) {
+                    case HYPER_LINK:
+                        ExcelHyperLink excelHyperLink = field.getAnnotation(ExcelHyperLink.class);
+                        if (excelHyperLink != null) {
+                            propertyCellMapping.setExcelHyperLinkType(excelHyperLink.value());
+                            propertyCellMapping.setHyperlinkName(excelHyperLink.linkName());
+                        } else {
+                            propertyCellMapping.setExcelHyperLinkType(ExcelHyperLinkType.URL);
+                        }
+                        break;
+                }
+
+                ExcelMappedEntity excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
+                if (excelMappedEntity != null) {
+                    Class<?> fieldType = field.getType();
+                    Class<?> fieldRawClass = fieldType.isAnnotationPresent(ExcelEntity.class) ? fieldType : TypeResolver.resolveRawArgument(field.getGenericType(), Collection.class);
+                    if (excludeList.contains(fieldRawClass)) {
+                        break;
+                    }
+                    List<PropertyCellMapping> children = this.generatePropertyCellMapByBean(fieldRawClass, excludeList);
+                    propertyCellMapping.setChildrenMapping(children);
+                }
+
+                propertyCellMappingList.add(propertyCellMapping);
+            }
+        }
+        return propertyCellMappingList;
+    }
+
+    private void sortPropertyCellMappingList(List<PropertyCellMapping> propertyCellMappingList) {
+        List<PropertyCellMapping> noOrderList = new ArrayList<>(propertyCellMappingList.size() >> 1);
+        List<PropertyCellMapping> orderList = new ArrayList<>(propertyCellMappingList.size() >> 1);
+        for (PropertyCellMapping propertyCellMapping : propertyCellMappingList) {
+            if (propertyCellMapping.getCellIndex() == 0) {
+                noOrderList.add(propertyCellMapping);
+            } else {
+                propertyCellMapping.setCellIndex(propertyCellMapping.getCellIndex() - 1);
+                orderList.add(propertyCellMapping);
             }
         }
 
@@ -319,6 +404,7 @@ public class ExcelWriteConfig {
 
         int noOrderIndex = 0, count = 0, cellIndex, i;
         PropertyCellMapping bpcd;
+        this.propertyCellMappingList = new ArrayList<>(propertyCellMappingList.size());
         for (PropertyCellMapping propertyCellMapping : orderList) {
             cellIndex = propertyCellMapping.getCellIndex();
             for (i = noOrderIndex; count < cellIndex; i++) {
@@ -338,6 +424,16 @@ public class ExcelWriteConfig {
                 this.propertyCellMappingList.add(bpcd);
             }
         }
+    }
+
+    private List<PropertyCellMapping> generatePropertyCellMapByMap() {
+        List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(this.propertyCellMapConfigList.size());
+        PropertyCellMapping propertyCellMapping;
+        for (PropertyCellMapConfig propertyCellMapConfig : this.propertyCellMapConfigList) {
+            propertyCellMapping = new PropertyCellMapping(propertyCellMapConfig);
+            propertyCellMappingList.add(propertyCellMapping);
+        }
+        return propertyCellMappingList;
     }
 
 }

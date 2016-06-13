@@ -2,8 +2,11 @@ package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
+import com.mzlion.poi.annotation.ExcelHyperLink;
+import com.mzlion.poi.annotation.ExcelMappedEntity;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 员工信息
@@ -47,7 +50,12 @@ public class Employee {
      * 转正日期
      */
     @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd", width = 12)
+    @ExcelHyperLink
     private String obtainedDate;
+
+    @ExcelCell(value = "账户列表")
+    @ExcelMappedEntity({"name", "balance"})
+    private List<Account> accountList;
 
     public String getNo() {
         return no;
@@ -111,6 +119,14 @@ public class Employee {
 
     public void setObtainedDate(String obtainedDate) {
         this.obtainedDate = obtainedDate;
+    }
+
+    public List<Account> getAccountList() {
+        return accountList;
+    }
+
+    public void setAccountList(List<Account> accountList) {
+        this.accountList = accountList;
     }
 
     @Override

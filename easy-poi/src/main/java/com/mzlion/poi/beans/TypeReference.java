@@ -19,7 +19,7 @@ public abstract class TypeReference<T> implements Comparable<T> {
 
     private final Type type;
 
-    private TypeReference() {
+    public TypeReference() {
         Type superClass = getClass().getGenericSuperclass();
         if (superClass instanceof Class<?>)
             throw new IllegalArgumentException("Internal error: TypeReference constructed without actual type information");

@@ -1,9 +1,6 @@
 package com.mzlion.poi.excel.write;
 
 import com.mzlion.core.lang.StringUtils;
-import com.mzlion.core.reflect.StaticFieldFilter;
-import com.mzlion.core.util.ReflectionUtils;
-import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelWriteConfig;
 import com.mzlion.poi.constant.ExcelType;
@@ -19,13 +16,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * <p>
@@ -40,14 +34,12 @@ public class ExcelWriterEngine {
     //导出配置对象
     private final ExcelWriteConfig excelWriteConfig;
 
-    private Workbook workbook;
-    private List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>();
+    Workbook workbook;
     //Excel单元格样式接口
-    private ExcelCellStyle excelCellStyle;
+    ExcelCellStyle excelCellStyle;
 
     public ExcelWriterEngine(ExcelWriteConfig excelWriteConfig) {
         this.excelWriteConfig = excelWriteConfig;
-        this.parseBeanPropertyCellDescriptor();
     }
 
     public <E> void write(Collection<E> dataSet, OutputStream outputStream) {
@@ -66,7 +58,8 @@ public class ExcelWriterEngine {
                 Constructor<? extends ExcelCellStyle> excelCellStyleClassConstructor = excelCellStyleClass.getConstructor(Workbook.class);
                 this.excelCellStyle = excelCellStyleClassConstructor.newInstance(workbook);
             }
-//            long start = System.currentTimeMillis();
+
+            long start = System.currentTimeMillis();
             logger.debug(" ===> ExcelEntity export is starting,bean class is {},excel version is {}",
                     this.excelWriteConfig.getRawClass(), this.excelWriteConfig.getExcelType().toString());
             Sheet sheet;
@@ -83,8 +76,8 @@ public class ExcelWriterEngine {
             this.createDataRows(sheet, row, dataSet);
 
             workbook.write(outputStream);
-//            System.out.println("create sheet cost " + (System.currentTimeMillis() - start));
-        } catch (Exception e) {
+            System.out.println("create sheet cost " + (System.currentTimeMillis() - start));
+        } catch (IOException | ReflectiveOperationException e) {
             e.printStackTrace();
         } finally {
             PoiUtils.closeQuitely(workbook);
@@ -97,27 +90,30 @@ public class ExcelWriterEngine {
      * @param sheet sheet对象
      */
     private void setColumnIndex(Sheet sheet) {
-        for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
+        for (PropertyCellMapping propertyCellMapping : this.excelWriteConfig.getPropertyCellMappingList()) {
             sheet.setColumnWidth(propertyCellMapping.getCellIndex(), (int) (256 * propertyCellMapping.getWidth()));
         }
     }
 
     private int createTitleRow(Sheet sheet) {
-        Row row = sheet.createRow(0);
-        row.setHeightInPoints(this.excelWriteConfig.getTitleRowHeight());
+        if (StringUtils.hasText(this.excelWriteConfig.getTitle())) {
+            Row row = sheet.createRow(0);
+            row.setHeightInPoints(this.excelWriteConfig.getTitleRowHeight());
 
-        Cell cell = row.createCell(0);
-        cell.setCellValue(this.excelWriteConfig.getTitle());
-        if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
-
-        int size = this.propertyCellMappingList.size();
-        for (int i = 1; i < size; i++) {
-            cell = row.createCell(i);
-            cell.setCellValue("");
+            Cell cell = row.createCell(0);
+            cell.setCellValue(this.excelWriteConfig.getTitle());
             if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
+
+            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
+            for (int i = 1; i < size; i++) {
+                cell = row.createCell(i);
+                cell.setCellValue("");
+                if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
+            }
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, size - 1));
+            return 1;
         }
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, size - 1));
-        return 1;
+        return 0;
     }
 
     private int createSecondTitleRow(Sheet sheet) {
@@ -129,7 +125,7 @@ public class ExcelWriterEngine {
             cell.setCellValue(this.excelWriteConfig.getSecondTitle());
             if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getSecondTitleCellStyle());
 
-            int size = this.propertyCellMappingList.size();
+            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
             for (int i = 1; i < size; i++) {
                 cell = row.createCell(i);
                 if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getSecondTitleCellStyle());
@@ -142,18 +138,21 @@ public class ExcelWriterEngine {
     }
 
     private int createHeaderTitleRow(Sheet sheet, int startRow) {
-        Row row = sheet.createRow(startRow);
-        int size = this.propertyCellMappingList.size();
-        Cell cell;
-        PropertyCellMapping propertyCellMapping;
-        for (int i = 0; i < size; i++) {
-            cell = row.createCell(i);
-            propertyCellMapping = this.propertyCellMappingList.get(i);
-            cell.setCellValue(propertyCellMapping.getTitle());
-            if (this.excelCellStyle != null)
-                cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(propertyCellMapping.getTitle(), i));
+        if (this.excelWriteConfig.isHeaderRowCreate()) {
+            Row row = sheet.createRow(startRow);
+            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
+            Cell cell;
+            PropertyCellMapping propertyCellMapping;
+            for (int i = 0; i < size; i++) {
+                cell = row.createCell(i);
+                propertyCellMapping = this.excelWriteConfig.getPropertyCellMappingList().get(i);
+                cell.setCellValue(propertyCellMapping.getTitle());
+                if (this.excelCellStyle != null)
+                    cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(propertyCellMapping.getTitle(), i));
+            }
+            return 1;
         }
-        return 1;
+        return 0;
     }
 
     private <E> int createDataRows(Sheet sheet, int startRow, Collection<E> dataSet) {
@@ -161,65 +160,13 @@ public class ExcelWriterEngine {
         int index = 0;
         for (E entity : dataSet) {
             row = sheet.createRow(index + startRow);
-            for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
-                CellGenerator<E> cellGenerator = new CellGenerator<>(row, entity, propertyCellMapping, this.excelCellStyle);
-                cellGenerator.generate();
+            for (PropertyCellMapping propertyCellMapping : this.excelWriteConfig.getPropertyCellMappingList()) {
+                CellGenerator<E> cellGenerator = new CellGenerator<>(this);
+                cellGenerator.generate(row, entity, propertyCellMapping);
             }
             index++;
         }
         return 0;
     }
 
-    private void parseBeanPropertyCellDescriptor() {
-        List<Field> fieldList = ReflectionUtils.getDeclaredFields(this.excelWriteConfig.getRawClass());
-        fieldList = ReflectionUtils.filter(fieldList, new StaticFieldFilter());
-        List<PropertyCellMapping> noOrderList = new ArrayList<>(fieldList.size());
-        List<PropertyCellMapping> orderList = new ArrayList<>(fieldList.size());
-        for (Field field : fieldList) {
-            String fieldName = field.getName();
-            ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
-            if (excelCell != null) {
-                PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
-                propertyCellMapping.setTitle(excelCell.value());
-                propertyCellMapping.setRequired(excelCell.required());
-                propertyCellMapping.setPropertyName(fieldName);
-                propertyCellMapping.setType(excelCell.type());
-                propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
-                propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
-                propertyCellMapping.setWidth(excelCell.width());
-                propertyCellMapping.setAutoWrap(excelCell.autoWrap());
-                if (excelCell.order() == 0) {
-                    noOrderList.add(propertyCellMapping);
-                } else {
-                    propertyCellMapping.setCellIndex(excelCell.order() - 1);
-                    orderList.add(propertyCellMapping);
-                }
-            }
-        }
-
-        //sort order
-        Collections.sort(orderList);
-
-        int noOrderIndex = 0, count = 0, cellIndex, i;
-        PropertyCellMapping bpcd;
-        for (PropertyCellMapping propertyCellMapping : orderList) {
-            cellIndex = propertyCellMapping.getCellIndex();
-            for (i = noOrderIndex; count < cellIndex; i++) {
-                bpcd = noOrderList.get(i);
-                bpcd.setCellIndex(count++);
-                this.propertyCellMappingList.add(bpcd);
-                noOrderIndex++;
-            }
-            this.propertyCellMappingList.add(propertyCellMapping);
-            count++;
-        }
-        int size = noOrderList.size();
-        if (noOrderIndex < size) {
-            for (; noOrderIndex < size; noOrderIndex++) {
-                bpcd = noOrderList.get(noOrderIndex);
-                bpcd.setCellIndex(count++);
-                this.propertyCellMappingList.add(bpcd);
-            }
-        }
-    }
 }

@@ -40,6 +40,8 @@ public class ReflectionUtils {
             logger.debug(" Reflect fields success,then put then into cache container.targetClass->{},fields->{}",
                     targetClass, declaredFields);
             declaredFieldsCache.put(targetClass, declaredFields.size() == 0 ? Collections.<Field>emptyList() : declaredFields);
+        } else {
+            logger.debug(" ===> The cache exist class [{}] reflection.", targetClass.getName());
         }
         return declaredFields;
     }

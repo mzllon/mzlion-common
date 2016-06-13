@@ -1,6 +1,8 @@
 package com.mzlion.poi.excel.write;
 
 import com.mzlion.poi.beans.PropertyCellMapping;
+import com.mzlion.poi.constant.ExcelCellType;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -68,7 +70,7 @@ public class DefaultExcelCellStyle extends AbsExcelCellStyle {
     }
 
     @Override
-    public CellStyle getDataCellStyle(int rowIndex, Object entity, PropertyCellMapping propertyCellMapping) {
+    public CellStyle getDataCellStyle(int rowIndex, Object value, Class<?> valueClass, PropertyCellMapping propertyCellMapping) {
         CellStyle cellStyle = this.dataCellStyle.get(propertyCellMapping.getCellIndex());
         if (cellStyle == null) {
             cellStyle = this.workbook.createCellStyle();
@@ -82,10 +84,19 @@ public class DefaultExcelCellStyle extends AbsExcelCellStyle {
 
             cellStyle.setWrapText(propertyCellMapping.isAutoWrap());
 
-            Font font = this.workbook.createFont();
-            font.setFontHeightInPoints((short) 10);
-            font.setFontName("宋体");
-            cellStyle.setFont(font);
+            if (propertyCellMapping.getType().equals(ExcelCellType.HYPER_LINK)) {
+                if (valueClass.equals(String.class)) {
+                    Font hyperlinkFont = this.workbook.createFont();
+                    hyperlinkFont.setUnderline(Font.U_SINGLE);
+                    hyperlinkFont.setColor(HSSFColor.BLUE.index);
+                    cellStyle.setFont(hyperlinkFont);
+                }
+            } else {
+                Font font = this.workbook.createFont();
+                font.setFontHeightInPoints((short) 10);
+                font.setFontName("宋体");
+                cellStyle.setFont(font);
+            }
             this.dataCellStyle.put(propertyCellMapping.getCellIndex(), cellStyle);
         }
 

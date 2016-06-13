@@ -12,4 +12,7 @@ import java.util.HashMap;
  */
 public class DefaultMapBeanTypeReference extends TypeReference<HashMap<String, Object>> {
 
+    public DefaultMapBeanTypeReference() {
+        super();
+    }
 }

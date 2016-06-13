@@ -1,6 +1,10 @@
 package com.mzlion.poi.beans;
 
+import com.mzlion.poi.config.PropertyCellMapConfig;
 import com.mzlion.poi.constant.ExcelCellType;
+import com.mzlion.poi.constant.ExcelHyperLinkType;
+
+import java.util.List;
 
 /**
  * JavaBean的属性和Excel的cell映射关系对象
@@ -54,6 +58,29 @@ public class PropertyCellMapping implements Comparable<PropertyCellMapping> {
      * 自动换行
      */
     private boolean autoWrap;
+
+    private ExcelHyperLinkType excelHyperLinkType;
+
+    private String hyperlinkName;
+
+    private List<PropertyCellMapping> childrenMapping;
+
+    public PropertyCellMapping() {
+    }
+
+    public PropertyCellMapping(PropertyCellMapConfig propertyCellMapConfig) {
+        this.title = propertyCellMapConfig.getTitle();
+        this.required = propertyCellMapConfig.isRequired();
+        this.type = propertyCellMapConfig.getType();
+        this.propertyName = propertyCellMapConfig.getPropertyName();
+        this.cellIndex = propertyCellMapConfig.getCellIndex();
+        this.excelDateFormat = propertyCellMapConfig.getExcelDateFormat();
+        this.javaDateFormat = propertyCellMapConfig.getJavaDateFormat();
+        this.width = propertyCellMapConfig.getWidth();
+        this.autoWrap = propertyCellMapConfig.isAutoWrap();
+        this.excelHyperLinkType = propertyCellMapConfig.getExcelHyperLinkType();
+        this.hyperlinkName = propertyCellMapConfig.getHyperlinkName();
+    }
 
     public String getTitle() {
         return title;
@@ -127,6 +154,30 @@ public class PropertyCellMapping implements Comparable<PropertyCellMapping> {
         this.autoWrap = autoWrap;
     }
 
+    public ExcelHyperLinkType getExcelHyperLinkType() {
+        return excelHyperLinkType;
+    }
+
+    public void setExcelHyperLinkType(ExcelHyperLinkType excelHyperLinkType) {
+        this.excelHyperLinkType = excelHyperLinkType;
+    }
+
+    public String getHyperlinkName() {
+        return hyperlinkName;
+    }
+
+    public void setHyperlinkName(String hyperlinkName) {
+        this.hyperlinkName = hyperlinkName;
+    }
+
+    public List<PropertyCellMapping> getChildrenMapping() {
+        return childrenMapping;
+    }
+
+    public void setChildrenMapping(List<PropertyCellMapping> childrenMapping) {
+        this.childrenMapping = childrenMapping;
+    }
+
     @Override
     public int compareTo(PropertyCellMapping o) {
         return this.cellIndex - o.cellIndex;
@@ -144,8 +195,10 @@ public class PropertyCellMapping implements Comparable<PropertyCellMapping> {
         sb.append(", javaDateFormat='").append(javaDateFormat).append('\'');
         sb.append(", width=").append(width);
         sb.append(", autoWrap=").append(autoWrap);
+        sb.append(", excelHyperLinkType=").append(excelHyperLinkType);
+        sb.append(", hyperlinkName='").append(hyperlinkName).append('\'');
+        sb.append(", childrenMapping=").append(childrenMapping);
         sb.append('}');
         return sb.toString();
     }
-
 }
