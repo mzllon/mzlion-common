@@ -98,7 +98,6 @@ public class ExcelWriteConfig implements Serializable {
             }
         }
 
-
         //sort
         this.sortPropertyCellMappingList(propertyCellMappingList);
     }
