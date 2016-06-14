@@ -1,5 +1,6 @@
 package com.mzlion.poi.config;
 
+import com.mzlion.core.lang.ArrayUtils;
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.ClassUtils;
 import com.mzlion.core.lang.CollectionUtils;
@@ -16,6 +17,9 @@ import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.excel.write.DefaultExcelCellStyle;
 import com.mzlion.poi.excel.write.ExcelCellStyle;
 import com.mzlion.poi.exception.BeanNotConfigAnnotationException;
+import com.mzlion.poi.exception.ExcelMappedEntityConfigException;
+import com.mzlion.poi.exception.FieldNoAnnotationException;
+import com.mzlion.poi.exception.NoSuchFieldException;
 import net.jodah.typetools.TypeResolver;
 
 import java.io.Serializable;
@@ -84,7 +88,7 @@ public class ExcelWriteConfig implements Serializable {
 
         List<PropertyCellMapping> propertyCellMappingList;
         if (ClassUtils.isAssignable(Map.class, this.rawClass)) {
-            Assert.assertNotEmpty(this.propertyCellMapConfigList, "The PropertyCellMapConfig list must not be null or empty when the bean type is Map class.");
+            Assert.notEmpty(this.propertyCellMapConfigList, "The PropertyCellMapConfig list must not be null or empty when the bean type is Map class.");
             propertyCellMappingList = this.generatePropertyCellMapByMap();
         } else {
             //check has @ExcelEntity annotation
@@ -92,7 +96,7 @@ public class ExcelWriteConfig implements Serializable {
             if (excelEntity == null) {
                 throw new BeanNotConfigAnnotationException("The bean [" + this.rawClass.getName() + "] must config ExcelEntity annotation.");
             }
-            propertyCellMappingList = this.generatePropertyCellMapByBean(this.rawClass, new ArrayList<Class<?>>());
+            propertyCellMappingList = this.generatePropertyCellMapByBean(this.rawClass);
             if (CollectionUtils.isEmpty(propertyCellMappingList)) {
                 throw new BeanNotConfigAnnotationException("The entity [" + this.rawClass.getName() + "] must config at least a '@ExcelCell' annotation on properties.");
             }
@@ -252,13 +256,13 @@ public class ExcelWriteConfig implements Serializable {
         }
 
         public Builder mapConfig(PropertyCellMapConfig config) {
-            Assert.assertNotNull(config, "PropertyCellMapConfig is null.");
+            Assert.notNull(config, "PropertyCellMapConfig is null.");
             this.propertyCellMapConfigList.add(config);
             return this;
         }
 
         public Builder mapConfig(List<PropertyCellMapConfig> configList) {
-            Assert.assertNotEmpty(configList, "The PropertyCellMapConfig list is null.");
+            Assert.notEmpty(configList, "The PropertyCellMapConfig list is null.");
             this.propertyCellMapConfigList.addAll(configList);
             return this;
         }
@@ -300,83 +304,39 @@ public class ExcelWriteConfig implements Serializable {
         return new Builder(this);
     }
 
-    private List<PropertyCellMapping> generatePropertyCellMapByBean(Class<?> clazz, List<Class<?>> excludeList) {
-        /*List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(this.propertyCellMapConfigList.size());
-        List<Field> fieldList = ReflectionUtils.getDeclaredFieldsIgnoreStatic(this.rawClass);
-        fieldList = ReflectionUtils.filter(fieldList, new StaticFieldFilter());
-        for (Field field : fieldList) {
-            String fieldName = field.getName();
-            ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
-            if (excelCell != null) {
-                PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
-                propertyCellMapping.setTitle(excelCell.value());
-                propertyCellMapping.setRequired(excelCell.required());
-                propertyCellMapping.setPropertyName(fieldName);
-                propertyCellMapping.setType(excelCell.type());
-                propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
-                propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
-                propertyCellMapping.setWidth(excelCell.width());
-                propertyCellMapping.setAutoWrap(excelCell.autoWrap());
-                switch (excelCell.type()) {
-                    case HYPER_LINK:
-                        ExcelHyperLink excelHyperLink = field.getAnnotation(ExcelHyperLink.class);
-                        if (excelHyperLink != null) {
-                            propertyCellMapping.setExcelHyperLinkType(excelHyperLink.value());
-                            propertyCellMapping.setHyperlinkName(excelHyperLink.linkName());
-                        } else {
-                            propertyCellMapping.setExcelHyperLinkType(ExcelHyperLinkType.URL);
-                        }
-                        break;
-                }
-
-                ExcelMappedEntity excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
-                if (excelMappedEntity != null) {
-                    Class<?> fieldType = field.getType();
-                    Class<?> fieldRawClass = field.isAnnotationPresent(ExcelEntity.class) ? fieldType : TypeResolver.resolveRawClass(fieldType.getGenericSuperclass(), null);
-
-                }
-
-                propertyCellMappingList.add(propertyCellMapping);
-            }
-        }
-        return propertyCellMappingList = this.annotationExcelCell(this.rawClass, new ArrayList<Class<?>>());
-        */
-        excludeList.add(clazz);
+    private List<PropertyCellMapping> generatePropertyCellMapByBean(Class<?> clazz) {
         List<Field> fieldList = ReflectionUtils.getDeclaredFieldsIgnoreStatic(clazz);
         List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(fieldList.size());
         for (Field field : fieldList) {
-            String fieldName = field.getName();
             ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
             if (excelCell != null) {
-                PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
-                propertyCellMapping.setTitle(excelCell.value());
-                propertyCellMapping.setRequired(excelCell.required());
-                propertyCellMapping.setPropertyName(fieldName);
-                propertyCellMapping.setType(excelCell.type());
-                propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
-                propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
-                propertyCellMapping.setWidth(excelCell.width());
-                propertyCellMapping.setAutoWrap(excelCell.autoWrap());
-                switch (excelCell.type()) {
-                    case HYPER_LINK:
-                        ExcelHyperLink excelHyperLink = field.getAnnotation(ExcelHyperLink.class);
-                        if (excelHyperLink != null) {
-                            propertyCellMapping.setExcelHyperLinkType(excelHyperLink.value());
-                            propertyCellMapping.setHyperlinkName(excelHyperLink.linkName());
-                        } else {
-                            propertyCellMapping.setExcelHyperLinkType(ExcelHyperLinkType.URL);
-                        }
-                        break;
-                }
-
+                PropertyCellMapping propertyCellMapping = this.annotationExcelCell(excelCell, field);
                 ExcelMappedEntity excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
                 if (excelMappedEntity != null) {
                     Class<?> fieldType = field.getType();
-                    Class<?> fieldRawClass = fieldType.isAnnotationPresent(ExcelEntity.class) ? fieldType : TypeResolver.resolveRawArgument(field.getGenericType(), Collection.class);
-                    if (excludeList.contains(fieldRawClass)) {
-                        break;
+                    Class<?> fieldRawClass = fieldType;
+                    if (!fieldType.isAnnotationPresent(ExcelEntity.class)) {
+                        if (!ClassUtils.isAssignable(Collection.class, fieldType)) {
+                            throw new ExcelMappedEntityConfigException("The annotation 'ExcelMappedEntity' support JavaBean or JavaBean list only.");
+                        }
+                        fieldRawClass = TypeResolver.resolveRawArgument(field.getGenericType(), Collection.class);
                     }
-                    List<PropertyCellMapping> children = this.generatePropertyCellMapByBean(fieldRawClass, excludeList);
+                    String[] mappedPropertyNames = excelMappedEntity.value();
+                    if (ArrayUtils.isEmpty(mappedPropertyNames)) {
+                        throw new ExcelMappedEntityConfigException("The ExcelMappedEntity.values() at least contains a value.");
+                    }
+                    List<PropertyCellMapping> children = new ArrayList<>(mappedPropertyNames.length);
+                    for (String mappedPropertyName : mappedPropertyNames) {
+                        field = ReflectionUtils.findField(fieldRawClass, mappedPropertyName);
+                        if (field == null) {
+                            throw new NoSuchFieldException(mappedPropertyName, clazz);
+                        }
+                        excelCell = field.getAnnotation(ExcelCell.class);
+                        if (excelCell == null) {
+                            throw new FieldNoAnnotationException(field.toString(), ExcelCell.class);
+                        }
+                        children.add(this.annotationExcelCell(excelCell, field));
+                    }
                     propertyCellMapping.setChildrenMapping(children);
                 }
 
@@ -384,6 +344,30 @@ public class ExcelWriteConfig implements Serializable {
             }
         }
         return propertyCellMappingList;
+    }
+
+    private PropertyCellMapping annotationExcelCell(ExcelCell excelCell, Field field) {
+        PropertyCellMapping propertyCellMapping = new PropertyCellMapping();
+        propertyCellMapping.setTitle(excelCell.value());
+        propertyCellMapping.setRequired(excelCell.required());
+        propertyCellMapping.setPropertyName(field.getName());
+        propertyCellMapping.setType(excelCell.type());
+        propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
+        propertyCellMapping.setJavaDateFormat(excelCell.javaDateFormat());
+        propertyCellMapping.setWidth(excelCell.width());
+        propertyCellMapping.setAutoWrap(excelCell.autoWrap());
+        switch (excelCell.type()) {
+            case HYPER_LINK:
+                ExcelHyperLink excelHyperLink = field.getAnnotation(ExcelHyperLink.class);
+                if (excelHyperLink != null) {
+                    propertyCellMapping.setExcelHyperLinkType(excelHyperLink.value());
+                    propertyCellMapping.setHyperlinkName(excelHyperLink.linkName());
+                } else {
+                    propertyCellMapping.setExcelHyperLinkType(ExcelHyperLinkType.URL);
+                }
+                break;
+        }
+        return propertyCellMapping;
     }
 
     private void sortPropertyCellMappingList(List<PropertyCellMapping> propertyCellMappingList) {
@@ -395,6 +379,9 @@ public class ExcelWriteConfig implements Serializable {
             } else {
                 propertyCellMapping.setCellIndex(propertyCellMapping.getCellIndex() - 1);
                 orderList.add(propertyCellMapping);
+            }
+            if (CollectionUtils.isNotEmpty(propertyCellMapping.getChildrenMapping())) {
+                sortPropertyCellMappingList(propertyCellMapping.getChildrenMapping());
             }
         }
 

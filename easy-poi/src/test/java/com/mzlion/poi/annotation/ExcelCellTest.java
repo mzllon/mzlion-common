@@ -2,7 +2,7 @@ package com.mzlion.poi.annotation;
 
 import com.mzlion.core.reflect.StaticFieldFilter;
 import com.mzlion.core.util.ReflectionUtils;
-import com.mzlion.poi.entity.Employee;
+import com.mzlion.poi.entity.EmployeeSimply;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -15,7 +15,7 @@ public class ExcelCellTest {
 
     @Test
     public void testGen() throws Exception {
-        List<Field> declaredFields = ReflectionUtils.getDeclaredFields(Employee.class);
+        List<Field> declaredFields = ReflectionUtils.getDeclaredFields(EmployeeSimply.class);
         declaredFields = ReflectionUtils.filter(declaredFields, new StaticFieldFilter());
         for (Field declaredField : declaredFields) {
             System.out.println(declaredField);

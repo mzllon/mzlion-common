@@ -17,12 +17,12 @@ public class URLResourceDescriptor extends AbstractResourceDescriptor {
     private final URL url;
 
     public URLResourceDescriptor(URL url) {
-        Assert.assertNotNull(url, "URL must not be null");
+        Assert.notNull(url, "URL must not be null");
         this.url = url;
     }
 
     public URLResourceDescriptor(String path) throws MalformedURLException {
-        Assert.assertHasLength(path, "Path must not be null");
+        Assert.hasLength(path, "Path must not be null");
         this.url = new URL(path);
     }
 

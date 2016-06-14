@@ -72,7 +72,7 @@ public abstract class IOUtils {
      * @return 如果转换成功则返回字节数组，否则返回{@code null}
      */
     public static byte[] toByteArray(InputStream in) {
-        Assert.assertNotNull(in, "Input stream must not be null.");
+        Assert.notNull(in, "Input stream must not be null.");
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
         if (copy(in, out) == -1) {
             return null;
@@ -88,7 +88,7 @@ public abstract class IOUtils {
      * @return 返回读取的数据
      */
     public static byte[] toByteArray(InputStream in, int size) {
-        Assert.assertNotNull(in, "Input stream must not be null.");
+        Assert.notNull(in, "Input stream must not be null.");
         if (size < 0) throw new IllegalArgumentException("Size must be equal or greater than zero: " + size);
         if (size == 0) return new byte[0];
 
@@ -139,7 +139,7 @@ public abstract class IOUtils {
      * @return 转换异常时返回{@code null}，否则返回字节数组
      */
     public static byte[] toByteArray(Reader reader, Charset encoding) {
-        Assert.assertNotNull(reader, "Reader must not be null.");
+        Assert.notNull(reader, "Reader must not be null.");
         if (encoding == null) {
             encoding = Charset.defaultCharset();
         }
@@ -159,7 +159,7 @@ public abstract class IOUtils {
     }
 
     public static String toString(InputStream in, Charset encoding) {
-        Assert.assertNotNull(in, "InputStream must not be null.");
+        Assert.notNull(in, "InputStream must not be null.");
         StringWriter writer = new StringWriter();
         if (!copy(in, writer, encoding)) {
             return null;
@@ -168,7 +168,7 @@ public abstract class IOUtils {
     }
 
     public static String toString(Reader reader) {
-        Assert.assertNotNull(reader, "Reader must not be null.");
+        Assert.notNull(reader, "Reader must not be null.");
         StringWriter writer = new StringWriter();
         if (copy(reader, writer) == -1) {
             return null;
@@ -215,9 +215,9 @@ public abstract class IOUtils {
      * @return 返回流大小，如果拷贝失败则返回-1
      */
     public static long copyLarge(InputStream in, OutputStream out, byte[] buffer) {
-        Assert.assertNotNull(in, "InputStream must not be null.");
-        Assert.assertNotNull(out, "OutputStream must not be null.");
-        Assert.assertNotEmpty(buffer, "The buffer array must not null or empty.");
+        Assert.notNull(in, "InputStream must not be null.");
+        Assert.notNull(out, "OutputStream must not be null.");
+        Assert.notEmpty(buffer, "The buffer array must not null or empty.");
         long count = 0;
         int n;
         try {
@@ -263,7 +263,7 @@ public abstract class IOUtils {
      * @return 拷贝成功则返回{@code true},否则返回{@code false}
      */
     public static boolean copy(InputStream in, Writer writer, Charset encoding) {
-        Assert.assertNotNull(in, "Input stream must not be null.");
+        Assert.notNull(in, "Input stream must not be null.");
         InputStreamReader reader = new InputStreamReader(in, encoding == null ? Charset.defaultCharset() : encoding);
         return copy(reader, writer) > 0;
     }
@@ -353,8 +353,8 @@ public abstract class IOUtils {
      * @return 拷贝成功则返回{@code true},否则返回{@code false}
      */
     public static boolean copy(Reader reader, OutputStream out, Charset encoding) {
-        Assert.assertNotNull(reader, "Reader must not be null.");
-        Assert.assertNotNull(out, "Output stream must not be null.");
+        Assert.notNull(reader, "Reader must not be null.");
+        Assert.notNull(out, "Output stream must not be null.");
         encoding = encoding == null ? Charset.defaultCharset() : encoding;
         OutputStreamWriter writer = new OutputStreamWriter(out, encoding);
         if (copy(reader, writer) == -1) {
@@ -371,7 +371,7 @@ public abstract class IOUtils {
     }
 
     public static String md5(final InputStream in) {
-        Assert.assertNotNull(in, "InputStream must not be null.");
+        Assert.notNull(in, "InputStream must not be null.");
 
         return null;
     }

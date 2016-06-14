@@ -25,7 +25,7 @@ public class ReflectionUtils {
     private static final WeakHashMap<Class<?>, Method[]> declaredMethodCache = new WeakHashMap<>(255);
 
     public static List<Field> getDeclaredFields(Class<?> targetClass) {
-        Assert.assertNotNull(targetClass, "Target class must not be null.");
+        Assert.notNull(targetClass, "Target class must not be null.");
         List<Field> declaredFields = declaredFieldsCache.get(targetClass);
         if (declaredFields == null) {
             logger.debug(" It cannot find field list in cache for targetClass->{}", targetClass);
@@ -47,7 +47,7 @@ public class ReflectionUtils {
     }
 
     public static List<Field> filter(List<Field> fieldList, FieldFilter... fieldFilters) {
-        Assert.assertNotEmpty(fieldList, "Field list is null or empty.");
+        Assert.notEmpty(fieldList, "Field list is null or empty.");
         if (ArrayUtils.isEmpty(fieldFilters)) {
             return new ArrayList<>(fieldList);
         }
@@ -69,5 +69,39 @@ public class ReflectionUtils {
     public static List<Field> getDeclaredFieldsIgnoreStatic(Class<?> targetClass) {
         List<Field> declaredFields = getDeclaredFields(targetClass);
         return filter(declaredFields, new StaticFieldFilter());
+    }
+
+    /**
+     * 根据{@code fieldName}在{@code targetClass}查找，支持父类的属性查找。
+     *
+     * @param targetClass the class to introspect.
+     * @param fieldName   the name of the field.
+     * @return the Field object, or {@code null} if not found.
+     */
+    public static Field findField(Class<?> targetClass, String fieldName) {
+        return findField(targetClass, fieldName, null);
+    }
+
+    /**
+     * 根据{@code fieldName}或{@code fieldType}在{@code targetClass}查找，支持父类的属性查找。
+     *
+     * @param targetClass the class to introspect.
+     * @param fieldName   the name of the field.
+     * @param fieldType   the type of the field.
+     * @return the Field object, or {@code null} if not found.
+     */
+    public static Field findField(Class<?> targetClass, String fieldName, Class<?> fieldType) {
+        Assert.notNull(targetClass, "Target class must not be null.");
+        Assert.isTrue(fieldName != null || fieldType != null, "Either fieldName or fieldType of the field must be specified.");
+        Class<?> searchType = targetClass;
+        while (Object.class != searchType && searchType != null) {
+            List<Field> declaredFields = getDeclaredFields(searchType);
+            for (Field declaredField : declaredFields) {
+                if ((fieldName == null || fieldName.equals(declaredField.getName())) &&
+                        (fieldType == null || fieldType.equals(declaredField.getType()))) return declaredField;
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
     }
 }

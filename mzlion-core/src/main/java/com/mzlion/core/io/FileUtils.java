@@ -80,8 +80,8 @@ public class FileUtils {
      * @return 返回文件的大小
      */
     public static long copyFile(File srcFile, OutputStream output) {
-        Assert.assertNotNull(output, "OutputStream must not be null.");
-        Assert.assertNotNull(srcFile, "Source file must not be null.");
+        Assert.notNull(output, "OutputStream must not be null.");
+        Assert.notNull(srcFile, "Source file must not be null.");
         FileInputStream in = openFileInputStream(srcFile);
         try {
             return IOUtils.copyLarge(in, output);
@@ -108,8 +108,8 @@ public class FileUtils {
      * @param holdFileDate 保持最后修改日期不变
      */
     public static void copyFile(File srcFile, File destFile, boolean holdFileDate) {
-        Assert.assertNotNull(srcFile, "Source file must not be null.");
-        Assert.assertNotNull(destFile, "Destination file must not be null.");
+        Assert.notNull(srcFile, "Source file must not be null.");
+        Assert.notNull(destFile, "Destination file must not be null.");
         if (!srcFile.exists()) throw new FatalFileException("Source [" + srcFile + "] does not exist.");
         if (srcFile.isDirectory())
             throw new FatalFileException("Source [" + srcFile + "] exists but it is a directory.");
@@ -179,8 +179,8 @@ public class FileUtils {
      * @return 拷贝成功则返回{@code true}，否则返回{@code false}
      */
     private static void copyFileToDirectory(File srcFile, File destDir, boolean holdFileDate) {
-        Assert.assertNotNull(srcFile, "Source file must not be null.");
-        Assert.assertNotNull(destDir, "Destination Directory must not be null.");
+        Assert.notNull(srcFile, "Source file must not be null.");
+        Assert.notNull(destDir, "Destination Directory must not be null.");
         if (destDir.exists() && !destDir.isDirectory())
             throw new FatalFileException("Destination [" + destDir + "] is not a directory.");
 
@@ -221,8 +221,8 @@ public class FileUtils {
      * @param filter       文件过滤器
      */
     public static void copyDirectory(File srcDir, File destDir, boolean holdFileDate, FileFilter filter) {
-        Assert.assertNotNull(srcDir, "Source Directory must not be null.");
-        Assert.assertNotNull(destDir, "Destination Directory must not be null.");
+        Assert.notNull(srcDir, "Source Directory must not be null.");
+        Assert.notNull(destDir, "Destination Directory must not be null.");
         if (!srcDir.exists()) throw new FatalFileException("Source [" + srcDir + "] does not exist.");
         if (destDir.isFile())
             throw new FatalFileException("Destination [" + destDir + "] exists but is not a directory.");
@@ -284,8 +284,8 @@ public class FileUtils {
      * @throws FatalFileException
      */
     public static void moveFile(File srcFile, File destFile) {
-        Assert.assertNotNull(srcFile, "Source must not be null.");
-        Assert.assertNotNull(destFile, "Destination must not be null.");
+        Assert.notNull(srcFile, "Source must not be null.");
+        Assert.notNull(destFile, "Destination must not be null.");
         if (!srcFile.exists()) throw new FatalFileException("Source [" + srcFile + "] does not exist.");
         if (srcFile.isDirectory()) throw new FatalFileException("Source [" + srcFile + "] is a directory.");
 //        if (!destFile.exists()) throw new FatalFileException("Destination [" + destFile + "] does not exist.");
@@ -331,8 +331,8 @@ public class FileUtils {
      * @throws FatalFileException
      */
     public static void moveDirectory(File srcDir, File destDir, boolean toDir) {
-        Assert.assertNotNull(srcDir, "Source must not be null.");
-        Assert.assertNotNull(destDir, "Destination must not be null.");
+        Assert.notNull(srcDir, "Source must not be null.");
+        Assert.notNull(destDir, "Destination must not be null.");
         if (!srcDir.exists()) throw new FatalFileException("Source [" + srcDir + "] does not exist.");
         if (!srcDir.isDirectory()) throw new FatalFileException("Destination [" + srcDir + "] is not a directory.");
         if (destDir.exists() && !destDir.isDirectory())
@@ -360,7 +360,7 @@ public class FileUtils {
      * @throws FatalFileException
      */
     public static void delete(File file) {
-        Assert.assertNotNull(file, "File must not be null.");
+        Assert.notNull(file, "File must not be null.");
         if (!file.exists()) return;
         if (file.isDirectory()) {
             cleanDirectory(file);
@@ -377,7 +377,7 @@ public class FileUtils {
      * @throws FatalFileException
      */
     public static void cleanDirectory(File directory) {
-        Assert.assertNotNull(directory, "Directory must not be null.");
+        Assert.notNull(directory, "Directory must not be null.");
         if (!directory.exists()) throw new FatalFileException("Directory [" + directory + "] does not exist.");
         if (!directory.isDirectory()) throw new FatalFileException("The [" + directory + "] is not a directory.");
         File[] listFiles = directory.listFiles();
@@ -402,7 +402,7 @@ public class FileUtils {
      * @throws FatalFileException
      */
     public static FileInputStream openFileInputStream(File file) {
-        Assert.assertNotNull(file, "File must not be null.");
+        Assert.notNull(file, "File must not be null.");
         if (file.exists()) {
             if (file.isDirectory()) {
                 throw new FatalFileException("File '" + file + "' exists but is a directory");
@@ -437,7 +437,7 @@ public class FileUtils {
      * @return {@link FileOutputStream}
      */
     private static FileOutputStream openFileOutputStream(File file, boolean append) {
-        Assert.assertNotNull(file, "File must not be null.");
+        Assert.notNull(file, "File must not be null.");
         if (file.exists()) {
             if (file.isDirectory())
                 throw new FatalFileException("Destination [" + file + "] exists but is a directory.");
@@ -461,7 +461,7 @@ public class FileUtils {
     //--------------------------------checksum--------------------------------
 
     public static String md5(File file) {
-        Assert.assertNotNull(file, "File must not be null.");
+        Assert.notNull(file, "File must not be null.");
         FileInputStream in = openFileInputStream(file);
         return IOUtils.md5(in);
     }

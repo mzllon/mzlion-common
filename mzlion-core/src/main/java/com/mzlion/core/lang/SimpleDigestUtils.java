@@ -13,7 +13,7 @@ public class SimpleDigestUtils {
     private static final int STREAM_BUFFER_LENGTH = 1024;
 
     public static byte[] md5(InputStream in) {
-        Assert.assertNotNull(in, "InputStream must not be null.");
+        Assert.notNull(in, "InputStream must not be null.");
         try {
             MessageDigest digest = MessageDigest.getInstance("md5");
             return updateDigest(digest, in).digest();

@@ -112,7 +112,7 @@ public abstract class JsonUtil {
      * @return json字符串
      */
     public static String toJson(Object value, SerializerFeature... features) {
-        Assert.assertNotNull(features, "Array SerializerFeature is null or empty.");
+        Assert.notNull(features, "Array SerializerFeature is null or empty.");
         return JSON.toJSONString(value, features);
     }
 

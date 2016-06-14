@@ -1,7 +1,6 @@
 package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
-import com.mzlion.poi.annotation.ExcelMappedEntity;
 
 /**
  * Created by mzlion on 2016/6/13.
@@ -13,11 +12,8 @@ public class Account {
     @ExcelCell("账户名称")
     private String name;
 
+    @ExcelCell("账户余额")
     private String balance;
-
-    @ExcelCell("员工姓名")
-    @ExcelMappedEntity("name")
-    private Employee employee;
 
     public String getId() {
         return id;
@@ -43,11 +39,22 @@ public class Account {
         this.balance = balance;
     }
 
-    public Employee getEmployee() {
-        return employee;
+    public Account() {
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
+    public Account(String id, String name, String balance) {
+        this.id = id;
+        this.name = name;
+        this.balance = balance;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Account{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", balance='").append(balance).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

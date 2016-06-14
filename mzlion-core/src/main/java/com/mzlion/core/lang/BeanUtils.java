@@ -25,7 +25,7 @@ public class BeanUtils {
      * @return Map对象
      */
     public static Map<String, Object> toMapAsValueObject(Object bean) {
-        Assert.assertNotNull(bean, "No bean specified");
+        Assert.notNull(bean, "No bean specified");
         List<PropertyDescriptor> propertyDescriptors = PropertyUtilBean.getInstance().getPropertyDescriptors(bean);
 
         try {
@@ -108,8 +108,8 @@ public class BeanUtils {
      * @param ignoreProperties 过滤的属性名
      */
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
-        Assert.assertNotNull(source, "Source must not be null");
-        Assert.assertNotNull(target, "Target must not be null");
+        Assert.notNull(source, "Source must not be null");
+        Assert.notNull(target, "Target must not be null");
         List<PropertyDescriptor> targetPDList = PropertyUtilBean.getInstance().getPropertyDescriptors(target);
         List<String> ignoreList = (ignoreProperties == null ? null : Arrays.asList(ignoreProperties));
 

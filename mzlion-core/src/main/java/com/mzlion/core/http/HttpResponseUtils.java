@@ -112,10 +112,10 @@ public class HttpResponseUtils {
      * @param contentLength 内容长度
      */
     public static void downloadAttachment(HttpServletRequest request, HttpServletResponse response, String filename, InputStream in, long contentLength) {
-        Assert.assertNotNull(request, "Request must not be null.");
-        Assert.assertNotNull(response, "Response must not be null.");
-        Assert.assertHasLength(filename, "Filename must not be null or empty.");
-        Assert.assertNotNull(in, "InputStream must not be null.");
+        Assert.notNull(request, "Request must not be null.");
+        Assert.notNull(response, "Response must not be null.");
+        Assert.hasLength(filename, "Filename must not be null or empty.");
+        Assert.notNull(in, "InputStream must not be null.");
 
         response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
         response.setHeader("content-length", String.valueOf(contentLength));
@@ -132,10 +132,10 @@ public class HttpResponseUtils {
     //内部方法实现文件下载
     private static void doDownload(HttpServletRequest request, HttpServletResponse response, String filename, File downloadFile,
                                    boolean isDeleted, boolean tryDisplay) {
-        Assert.assertNotNull(request, "Request must not be null.");
-        Assert.assertNotNull(response, "Response must not be null.");
-        Assert.assertHasLength(filename, "Filename must not be null or empty.");
-        Assert.assertNotNull(downloadFile, "Download file must not be null.");
+        Assert.notNull(request, "Request must not be null.");
+        Assert.notNull(response, "Response must not be null.");
+        Assert.hasLength(filename, "Filename must not be null or empty.");
+        Assert.notNull(downloadFile, "Download file must not be null.");
 
         if (!downloadFile.exists()) {
             throw new IllegalArgumentException("File can not be found.");

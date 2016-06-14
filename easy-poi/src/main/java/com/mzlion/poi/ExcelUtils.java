@@ -46,7 +46,7 @@ public class ExcelUtils {
      * @return 集合
      */
     public static <E> List<E> read(File excelFile, ExcelReadConfig<E> excelReadConfig) {
-        Assert.assertNotNull(excelFile, "ExcelEntity file must not be null.");
+        Assert.notNull(excelFile, "ExcelEntity file must not be null.");
         FileInputStream in = FileUtils.openFileInputStream(excelFile);
         try {
             return read(in, excelReadConfig);
@@ -77,8 +77,8 @@ public class ExcelUtils {
      * @return 集合
      */
     public static <E> List<E> read(InputStream excelInputStream, ExcelReadConfig<E> excelReadConfig) {
-        Assert.assertNotNull(excelInputStream, "ExcelEntity inputStream must not be null.");
-        Assert.assertNotNull(excelReadConfig, "ExcelReadConfig must not be null.");
+        Assert.notNull(excelInputStream, "ExcelEntity inputStream must not be null.");
+        Assert.notNull(excelReadConfig, "ExcelReadConfig must not be null.");
         ExcelReaderEngine<E> excelReaderEngine = new ExcelReaderEngine<>(excelReadConfig);
         return excelReaderEngine.read(excelInputStream);
     }
@@ -109,8 +109,8 @@ public class ExcelUtils {
      * @param <E>              泛型类型
      */
     public static <E> void write(Collection<E> dataSet, ExcelWriteConfig excelWriteConfig, File output) {
-        Assert.assertNotNull(output, "Output file must not be null.");
-        Assert.assertNotNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
+        Assert.notNull(output, "Output file must not be null.");
+        Assert.notNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
         FileOutputStream outputStream = null;
         try {
             outputStream = FileUtils.openFileOutputStream(output);
@@ -135,9 +135,9 @@ public class ExcelUtils {
      * @param <E>              泛型类型
      */
     public static <E> void write(Collection<E> dataSet, ExcelWriteConfig excelWriteConfig, OutputStream output) {
-        Assert.assertNotEmpty(dataSet, "The dataset must not be null or empty.");
-        Assert.assertNotNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
-        Assert.assertNotNull(output, "Output must not be null.");
+        Assert.notEmpty(dataSet, "The dataset must not be null or empty.");
+        Assert.notNull(excelWriteConfig, "ExcelWriteConfig must not be null.");
+        Assert.notNull(output, "Output must not be null.");
         ExcelWriterEngine excelWriterEngine = new ExcelWriterEngine(excelWriteConfig);
         excelWriterEngine.write(dataSet, output);
     }

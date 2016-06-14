@@ -1,7 +1,7 @@
 package com.mzlion.poi;
 
 import com.mzlion.poi.config.ExcelWriteConfig;
-import com.mzlion.poi.entity.Employee;
+import com.mzlion.poi.entity.EmployeeSimply;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -24,7 +24,7 @@ public class ExcelUtilsTest {
     public void write() throws Exception {
         long start = System.currentTimeMillis();
         File output = new File("d:/emp.xlsx");
-        ExcelUtils.write(this.genEmployeeList(), "测试导出", Employee.class, output);
+        ExcelUtils.write(this.genEmployeeList(), "测试导出", EmployeeSimply.class, output);
         System.out.println(System.currentTimeMillis() - start);
     }
 
@@ -34,7 +34,7 @@ public class ExcelUtilsTest {
         File output = new File("d:/emp2.xlsx");
         ExcelWriteConfig.Builder builder = new ExcelWriteConfig.Builder();
         builder.title("测试导出标题")
-                .beanClass(Employee.class)
+                .beanClass(EmployeeSimply.class)
                 .excelCellStyleClass(null);
         ExcelUtils.write(this.genEmployeeList(), builder.build(), output);
         System.out.println(System.currentTimeMillis() - start);
@@ -64,13 +64,13 @@ public class ExcelUtilsTest {
     public void load2() throws Exception {
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("imports/employeeList.xlsx");
         long startTime = System.currentTimeMillis();
-        List<Employee> employeeList = ExcelUtils.read(inputStream, Employee.class);
+        List<EmployeeSimply> employeeSimplyList = ExcelUtils.read(inputStream, EmployeeSimply.class);
         long end = System.currentTimeMillis();
         System.out.println("Reading excel cost " + (end - startTime) + " milliseconds");
-        assertNotNull(employeeList);
-        assertEquals(100, employeeList.size());
-        for (Employee employee : employeeList) {
-            System.out.println(employee);
+        assertNotNull(employeeSimplyList);
+        assertEquals(100, employeeSimplyList.size());
+        for (EmployeeSimply employeeSimply : employeeSimplyList) {
+            System.out.println(employeeSimply);
         }
     }
 
@@ -79,65 +79,65 @@ public class ExcelUtilsTest {
 
     }
 
-    private List<Employee> genEmployeeList() {
-        List<Employee> list = new ArrayList<>();
-        Employee employee;
+    private List<EmployeeSimply> genEmployeeList() {
+        List<EmployeeSimply> list = new ArrayList<>();
+        EmployeeSimply employeeSimply;
 
-        employee = new Employee();
-        employee.setNo("091231301");
-        employee.setName("施鸿朗");
+        employeeSimply = new EmployeeSimply();
+        employeeSimply.setNo("091231301");
+        employeeSimply.setName("施鸿朗");
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 1990);
         calendar.set(Calendar.MONTH, 0);
         calendar.set(Calendar.DATE, 19);
-        employee.setBirthDay(calendar.getTime());
-        employee.setSex("男");
-        employee.setObtainedDate("2016-09-05");
-        employee.setMobile("17018321652");
-        employee.setAddress("上海市长宁区倏肮路 18号 彻小区 34号楼 1单元 406室");
-        list.add(employee);
+        employeeSimply.setBirthDay(calendar.getTime());
+        employeeSimply.setSex("男");
+        employeeSimply.setObtainedDate("2016-09-05");
+        employeeSimply.setMobile("17018321652");
+        employeeSimply.setAddress("上海市长宁区倏肮路 18号 彻小区 34号楼 1单元 406室");
+        list.add(employeeSimply);
 
-        employee = new Employee();
-        employee.setNo("091231302");
-        employee.setName("袁高谊");
+        employeeSimply = new EmployeeSimply();
+        employeeSimply.setNo("091231302");
+        employeeSimply.setName("袁高谊");
         calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 1990);
         calendar.set(Calendar.MONTH, 0);
         calendar.set(Calendar.DATE, 6);
-        employee.setBirthDay(calendar.getTime());
-        employee.setSex("男");
-        employee.setObtainedDate("2016-09-05");
-        employee.setMobile("17018321653");
-        employee.setAddress("上海市长宁区月押路 04号 约小区 25号楼 9单元 629室\n");
-        list.add(employee);
+        employeeSimply.setBirthDay(calendar.getTime());
+        employeeSimply.setSex("男");
+        employeeSimply.setObtainedDate("2016-09-05");
+        employeeSimply.setMobile("17018321653");
+        employeeSimply.setAddress("上海市长宁区月押路 04号 约小区 25号楼 9单元 629室\n");
+        list.add(employeeSimply);
 
-        employee = new Employee();
-        employee.setNo("091231303\n");
-        employee.setName("老芳洲\n");
+        employeeSimply = new EmployeeSimply();
+        employeeSimply.setNo("091231303\n");
+        employeeSimply.setName("老芳洲\n");
         calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 1990);
         calendar.set(Calendar.MONTH, 3);
         calendar.set(Calendar.DATE, 19);
-        employee.setBirthDay(calendar.getTime());
-        employee.setSex("女\n");
-        employee.setObtainedDate("2016-09-05");
-        employee.setMobile("17018321654\n");
-        employee.setAddress("上海市长宁区敛焙路 08号 航小区 60号楼 8单元 223室\n");
-        list.add(employee);
+        employeeSimply.setBirthDay(calendar.getTime());
+        employeeSimply.setSex("女\n");
+        employeeSimply.setObtainedDate("2016-09-05");
+        employeeSimply.setMobile("17018321654\n");
+        employeeSimply.setAddress("上海市长宁区敛焙路 08号 航小区 60号楼 8单元 223室\n");
+        list.add(employeeSimply);
 
-        employee = new Employee();
-        employee.setNo("091231304");
-        employee.setName("覃维运\n");
+        employeeSimply = new EmployeeSimply();
+        employeeSimply.setNo("091231304");
+        employeeSimply.setName("覃维运\n");
         calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 1990);
         calendar.set(Calendar.MONTH, 1);
         calendar.set(Calendar.DATE, 0);
-        employee.setBirthDay(calendar.getTime());
-        employee.setSex("男");
-        employee.setObtainedDate("2016-09-05");
-        employee.setMobile("17018321655");
-        employee.setAddress("上海市长宁区缓钥路 15号 厥小区 47号楼 5单元 811室");
-        list.add(employee);
+        employeeSimply.setBirthDay(calendar.getTime());
+        employeeSimply.setSex("男");
+        employeeSimply.setObtainedDate("2016-09-05");
+        employeeSimply.setMobile("17018321655");
+        employeeSimply.setAddress("上海市长宁区缓钥路 15号 厥小区 47号楼 5单元 811室");
+        list.add(employeeSimply);
         return list;
     }
 }

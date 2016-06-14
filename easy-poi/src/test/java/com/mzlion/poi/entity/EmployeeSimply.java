@@ -3,10 +3,8 @@ package com.mzlion.poi.entity;
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
 import com.mzlion.poi.annotation.ExcelHyperLink;
-import com.mzlion.poi.annotation.ExcelMappedEntity;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * 员工信息
@@ -15,7 +13,7 @@ import java.util.List;
  * @version V1.0
  */
 @ExcelEntity
-public class Employee {
+public class EmployeeSimply {
     /**
      * 工号
      */
@@ -52,10 +50,6 @@ public class Employee {
     @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd", width = 12)
     @ExcelHyperLink
     private String obtainedDate;
-
-    @ExcelCell(value = "账户列表")
-    @ExcelMappedEntity({"name", "balance"})
-    private List<Account> accountList;
 
     public String getNo() {
         return no;
@@ -121,17 +115,9 @@ public class Employee {
         this.obtainedDate = obtainedDate;
     }
 
-    public List<Account> getAccountList() {
-        return accountList;
-    }
-
-    public void setAccountList(List<Account> accountList) {
-        this.accountList = accountList;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Employee{");
+        final StringBuilder sb = new StringBuilder("EmployeeSimply{");
         sb.append("no='").append(no).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", sex='").append(sex).append('\'');

@@ -87,7 +87,7 @@ public class PropertyUtilBean {
     }
 
     public PropertyDescriptor getPropertyDescriptor(Object bean, String propertyName) {
-        Assert.assertNotNull(bean, "Bean must not be null.");
+        Assert.notNull(bean, "Bean must not be null.");
         return this.getPropertyDescriptor(bean.getClass(), propertyName);
     }
 

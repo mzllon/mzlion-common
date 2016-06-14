@@ -13,160 +13,172 @@ import java.util.Map;
 public class Assert {
 
     /**
-     * 校验对象不能为null
+     * Assert a boolean expression,throwing {@code IllegalArgumentException} if the test result is {@code false}.
+     * <pre class="code">Assert.isTrue(i &gt; 0, "The value must be greater than zero");</pre>
      *
-     * @param data    被检查的对象
-     * @param message 校验失败时异常消息
+     * @param expression a boolean expression
+     * @param message    the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotNull(Object data, String message) {
-        if (data == null) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验字符串非空
+     * Assert an object value is not {@code null},throwing {@code IllegalArgumentException} if the test result is {@code false}.
+     * <pre class="code">Assert.notNull(clazz, "The class must not be null");</pre>
      *
-     * @param text    被检查的字符串
-     * @param message 校验失败时异常消息
+     * @param data    the object to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertHasLength(String text, String message) {
-        if (StringUtils.isEmpty(text)) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notNull(Object data, String message) {
+        if (data == null) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验集合对象非空
+     * assert the given string is not empty.
+     * <pre class="code">Assert.hasLength(name, "Name must not be empty");</pre>
      *
-     * @param collection 被检查的集合对象
-     * @param message    校验失败时异常消息
+     * @param text    the string to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(Collection<?> collection, String message) {
-        if (CollectionUtils.isEmpty(collection)) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void hasLength(String text, String message) {
+        if (StringUtils.isEmpty(text)) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验Map非空
+     * Assert that the collection has one element at least.
+     * <pre class="code">Assert.notEmpty(collection, "Collection must have elements");</pre>
      *
-     * @param map     被检查的集合对象
-     * @param message 校验失败时异常消息
+     * @param collection the collection to check
+     * @param message    the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(Map<?, ?> map, String message) {
-        if (CollectionUtils.isEmpty(map)) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(Collection<?> collection, String message) {
+        if (CollectionUtils.isEmpty(collection)) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the map has one entry at least.
+     * <pre class="code">Assert.notEmpty(map, "Map must have entries");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
-     * @param <T>     泛型类
+     * @param map     the map to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static <T> void assertNotEmpty(T[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(Map<?, ?> map, String message) {
+        if (CollectionUtils.isEmpty(map)) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one element at least.
+     * <pre class="code">Assert.notEmpty(array, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @param <T>     generic type
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(char[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static <T> void notEmpty(T[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one char element at least.
+     * <pre class="code">Assert.notEmpty(new char[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(boolean[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(char[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one boolean element at least.
+     * <pre class="code">Assert.notEmpty(new boolean[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(byte[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(boolean[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one byte element at least.
+     * <pre class="code">Assert.notEmpty(new byte[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(short[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(byte[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one short element at least.
+     * <pre class="code">Assert.notEmpty(new short[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(int[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(short[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one int element at least.
+     * <pre class="code">Assert.notEmpty(new int[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(long[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(int[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one long element at least.
+     * <pre class="code">Assert.notEmpty(new long[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(float[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(long[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
     /**
-     * 校验数组非null及非空数组
+     * Assert that the array has one float element at least.
+     * <pre class="code">Assert.notEmpty(new float[]{}, "The array must have elements");</pre>
      *
-     * @param array   被检查的数组
-     * @param message 校验失败时异常消息
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
      */
-    public static void assertNotEmpty(double[] array, String message) {
-        if (null == array || array.length == 0) {
-            throw new IllegalArgumentException(message);
-        }
+    public static void notEmpty(float[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
+    }
+
+    /**
+     * Assert that the array has one doube element at least.
+     * <pre class="code">Assert.notEmpty(new double[]{}, "The array must have elements");</pre>
+     *
+     * @param array   the array to check
+     * @param message the detail message.
+     * @throws IllegalArgumentException
+     */
+    public static void notEmpty(double[] array, String message) {
+        if (null == array || array.length == 0) throw new IllegalArgumentException(message);
     }
 
 }

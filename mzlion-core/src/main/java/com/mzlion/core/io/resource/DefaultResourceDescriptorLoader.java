@@ -27,7 +27,7 @@ public class DefaultResourceDescriptorLoader implements ResourceDescriptorLoader
 
     @Override
     public ResourceDescriptor getResourceDescriptor(String location) {
-        Assert.assertHasLength(location, "Location must not be null");
+        Assert.hasLength(location, "Location must not be null");
         if (location.startsWith(CLASSPATH_URL_PREFIX)) {
             return new ClassPathResourceDescriptor(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
         } else {

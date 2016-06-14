@@ -73,7 +73,7 @@ public abstract class Hex {
      * @return 字节数组
      */
     public static byte[] decode(final String data) {
-        Assert.assertHasLength(data, "Data must not be null.");
+        Assert.hasLength(data, "Data must not be null.");
         return decode(data.toCharArray());
     }
 

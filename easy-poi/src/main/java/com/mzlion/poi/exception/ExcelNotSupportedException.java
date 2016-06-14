@@ -5,7 +5,7 @@ package com.mzlion.poi.exception;
  * Open or write excel exception
  * </p>
  *
- * @author mzli
+ * @author mzlion
  * @date 2016-06-10
  */
 public class ExcelNotSupportedException extends ExcelException {

@@ -1,5 +1,6 @@
 package com.mzlion.poi.excel.write;
 
+import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.core.lang.StringUtils;
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelWriteConfig;
@@ -19,7 +20,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -138,21 +141,59 @@ public class ExcelWriterEngine {
     }
 
     private int createHeaderTitleRow(Sheet sheet, int startRow) {
-        if (this.excelWriteConfig.isHeaderRowCreate()) {
-            Row row = sheet.createRow(startRow);
-            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
-            Cell cell;
-            PropertyCellMapping propertyCellMapping;
-            for (int i = 0; i < size; i++) {
-                cell = row.createCell(i);
-                propertyCellMapping = this.excelWriteConfig.getPropertyCellMappingList().get(i);
-                cell.setCellValue(propertyCellMapping.getTitle());
-                if (this.excelCellStyle != null)
-                    cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(propertyCellMapping.getTitle(), i));
-            }
-            return 1;
+        if (!this.excelWriteConfig.isHeaderRowCreate()) {
+            return 0;
         }
-        return 0;
+        Row row = sheet.createRow(startRow), subRow = null;
+        int size = this.excelWriteConfig.getPropertyCellMappingList().size();
+        Cell cell;
+        PropertyCellMapping propertyCellMapping;
+        int startColIndex = 0, returnRow = 1;
+        List<CellRangeAddress> cellRangeAddressList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            cell = row.createCell(i);
+            propertyCellMapping = this.excelWriteConfig.getPropertyCellMappingList().get(i);
+            cell.setCellValue(propertyCellMapping.getTitle());
+            List<PropertyCellMapping> childrenMapping = propertyCellMapping.getChildrenMapping();
+            if (CollectionUtils.isNotEmpty(childrenMapping)) {
+                if (childrenMapping.size() > 1) {
+                    if (subRow == null) {
+                        subRow = sheet.createRow(startRow + 1);
+                        this.createHeaderTitleEmptyCells(subRow, i);
+                        startColIndex = i;
+                        returnRow = 2;
+                    }
+                    for (PropertyCellMapping cellMapping : childrenMapping) {
+                        this.createHeaderTitleCell(subRow, cellMapping, startColIndex);
+                    }
+                    cellRangeAddressList.add(new CellRangeAddress(startRow, startRow, startColIndex, startColIndex + childrenMapping.size() - 1));
+                }
+            }
+            if (this.excelCellStyle != null)
+                cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(propertyCellMapping.getTitle(), i));
+            if (CollectionUtils.isNotEmpty(cellRangeAddressList)) {
+                for (CellRangeAddress cellRangeAddress : cellRangeAddressList) {
+                    sheet.addMergedRegion(cellRangeAddress);
+                }
+            }
+        }
+        return returnRow;
+    }
+
+    private void createHeaderTitleCell(Row row, PropertyCellMapping propertyCellMapping, int baseCellIndex) {
+        int cellIndex = baseCellIndex + propertyCellMapping.getCellIndex();
+        Cell cell = row.createCell(cellIndex, Cell.CELL_TYPE_STRING);
+        cell.setCellValue(propertyCellMapping.getTitle());
+        if (this.excelCellStyle != null)
+            cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(propertyCellMapping.getTitle(), cellIndex));
+    }
+
+    private void createHeaderTitleEmptyCells(Row row, int count) {
+        Cell cell;
+        for (int i = 0; i < count; i++) {
+            cell = row.createCell(i, Cell.CELL_TYPE_BLANK);
+            if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getHeaderCellStyle(null, i));
+        }
     }
 
     private <E> int createDataRows(Sheet sheet, int startRow, Collection<E> dataSet) {
