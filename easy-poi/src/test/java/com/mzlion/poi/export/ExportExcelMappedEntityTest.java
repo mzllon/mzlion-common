@@ -1,10 +1,10 @@
 package com.mzlion.poi.export;
 
 import com.mzlion.core.date.DateUtils;
-import com.mzlion.poi.ExcelUtils;
 import com.mzlion.poi.config.ExcelWriteConfig;
 import com.mzlion.poi.entity.Account;
 import com.mzlion.poi.entity.EmployeeMapped;
+import com.mzlion.poi.excel.ExcelUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -59,6 +59,7 @@ public class ExportExcelMappedEntityTest {
         ExcelWriteConfig excelWriteConfig = new ExcelWriteConfig.Builder()
                 .beanClass(EmployeeMapped.class)
                 .title("员工及其账户列表")
+                .secondTitle("员工与员工账户分析")
                 .build();
         ExcelUtils.write(employeeMappedList, excelWriteConfig, output);
         assertTrue(output.exists());

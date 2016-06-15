@@ -1,6 +1,5 @@
-package com.mzlion.poi.excel.write;
+package com.mzlion.poi.beans;
 
-import com.mzlion.poi.beans.PropertyCellMapping;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 /**

@@ -40,7 +40,7 @@ public class EmployeeMapped {
     private String obtainedDate;
 
     @ExcelCell(value = "账户列表")
-    @ExcelMappedEntity({"name", "balance"})
+    @ExcelMappedEntity(propertyNames = {"name", "balance"}, mappedBy = Object.class)
     private List<Account> accountList;
 
     public String getNo() {

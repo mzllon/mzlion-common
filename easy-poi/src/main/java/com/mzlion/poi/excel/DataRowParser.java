@@ -1,4 +1,4 @@
-package com.mzlion.poi.excel.read;
+package com.mzlion.poi.excel;
 
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelReadConfig;
@@ -12,29 +12,29 @@ import java.util.List;
 /**
  * Created by mzlion on 2016/6/9.
  */
-public class DataRowParser<E> {
-    private final ExcelReadConfig<E> excelReadConfig;
+class DataRowParser {
+    private final ExcelReadConfig excelReadConfig;
     private final List<PropertyCellMapping> propertyCellMappingList;
     private final FormulaEvaluator formulaEvaluator;
 
-    public DataRowParser(ExcelReadConfig<E> excelReadConfig, List<PropertyCellMapping> propertyCellMappingList,
-                         FormulaEvaluator formulaEvaluator) {
+    DataRowParser(ExcelReadConfig excelReadConfig, List<PropertyCellMapping> propertyCellMappingList,
+                  FormulaEvaluator formulaEvaluator) {
         this.excelReadConfig = excelReadConfig;
         this.propertyCellMappingList = propertyCellMappingList;
         this.formulaEvaluator = formulaEvaluator;
     }
 
-    public E process(Row row) {
+    Object process(Row row) {
         try {
-            E entity = this.excelReadConfig.getBeanClass().newInstance();
+            Object entity = this.excelReadConfig.getRawClass().newInstance();
             for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
                 Cell cell = row.getCell(propertyCellMapping.getCellIndex());
-                CellParser<E> cellParser = new CellParser<>(entity, propertyCellMapping, this.formulaEvaluator);
+                CellParser cellParser = new CellParser(entity, propertyCellMapping, this.formulaEvaluator);
                 cellParser.process(cell);
             }
             return entity;
         } catch (ReflectiveOperationException e) {
-            throw new BeanNewInstanceException(this.excelReadConfig.getBeanClass(), e);
+            throw new BeanNewInstanceException(this.excelReadConfig.getRawClass(), e);
         }
     }
 

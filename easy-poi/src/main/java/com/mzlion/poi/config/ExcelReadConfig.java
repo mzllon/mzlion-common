@@ -1,5 +1,12 @@
 package com.mzlion.poi.config;
 
+import com.mzlion.core.lang.Assert;
+import com.mzlion.core.lang.ClassUtils;
+import com.mzlion.poi.annotation.ExcelEntity;
+import com.mzlion.poi.exception.BeanNotConfigAnnotationException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,31 +15,55 @@ import java.util.Map;
  * @author mzlion
  * @date 2016-06-08
  */
-public class ExcelReadConfig<E> {
+public class ExcelReadConfig {
 
-    private int titleRowUsed;
-    private int headerTitleRowUsed;
-    private int dataRowStart;
+    /**
+     * 列标题开始行
+     */
+    private int headerRowStart;
 
+    /**
+     * 列标题占用Excel行数
+     */
+    private int headerRowUsed;
+
+    /**
+     * 数据行和列标题行间隔行数
+     */
+    private int dataRowGap;
+
+    /**
+     * 默认读取的sheet索引
+     */
     private int sheetIndex;
+
+    /**
+     * 读取sheet的数量
+     */
     private int sheetNum;
 
+    /**
+     * 最后几行无效时读取结束
+     */
     private int lastInvalidRow;
 
-    private boolean strict;
+    /**
+     * 原始的Bean类型
+     */
+    private Class<?> rawClass;
 
-    private Class<E> beanClass;
+    private List<ExcelCellConfig> excelCellConfigList;
 
-    public int getTitleRowUsed() {
-        return titleRowUsed;
+    public int getHeaderRowUsed() {
+        return headerRowUsed;
     }
 
-    public int getHeaderTitleRowUsed() {
-        return headerTitleRowUsed;
+    public int getHeaderRowStart() {
+        return headerRowStart;
     }
 
-    public int getDataRowStart() {
-        return dataRowStart;
+    public int getDataRowGap() {
+        return dataRowGap;
     }
 
     public int getSheetIndex() {
@@ -47,41 +78,64 @@ public class ExcelReadConfig<E> {
         return lastInvalidRow;
     }
 
-    public boolean isStrict() {
-        return strict;
+    public Class<?> getRawClass() {
+        return rawClass;
     }
 
-    public Class<E> getBeanClass() {
-        return beanClass;
+    public List<ExcelCellConfig> getExcelCellConfigList() {
+        return excelCellConfigList;
     }
 
-    private ExcelReadConfig(Builder<E> builder) {
-        this.titleRowUsed = builder.titleRowUsed;
-        this.headerTitleRowUsed = builder.headerTitleRowUsed;
-        this.dataRowStart = builder.dataRowStart;
+    private ExcelReadConfig(Builder builder) {
+        this.headerRowStart = builder.headerRowStart;
+        this.headerRowUsed = builder.headerRowUsed;
+        this.dataRowGap = builder.dataRowGap;
         this.sheetIndex = builder.sheetIndex;
         this.sheetNum = builder.sheetNum;
         this.lastInvalidRow = builder.lastInvalidRow;
-        this.strict = builder.strict;
-        this.beanClass = builder.beanClass;
+        this.rawClass = builder.beanClass;
+        this.excelCellConfigList = builder.excelCellConfigList;
+
+        //validate
+        Assert.isTrue(this.headerRowStart >= 0, "HeaderRowStart must be great than 0.");
+        Assert.isTrue(this.headerRowUsed > 0, "HeaderTitleRowUsed must be great than 0.");
+        Assert.isTrue(this.dataRowGap >= 0, "DataRowGap must be great than 0.");
+        Assert.isTrue(this.sheetIndex > 0, "SheetIndex must be great than 0.");
+        Assert.isTrue(this.sheetNum > 0, "SheetNum must be great than 0.");
+        Assert.isTrue(this.lastInvalidRow >= 0, "LastInvalidRow must be great than 0.");
+        if (ClassUtils.isAssignable(Map.class, this.rawClass)) {
+            Assert.notEmpty(this.excelCellConfigList, "ExcelCellConfigList must be not null or empty.");
+        } else {
+            if (!this.rawClass.isAnnotationPresent(ExcelEntity.class)) {
+                throw new BeanNotConfigAnnotationException(String.format("The class [%s] must config annotation [%s]",
+                        this.rawClass.getName(), ExcelEntity.class.getName()));
+            }
+        }
     }
 
-    public static class Builder<E> {
+
+    /**
+     * {@code ExcelReadConfig}的构建对象
+     *
+     * @author mzlion
+     * @see ExcelReadConfig
+     */
+    public static class Builder {
 
         /**
-         * 标题行占用行数，默认占用1行
+         * 列标题开始行
          */
-        private int titleRowUsed;
+        private int headerRowStart;
 
         /**
-         * 列标题行占用行数，默认占用1行
+         * 列标题占用Excel行数
          */
-        private int headerTitleRowUsed;
+        private int headerRowUsed;
 
         /**
-         * 数据行和列标题行相差行数，默认0行
+         * 数据行和列标题行间隔行数
          */
-        private int dataRowStart;
+        private int dataRowGap;
 
         /**
          * 从第几个sheet开始读取，默认是第一个
@@ -99,58 +153,61 @@ public class ExcelReadConfig<E> {
         private int lastInvalidRow;
 
         /**
-         * 是否严格校验列标题
-         */
-        private boolean strict;
-
-        /**
          * JavaBean class
          */
-        private Class<E> beanClass;
+        private Class<?> beanClass;
 
+        /**
+         * Excel的Cell配置
+         */
+        private List<ExcelCellConfig> excelCellConfigList;
+
+        /**
+         * default constructor
+         */
         public Builder() {
-            this.titleRowUsed = 1;
-            this.headerTitleRowUsed = 1;
-            this.dataRowStart = 0;
+            this.headerRowStart = 2;
+            this.headerRowUsed = 1;
+            this.dataRowGap = 0;
             this.sheetIndex = 1;
             this.sheetNum = 1;
             this.lastInvalidRow = 0;
-            this.strict = false;
-            this.beanClass = (Class<E>) Map.class;
+            this.beanClass = Map.class;
         }
 
         /**
-         * 标题行占用行数
+         * 列标题开始行
          *
-         * @param titleRowUsed 标题行占用行数
+         * @param headerRowStart head row start num.
          * @return {@link Builder}
          */
-        public Builder<E> titleRowUsed(int titleRowUsed) {
-            this.titleRowUsed = titleRowUsed;
+        public Builder headerRowStart(int headerRowStart) {
+            this.headerRowStart = headerRowStart;
             return this;
         }
 
         /**
          * 列标题行占用行数
          *
-         * @param headerTitleRowUsed the title row use num.
+         * @param headerRowUsed the title row use num.
          * @return {@link Builder}
          */
-        public Builder<E> headerTitleRowUsed(int headerTitleRowUsed) {
-            this.headerTitleRowUsed = headerTitleRowUsed;
+        public Builder headerRowUsed(int headerRowUsed) {
+            this.headerRowUsed = headerRowUsed;
             return this;
         }
 
         /**
-         * 数据行和列标题行相差行数
+         * 列标题开始行
          *
-         * @param dataRowStart data row start num
+         * @param dataRowGap header row start num
          * @return {@link Builder}
          */
-        public Builder<E> dataRowStart(int dataRowStart) {
-            this.dataRowStart = dataRowStart;
+        public Builder dataRowGap(int dataRowGap) {
+            this.dataRowGap = dataRowGap;
             return this;
         }
+
 
         /**
          * 从第几个sheet开始读取
@@ -158,7 +215,7 @@ public class ExcelReadConfig<E> {
          * @param sheetIndex start sheet index
          * @return {@link Builder}
          */
-        public Builder<E> sheetIndex(int sheetIndex) {
+        public Builder sheetIndex(int sheetIndex) {
             this.sheetIndex = sheetIndex;
             return this;
         }
@@ -169,7 +226,7 @@ public class ExcelReadConfig<E> {
          * @param sheetNum sheet num.
          * @return {@link Builder}
          */
-        public Builder<E> sheetNum(int sheetNum) {
+        public Builder sheetNum(int sheetNum) {
             this.sheetNum = sheetNum;
             return this;
         }
@@ -180,19 +237,8 @@ public class ExcelReadConfig<E> {
          * @param lastInvalidRow the last invalid of row num.
          * @return {@link Builder}
          */
-        public Builder<E> lastInvalidRow(int lastInvalidRow) {
+        public Builder lastInvalidRow(int lastInvalidRow) {
             this.lastInvalidRow = lastInvalidRow;
-            return this;
-        }
-
-        /**
-         * 是否严格校验列标题
-         *
-         * @param strict strict to valid cell
-         * @return {@link Builder}
-         */
-        public Builder<E> strict(boolean strict) {
-            this.strict = strict;
             return this;
         }
 
@@ -202,8 +248,24 @@ public class ExcelReadConfig<E> {
          * @param beanClass JavaBean class
          * @return {@link Builder}
          */
-        public Builder<E> beanClass(Class<E> beanClass) {
+        public Builder beanClass(Class<?> beanClass) {
             this.beanClass = beanClass;
+            return this;
+        }
+
+        public Builder excelCellConfig(ExcelCellConfig excelCellConfig) {
+            if (this.excelCellConfigList == null) {
+                this.excelCellConfigList = new ArrayList<>();
+            }
+            this.excelCellConfigList.add(excelCellConfig);
+            return this;
+        }
+
+        public Builder excelCellConfig(List<ExcelCellConfig> excelCellConfigList) {
+            if (this.excelCellConfigList == null) {
+                this.excelCellConfigList = new ArrayList<>();
+            }
+            this.excelCellConfigList.addAll(excelCellConfigList);
             return this;
         }
 
@@ -212,8 +274,8 @@ public class ExcelReadConfig<E> {
          *
          * @return {@link ExcelReadConfig}
          */
-        public ExcelReadConfig<E> build() {
-            return new ExcelReadConfig<>(this);
+        public ExcelReadConfig build() {
+            return new ExcelReadConfig(this);
         }
     }
 }

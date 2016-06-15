@@ -1,7 +1,8 @@
 package com.mzlion.poi;
 
+import com.mzlion.poi.config.ExcelCellConfig;
 import com.mzlion.poi.config.ExcelWriteConfig;
-import com.mzlion.poi.config.PropertyCellMapConfig;
+import com.mzlion.poi.excel.ExcelUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class ExcelMapClassTest {
 
     private static List<Map<String, String>> cityZjsList = new ArrayList<>();
-    private static List<PropertyCellMapConfig> propertyCellMapConfigList = new ArrayList<>();
+    private static List<ExcelCellConfig> excelCellConfigList = new ArrayList<>();
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -86,28 +87,28 @@ public class ExcelMapClassTest {
         city.put("zipCode", "321000");
         cityZjsList.add(city);
 
-        propertyCellMapConfigList.addAll(Arrays.asList(
-                new PropertyCellMapConfig.Builder()
+        excelCellConfigList.addAll(Arrays.asList(
+                new ExcelCellConfig.Builder()
                         .title("省份编号")
                         .propertyName("provId")
                         .build(),
-                new PropertyCellMapConfig.Builder()
+                new ExcelCellConfig.Builder()
                         .title("城市编号")
                         .propertyName("cityId")
                         .build(),
-                new PropertyCellMapConfig.Builder()
+                new ExcelCellConfig.Builder()
                         .title("城市名称")
                         .propertyName("cityName")
                         .build(),
-                new PropertyCellMapConfig.Builder()
+                new ExcelCellConfig.Builder()
                         .title("全拼")
                         .propertyName("spellFull")
                         .build(),
-                new PropertyCellMapConfig.Builder()
+                new ExcelCellConfig.Builder()
                         .title("简拼")
                         .propertyName("spellSimple")
                         .build(),
-                new PropertyCellMapConfig.Builder()
+                new ExcelCellConfig.Builder()
                         .title("邮政编码")
                         .propertyName("zipCode")
                         .build()
@@ -122,7 +123,7 @@ public class ExcelMapClassTest {
         ExcelWriteConfig excelWriteConfig = new ExcelWriteConfig.Builder()
                 .title("浙江省城市代码表")
                 .sheetName("浙江省城市代码表")
-                .mapConfig(propertyCellMapConfigList)
+                .mapConfig(excelCellConfigList)
                 .build();
         ExcelUtils.write(cityZjsList, excelWriteConfig, output);
         assertTrue(output.exists());

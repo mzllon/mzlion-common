@@ -1,4 +1,4 @@
-package com.mzlion.poi.excel.write;
+package com.mzlion.poi.beans;
 
 /**
  * Created by mzlion on 2016/6/10.

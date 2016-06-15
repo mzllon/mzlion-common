@@ -9,20 +9,15 @@ import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
 import com.mzlion.poi.annotation.ExcelHyperLink;
 import com.mzlion.poi.annotation.ExcelMappedEntity;
-import com.mzlion.poi.beans.DefaultMapBeanTypeReference;
-import com.mzlion.poi.beans.PropertyCellMapping;
-import com.mzlion.poi.beans.TypeReference;
+import com.mzlion.poi.beans.*;
 import com.mzlion.poi.constant.ExcelHyperLinkType;
 import com.mzlion.poi.constant.ExcelType;
-import com.mzlion.poi.excel.write.DefaultExcelCellStyle;
-import com.mzlion.poi.excel.write.ExcelCellStyle;
 import com.mzlion.poi.exception.BeanNotConfigAnnotationException;
 import com.mzlion.poi.exception.ExcelMappedEntityConfigException;
 import com.mzlion.poi.exception.FieldNoAnnotationException;
 import com.mzlion.poi.exception.NoSuchFieldException;
 import net.jodah.typetools.TypeResolver;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -33,7 +28,7 @@ import java.util.*;
  * @author mzlion
  * @date 2016-06-07
  */
-public class ExcelWriteConfig implements Serializable {
+public class ExcelWriteConfig {
 
     /**
      * Excel标题
@@ -67,7 +62,11 @@ public class ExcelWriteConfig implements Serializable {
 
     private List<PropertyCellMapping> propertyCellMappingList;
 
-    private List<PropertyCellMapConfig> propertyCellMapConfigList;
+    private List<ExcelCellConfig> excelCellConfigList;
+
+
+    private int realColCount;
+
 
     private ExcelWriteConfig(Builder builder) {
         this.title = builder.title;
@@ -84,11 +83,11 @@ public class ExcelWriteConfig implements Serializable {
             throw new NullPointerException("The bean type is null.");
         }
         this.rawClass = TypeResolver.resolveRawClass(this.type, null);
-        this.propertyCellMapConfigList = builder.propertyCellMapConfigList;
+        this.excelCellConfigList = builder.excelCellConfigList;
 
         List<PropertyCellMapping> propertyCellMappingList;
         if (ClassUtils.isAssignable(Map.class, this.rawClass)) {
-            Assert.notEmpty(this.propertyCellMapConfigList, "The PropertyCellMapConfig list must not be null or empty when the bean type is Map class.");
+            Assert.notEmpty(this.excelCellConfigList, "The ExcelCellConfig list must not be null or empty when the bean type is Map class.");
             propertyCellMappingList = this.generatePropertyCellMapByMap();
         } else {
             //check has @ExcelEntity annotation
@@ -104,6 +103,15 @@ public class ExcelWriteConfig implements Serializable {
 
         //sort
         this.sortPropertyCellMappingList(propertyCellMappingList);
+
+        this.realColCount = 0;
+        for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
+            if (CollectionUtils.isNotEmpty(propertyCellMapping.getChildrenMapping())) {
+                realColCount = realColCount + propertyCellMapping.getChildrenMapping().size();
+            } else {
+                realColCount++;
+            }
+        }
     }
 
     public String getTitle() {
@@ -154,6 +162,10 @@ public class ExcelWriteConfig implements Serializable {
         return propertyCellMappingList;
     }
 
+    public int getRealColCount() {
+        return realColCount;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ExcelWriteConfig{");
@@ -193,7 +205,7 @@ public class ExcelWriteConfig implements Serializable {
 
         private Class<? extends ExcelCellStyle> excelCellStyleClass;
 
-        private List<PropertyCellMapConfig> propertyCellMapConfigList;
+        private List<ExcelCellConfig> excelCellConfigList;
 
         public Builder title(String title) {
             this.title = title;
@@ -255,15 +267,15 @@ public class ExcelWriteConfig implements Serializable {
             return this;
         }
 
-        public Builder mapConfig(PropertyCellMapConfig config) {
-            Assert.notNull(config, "PropertyCellMapConfig is null.");
-            this.propertyCellMapConfigList.add(config);
+        public Builder mapConfig(ExcelCellConfig config) {
+            Assert.notNull(config, "ExcelCellConfig is null.");
+            this.excelCellConfigList.add(config);
             return this;
         }
 
-        public Builder mapConfig(List<PropertyCellMapConfig> configList) {
-            Assert.notEmpty(configList, "The PropertyCellMapConfig list is null.");
-            this.propertyCellMapConfigList.addAll(configList);
+        public Builder mapConfig(List<ExcelCellConfig> configList) {
+            Assert.notEmpty(configList, "The ExcelCellConfig list is null.");
+            this.excelCellConfigList.addAll(configList);
             return this;
         }
 
@@ -276,7 +288,7 @@ public class ExcelWriteConfig implements Serializable {
             this.dataRowHeight = 13.5f;
             this.excelCellStyleClass = DefaultExcelCellStyle.class;
             this.type(new DefaultMapBeanTypeReference().getType());
-            this.propertyCellMapConfigList = new ArrayList<>();
+            this.excelCellConfigList = new ArrayList<>();
             this.headerRowCreate = true;
         }
 
@@ -291,7 +303,7 @@ public class ExcelWriteConfig implements Serializable {
             this.headerRowCreate = excelWriteConfig.headerRowCreate;
             this.type = excelWriteConfig.type;
             this.excelCellStyleClass = excelWriteConfig.excelCellStyleClass;
-            this.propertyCellMapConfigList = excelWriteConfig.propertyCellMapConfigList;
+            this.excelCellConfigList = excelWriteConfig.excelCellConfigList;
         }
 
         public ExcelWriteConfig build() {
@@ -321,7 +333,7 @@ public class ExcelWriteConfig implements Serializable {
                         }
                         fieldRawClass = TypeResolver.resolveRawArgument(field.getGenericType(), Collection.class);
                     }
-                    String[] mappedPropertyNames = excelMappedEntity.value();
+                    String[] mappedPropertyNames = excelMappedEntity.propertyNames();
                     if (ArrayUtils.isEmpty(mappedPropertyNames)) {
                         throw new ExcelMappedEntityConfigException("The ExcelMappedEntity.values() at least contains a value.");
                     }
@@ -413,10 +425,10 @@ public class ExcelWriteConfig implements Serializable {
     }
 
     private List<PropertyCellMapping> generatePropertyCellMapByMap() {
-        List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(this.propertyCellMapConfigList.size());
+        List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>(this.excelCellConfigList.size());
         PropertyCellMapping propertyCellMapping;
-        for (PropertyCellMapConfig propertyCellMapConfig : this.propertyCellMapConfigList) {
-            propertyCellMapping = new PropertyCellMapping(propertyCellMapConfig);
+        for (ExcelCellConfig excelCellConfig : this.excelCellConfigList) {
+            propertyCellMapping = new PropertyCellMapping(excelCellConfig);
             propertyCellMappingList.add(propertyCellMapping);
         }
         return propertyCellMappingList;

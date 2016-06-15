@@ -1,6 +1,6 @@
 package com.mzlion.poi.beans;
 
-import com.mzlion.poi.config.PropertyCellMapConfig;
+import com.mzlion.poi.config.ExcelCellConfig;
 import com.mzlion.poi.constant.ExcelCellType;
 import com.mzlion.poi.constant.ExcelHyperLinkType;
 
@@ -68,18 +68,18 @@ public class PropertyCellMapping implements Comparable<PropertyCellMapping> {
     public PropertyCellMapping() {
     }
 
-    public PropertyCellMapping(PropertyCellMapConfig propertyCellMapConfig) {
-        this.title = propertyCellMapConfig.getTitle();
-        this.required = propertyCellMapConfig.isRequired();
-        this.type = propertyCellMapConfig.getType();
-        this.propertyName = propertyCellMapConfig.getPropertyName();
-        this.cellIndex = propertyCellMapConfig.getCellIndex();
-        this.excelDateFormat = propertyCellMapConfig.getExcelDateFormat();
-        this.javaDateFormat = propertyCellMapConfig.getJavaDateFormat();
-        this.width = propertyCellMapConfig.getWidth();
-        this.autoWrap = propertyCellMapConfig.isAutoWrap();
-        this.excelHyperLinkType = propertyCellMapConfig.getExcelHyperLinkType();
-        this.hyperlinkName = propertyCellMapConfig.getHyperlinkName();
+    public PropertyCellMapping(ExcelCellConfig excelCellConfig) {
+        this.title = excelCellConfig.getTitle();
+        this.required = excelCellConfig.isRequired();
+        this.type = excelCellConfig.getType();
+        this.propertyName = excelCellConfig.getPropertyName();
+        this.cellIndex = excelCellConfig.getCellIndex();
+        this.excelDateFormat = excelCellConfig.getExcelDateFormat();
+        this.javaDateFormat = excelCellConfig.getJavaDateFormat();
+        this.width = excelCellConfig.getWidth();
+        this.autoWrap = excelCellConfig.isAutoWrap();
+        this.excelHyperLinkType = excelCellConfig.getExcelHyperLinkType();
+        this.hyperlinkName = excelCellConfig.getHyperlinkName();
     }
 
     public String getTitle() {

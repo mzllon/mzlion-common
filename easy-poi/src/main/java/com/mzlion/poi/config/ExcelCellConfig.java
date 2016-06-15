@@ -3,15 +3,16 @@ package com.mzlion.poi.config;
 import com.mzlion.poi.constant.ExcelCellType;
 import com.mzlion.poi.constant.ExcelHyperLinkType;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mzlion on 2016/6/13.
  */
-public class PropertyCellMapConfig implements Serializable {
+public class ExcelCellConfig {
 
     /**
-     * cell标题
+     * cell标题,必须唯一
      */
     private String title;
 
@@ -59,7 +60,9 @@ public class PropertyCellMapConfig implements Serializable {
 
     private String hyperlinkName;
 
-    private PropertyCellMapConfig(Builder builder) {
+    private List<ExcelCellConfig> excelCellConfigChildren;
+
+    private ExcelCellConfig(Builder builder) {
         this.title = builder.title;
         this.required = builder.required;
         this.type = builder.type;
@@ -71,6 +74,7 @@ public class PropertyCellMapConfig implements Serializable {
         this.autoWrap = builder.autoWrap;
         this.excelHyperLinkType = builder.excelHyperLinkType;
         this.hyperlinkName = builder.hyperlinkName;
+        this.excelCellConfigChildren = builder.excelCellConfigChildren;
     }
 
     public String getTitle() {
@@ -117,9 +121,13 @@ public class PropertyCellMapConfig implements Serializable {
         return hyperlinkName;
     }
 
+    public List<ExcelCellConfig> getExcelCellConfigChildren() {
+        return excelCellConfigChildren;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PropertyCellMapConfig{");
+        final StringBuilder sb = new StringBuilder("ExcelCellConfig{");
         sb.append("title='").append(title).append('\'');
         sb.append(", required=").append(required);
         sb.append(", type=").append(type);
@@ -129,6 +137,9 @@ public class PropertyCellMapConfig implements Serializable {
         sb.append(", javaDateFormat='").append(javaDateFormat).append('\'');
         sb.append(", width=").append(width);
         sb.append(", autoWrap=").append(autoWrap);
+        sb.append(", excelHyperLinkType=").append(excelHyperLinkType);
+        sb.append(", hyperlinkName='").append(hyperlinkName).append('\'');
+        sb.append(", excelCellConfigChildren=").append(excelCellConfigChildren);
         sb.append('}');
         return sb.toString();
     }
@@ -183,6 +194,8 @@ public class PropertyCellMapConfig implements Serializable {
         private ExcelHyperLinkType excelHyperLinkType;
 
         private String hyperlinkName;
+
+        private List<ExcelCellConfig> excelCellConfigChildren;
 
         public Builder() {
             this.required = false;
@@ -247,8 +260,24 @@ public class PropertyCellMapConfig implements Serializable {
             return this;
         }
 
-        public PropertyCellMapConfig build() {
-            return new PropertyCellMapConfig(this);
+        public Builder child(ExcelCellConfig excelCellConfig) {
+            if (this.excelCellConfigChildren == null) {
+                this.excelCellConfigChildren = new ArrayList<>();
+            }
+            this.excelCellConfigChildren.add(excelCellConfig);
+            return this;
+        }
+
+        public Builder child(List<ExcelCellConfig> excelCellConfigList) {
+            if (this.excelCellConfigChildren == null) {
+                this.excelCellConfigChildren = new ArrayList<>();
+            }
+            this.excelCellConfigChildren.addAll(excelCellConfigList);
+            return this;
+        }
+
+        public ExcelCellConfig build() {
+            return new ExcelCellConfig(this);
         }
     }
 }

@@ -10,8 +10,8 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 public @interface ExcelMappedEntity {
 
-    String[] value();
+    String[] propertyNames();
 
-
+    Class<?> mappedBy();
 
 }

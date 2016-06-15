@@ -1,4 +1,4 @@
-package com.mzlion.poi;
+package com.mzlion.poi.excel;
 
 import com.mzlion.core.io.FileUtils;
 import com.mzlion.core.io.FilenameUtils;
@@ -7,8 +7,6 @@ import com.mzlion.core.lang.Assert;
 import com.mzlion.poi.config.ExcelReadConfig;
 import com.mzlion.poi.config.ExcelWriteConfig;
 import com.mzlion.poi.constant.ExcelType;
-import com.mzlion.poi.excel.read.ExcelReaderEngine;
-import com.mzlion.poi.excel.write.ExcelWriterEngine;
 import com.mzlion.poi.exception.ExcelNotSupportedException;
 
 import java.io.*;
@@ -32,7 +30,7 @@ public class ExcelUtils {
      * @return 集合
      */
     public static <E> List<E> read(File excelFile, Class<E> beanClass) {
-        ExcelReadConfig<E> excelReadConfig = new ExcelReadConfig.Builder<E>()
+        ExcelReadConfig excelReadConfig = new ExcelReadConfig.Builder()
                 .beanClass(beanClass).build();
         return read(excelFile, excelReadConfig);
     }
@@ -45,7 +43,7 @@ public class ExcelUtils {
      * @param excelReadConfig 导入的配置选项
      * @return 集合
      */
-    public static <E> List<E> read(File excelFile, ExcelReadConfig<E> excelReadConfig) {
+    public static <E> List<E> read(File excelFile, ExcelReadConfig excelReadConfig) {
         Assert.notNull(excelFile, "ExcelEntity file must not be null.");
         FileInputStream in = FileUtils.openFileInputStream(excelFile);
         try {
@@ -65,7 +63,7 @@ public class ExcelUtils {
      * @return 集合
      */
     public static <E> List<E> read(InputStream excelInputStream, Class<E> beanClass) {
-        return read(excelInputStream, new ExcelReadConfig.Builder<E>().beanClass(beanClass).build());
+        return read(excelInputStream, new ExcelReadConfig.Builder().beanClass(beanClass).build());
     }
 
     /**
@@ -76,7 +74,7 @@ public class ExcelUtils {
      * @param excelReadConfig  导入的配置选项
      * @return 集合
      */
-    public static <E> List<E> read(InputStream excelInputStream, ExcelReadConfig<E> excelReadConfig) {
+    public static <E> List<E> read(InputStream excelInputStream, ExcelReadConfig excelReadConfig) {
         Assert.notNull(excelInputStream, "ExcelEntity inputStream must not be null.");
         Assert.notNull(excelReadConfig, "ExcelReadConfig must not be null.");
         ExcelReaderEngine<E> excelReaderEngine = new ExcelReaderEngine<>(excelReadConfig);

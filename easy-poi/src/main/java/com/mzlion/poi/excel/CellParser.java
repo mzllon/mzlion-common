@@ -1,4 +1,4 @@
-package com.mzlion.poi.excel.read;
+package com.mzlion.poi.excel;
 
 import com.mzlion.core.beans.PropertyUtilBean;
 import com.mzlion.core.date.DateUtils;
@@ -26,7 +26,7 @@ import java.util.Date;
  *
  * @author mzlion
  */
-public class CellParser<E> {
+class CellParser {
 
     //slf4j
     private Logger logger = LoggerFactory.getLogger(CellParser.class);
@@ -36,15 +36,15 @@ public class CellParser<E> {
 
     private PropertyCellMapping propertyCellMapping;
 
-    private E entity;
+    private Object entity;
 
-    public CellParser(E entity, PropertyCellMapping propertyCellMapping, FormulaEvaluator evaluator) {
+    CellParser(Object entity, PropertyCellMapping propertyCellMapping, FormulaEvaluator evaluator) {
         this.propertyCellMapping = propertyCellMapping;
         this.entity = entity;
         this.evaluator = evaluator;
     }
 
-    public void process(Cell cell) {
+    void process(Cell cell) {
         if (cell == null) {
             logger.debug(" ===> Cell is empty,process finish.");
             return;

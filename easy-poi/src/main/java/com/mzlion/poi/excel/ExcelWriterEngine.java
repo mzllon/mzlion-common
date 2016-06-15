@@ -1,7 +1,8 @@
-package com.mzlion.poi.excel.write;
+package com.mzlion.poi.excel;
 
 import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.core.lang.StringUtils;
+import com.mzlion.poi.beans.ExcelCellStyle;
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelWriteConfig;
 import com.mzlion.poi.constant.ExcelType;
@@ -31,7 +32,7 @@ import java.util.List;
  *
  * @author mzlion
  */
-public class ExcelWriterEngine {
+class ExcelWriterEngine {
     //slf4j
     private final Logger logger = LoggerFactory.getLogger(ExcelWriterEngine.class);
     //导出配置对象
@@ -41,11 +42,11 @@ public class ExcelWriterEngine {
     //Excel单元格样式接口
     ExcelCellStyle excelCellStyle;
 
-    public ExcelWriterEngine(ExcelWriteConfig excelWriteConfig) {
+    ExcelWriterEngine(ExcelWriteConfig excelWriteConfig) {
         this.excelWriteConfig = excelWriteConfig;
     }
 
-    public <E> void write(Collection<E> dataSet, OutputStream outputStream) {
+    <E> void write(Collection<E> dataSet, OutputStream outputStream) {
         try {
             if (this.excelWriteConfig.getExcelType().equals(ExcelType.XLS)) {
                 this.workbook = new HSSFWorkbook();
@@ -74,9 +75,9 @@ public class ExcelWriterEngine {
             this.setColumnIndex(sheet);
             int row = 0;
             row += this.createTitleRow(sheet);
-            row += this.createSecondTitleRow(sheet);
+            row += this.createSecondTitleRow(sheet, row);
             row += this.createHeaderTitleRow(sheet, row);
-            this.createDataRows(sheet, row, dataSet);
+            this.createDataRows(sheet, row, dataSet, this.excelWriteConfig.getPropertyCellMappingList());
 
             workbook.write(outputStream);
             System.out.println("create sheet cost " + (System.currentTimeMillis() - start));
@@ -99,52 +100,46 @@ public class ExcelWriterEngine {
     }
 
     private int createTitleRow(Sheet sheet) {
-        if (StringUtils.hasText(this.excelWriteConfig.getTitle())) {
-            Row row = sheet.createRow(0);
-            row.setHeightInPoints(this.excelWriteConfig.getTitleRowHeight());
+        if (StringUtils.isEmpty(this.excelWriteConfig.getTitle())) return 0;
+        Row row = sheet.createRow(0);
+        row.setHeightInPoints(this.excelWriteConfig.getTitleRowHeight());
 
-            Cell cell = row.createCell(0);
-            cell.setCellValue(this.excelWriteConfig.getTitle());
+        Cell cell = row.createCell(0);
+        cell.setCellValue(this.excelWriteConfig.getTitle());
+        if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
+
+        for (int i = 1; i < this.excelWriteConfig.getRealColCount(); i++) {
+            cell = row.createCell(i);
+            cell.setCellValue("");
             if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
-
-            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
-            for (int i = 1; i < size; i++) {
-                cell = row.createCell(i);
-                cell.setCellValue("");
-                if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getTitleCellStyle());
-            }
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, size - 1));
-            return 1;
         }
-        return 0;
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, this.excelWriteConfig.getRealColCount() - 1));
+        return 1;
     }
 
-    private int createSecondTitleRow(Sheet sheet) {
-        if (StringUtils.hasText(this.excelWriteConfig.getSecondTitle())) {
-            Row row = sheet.createRow(1);
-            row.setHeightInPoints(this.excelWriteConfig.getSecondTitleRowHeight());
+    private int createSecondTitleRow(Sheet sheet, int rowIndex) {
+        if (StringUtils.isEmpty(this.excelWriteConfig.getSecondTitle())) return 0;
+        Row row = sheet.createRow(rowIndex);
+        row.setHeightInPoints(this.excelWriteConfig.getSecondTitleRowHeight());
 
-            Cell cell = row.createCell(0);
-            cell.setCellValue(this.excelWriteConfig.getSecondTitle());
+        Cell cell = row.createCell(0);
+        cell.setCellValue(this.excelWriteConfig.getSecondTitle());
+        if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getSecondTitleCellStyle());
+
+        for (int i = 1; i < this.excelWriteConfig.getRealColCount(); i++) {
+            cell = row.createCell(i);
             if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getSecondTitleCellStyle());
-
-            int size = this.excelWriteConfig.getPropertyCellMappingList().size();
-            for (int i = 1; i < size; i++) {
-                cell = row.createCell(i);
-                if (this.excelCellStyle != null) cell.setCellStyle(this.excelCellStyle.getSecondTitleCellStyle());
-            }
-
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, size - 1));
-            return 1;
         }
-        return 0;
+
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, this.excelWriteConfig.getRealColCount() - 1));
+        return 1;
+
     }
 
     private int createHeaderTitleRow(Sheet sheet, int startRow) {
-        if (!this.excelWriteConfig.isHeaderRowCreate()) {
-            return 0;
-        }
+        if (!this.excelWriteConfig.isHeaderRowCreate()) return 0;
         Row row = sheet.createRow(startRow), subRow = null;
+
         int size = this.excelWriteConfig.getPropertyCellMappingList().size();
         Cell cell;
         PropertyCellMapping propertyCellMapping;
@@ -162,6 +157,8 @@ public class ExcelWriterEngine {
                         this.createHeaderTitleEmptyCells(subRow, i);
                         startColIndex = i;
                         returnRow = 2;
+
+
                     }
                     for (PropertyCellMapping cellMapping : childrenMapping) {
                         this.createHeaderTitleCell(subRow, cellMapping, startColIndex);
@@ -196,14 +193,14 @@ public class ExcelWriterEngine {
         }
     }
 
-    private <E> int createDataRows(Sheet sheet, int startRow, Collection<E> dataSet) {
+    int createDataRows(Sheet sheet, int startRow, Collection<?> dataSet, List<PropertyCellMapping> propertyCellMappingList) {
         Row row;
         int index = 0;
-        for (E entity : dataSet) {
+        for (Object entity : dataSet) {
             row = sheet.createRow(index + startRow);
-            for (PropertyCellMapping propertyCellMapping : this.excelWriteConfig.getPropertyCellMappingList()) {
-                CellGenerator<E> cellGenerator = new CellGenerator<>(this);
-                cellGenerator.generate(row, entity, propertyCellMapping);
+            for (PropertyCellMapping propertyCellMapping : propertyCellMappingList) {
+                ExcelCellGenerator excelCellGenerator = new ExcelCellGenerator(this);
+                excelCellGenerator.generate(sheet, row, entity, propertyCellMapping);
             }
             index++;
         }
