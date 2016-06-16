@@ -53,6 +53,8 @@ class ExcelReaderEngine<T> {
 
     List<ExcelCellConfig> excelCellConfigs;
 
+    private ExcelCellConfig excelId_ExcelCellConfig;
+
     ExcelReaderEngine(ExcelReadConfig excelReadConfig) {
         this.excelReadConfig = excelReadConfig;
 
@@ -65,63 +67,6 @@ class ExcelReaderEngine<T> {
             }
             this.excelCellConfigs = parseExcelCellConfigList;
         }
-    }
-
-
-    private List<ExcelCellConfig> parseExcelCellConfigList(Class<?> rawClass, String[] propertyNames) {
-        List<ExcelCellConfig> parseExcelCellConfigList = new ArrayList<>();
-        List<Field> fieldList = ReflectionUtils.getDeclaredFields(rawClass);
-        ExcelCell excelCell;
-        ExcelCellConfig.Builder builder;
-        ExcelMappedEntity excelMappedEntity;
-
-        //如果属性标有ExcelMappedEntity则必须指定某个属性注解为ExcelId
-        for (Field field : fieldList) {
-            if (field.isAnnotationPresent(ExcelMappedEntity.class)) {
-                boolean markExcelId = false;
-                for (Field _field : fieldList) {
-                    if (_field.isAnnotationPresent(ExcelId.class)) {
-                        markExcelId = true;
-                        break;
-                    }
-                }
-                if (!markExcelId) {
-                    throw new BeanNotConfigAnnotationException(String.format("The class [%s] must config annotation [%s]", rawClass.getName(), ExcelId.class.getName()));
-                }
-            }
-        }
-
-        for (Field field : fieldList) {
-            if (propertyNames == null || ArrayUtils.containsElement(propertyNames, field.getName())) {
-                excelCell = field.getAnnotation(ExcelCell.class);
-                if (excelCell == null) continue;
-
-                if (StringUtils.isEmpty(excelCell.value())) {
-                    throw new ExcelCellConfigException("ExcelCell.value() value is empty at property [" + field.getType() + "]");
-                }
-                //title is unique
-                for (ExcelCellConfig ecc : parseExcelCellConfigList) {
-                    if (ecc.getTitle().equals(excelCell.value())) {
-                        throw new ExcelCellConfigException("ExcelCell.value() value[" + excelCell.value() + "] must be unique at class [" + rawClass.getName() + "]");
-                    }
-                }
-
-                builder = new ExcelCellConfig.Builder()
-                        .title(excelCell.value()).type(excelCell.type()).propertyName(field.getName())
-                        .excelDateFormat(excelCell.excelDateFormat()).javaDateFormat(excelCell.javaDateFormat());
-                excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
-                if (excelMappedEntity != null) {
-                    Class<?> mappedByClass = excelMappedEntity.mappedBy();
-                    if (!mappedByClass.isAnnotationPresent(ExcelEntity.class)) {
-                        throw new BeanNotConfigAnnotationException(String.format("The class [%s] must config annotation [%s]",
-                                mappedByClass.getName(), ExcelEntity.class.getName()));
-                    }
-                    builder.child(this.parseExcelCellConfigList(mappedByClass, excelMappedEntity.propertyNames()));
-                }
-                parseExcelCellConfigList.add(builder.build());
-            }
-        }
-        return parseExcelCellConfigList;
     }
 
     List<T> read(InputStream excelInputStream) {
@@ -157,6 +102,77 @@ class ExcelReaderEngine<T> {
         }
     }
 
+
+    private List<ExcelCellConfig> parseExcelCellConfigList(Class<?> rawClass, String[] propertyNames) {
+        List<ExcelCellConfig> parseExcelCellConfigList = new ArrayList<>();
+        List<Field> fieldList = ReflectionUtils.getDeclaredFields(rawClass);
+        ExcelCell excelCell;
+        ExcelCellConfig.Builder builder;
+        ExcelMappedEntity excelMappedEntity;
+
+        //如果属性标有ExcelMappedEntity则必须指定某个属性注解为ExcelId
+        int excelIdCount = 0;
+        for (Field field : fieldList) {
+            if (field.isAnnotationPresent(ExcelMappedEntity.class)) {
+                if (field.isAnnotationPresent(ExcelId.class)) {
+                    throw new ExcelCellConfigException("between @ExcelId and @ExcelMappedEntity config at the same property");
+                }
+                for (Field _field : fieldList) {
+                    if (_field.isAnnotationPresent(ExcelId.class)) {
+                        excelIdCount++;
+                    }
+                }
+            }
+        }
+        if (excelIdCount == 0) {
+            throw new ExcelCellConfigException(String.format("The class [%s] must config annotation [%s]", rawClass.getName(), ExcelId.class.getName()));
+        }
+        if (excelIdCount > 1) {
+            throw new ExcelCellConfigException(String.format("The one property of class [%s] can config @ExcelId", rawClass.getName()));
+        }
+
+        for (Field field : fieldList) {
+            if (propertyNames == null || ArrayUtils.containsElement(propertyNames, field.getName())) {
+                excelCell = field.getAnnotation(ExcelCell.class);
+                if (excelCell == null) continue;
+
+                if (StringUtils.isEmpty(excelCell.value())) {
+                    throw new ExcelCellConfigException("ExcelCell.value() value is empty at property [" + field.getType() + "]");
+                }
+                //title is unique
+                for (ExcelCellConfig ecc : parseExcelCellConfigList) {
+                    if (ecc.getTitle().equals(excelCell.value())) {
+                        throw new ExcelCellConfigException("ExcelCell.value() value[" + excelCell.value() + "] must be unique at class [" + rawClass.getName() + "]");
+                    }
+                }
+
+                builder = new ExcelCellConfig.Builder()
+                        .title(excelCell.value()).type(excelCell.type()).propertyName(field.getName())
+                        .excelDateFormat(excelCell.excelDateFormat()).javaDateFormat(excelCell.javaDateFormat());
+
+                ExcelId excelId = field.getAnnotation(ExcelId.class);
+                if (excelId != null) {
+                    ExcelCellConfig ecc = builder.build();
+                    this.excelId_ExcelCellConfig = ecc;
+                    parseExcelCellConfigList.add(ecc);
+                    parseExcelCellConfigList.add(ecc);
+                } else {
+                    excelMappedEntity = field.getAnnotation(ExcelMappedEntity.class);
+                    if (excelMappedEntity != null) {
+                        Class<?> mappedByClass = excelMappedEntity.mappedBy();
+                        if (!mappedByClass.isAnnotationPresent(ExcelEntity.class)) {
+                            throw new BeanNotConfigAnnotationException(String.format("The class [%s] must config annotation [%s]",
+                                    mappedByClass.getName(), ExcelEntity.class.getName()));
+                        }
+                        builder.child(this.parseExcelCellConfigList(mappedByClass, excelMappedEntity.propertyNames()));
+                    }
+                    parseExcelCellConfigList.add(builder.build());
+                }
+            }
+        }
+        return parseExcelCellConfigList;
+    }
+
     private List<T> parseSheet(Sheet sheet, FormulaEvaluator formulaEvaluator) {
         Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -179,7 +195,6 @@ class ExcelReaderEngine<T> {
 //            }
 //        }
         //将title在Excel的位置缓存
-        InternalReadExcelCellConfig internalReadExcelCellConfig;
         List<ExcelCellConfig> newExcelCellConfigList = new ArrayList<>(this.excelCellConfigs.size());
         for (InternalExcelHeader internalExcelHeader : internalExcelHeaderList) {
             for (ExcelCellConfig excelCellConfig : this.excelCellConfigs) {
@@ -191,6 +206,9 @@ class ExcelReaderEngine<T> {
 //                    internalReadExcelCellConfig.excelDateFormat = excelCellConfig.getExcelDateFormat();
 //                    internalReadExcelCellConfig.javaDateFormat = excelCellConfig.getJavaDateFormat();
 
+                    if (null != this.excelId_ExcelCellConfig && excelCellConfig.getTitle().equals(this.excelId_ExcelCellConfig.getTitle())) {
+//                        this.excelId_ExcelCellConfig.newBuilder().cell
+                    }
 
                     ExcelCellConfig.Builder builder = excelCellConfig.newBuilder().cellIndex(internalExcelHeader.cellIndex);
                     if (CollectionUtils.isNotEmpty(internalExcelHeader.childExcelHeaders) && CollectionUtils.isNotEmpty(excelCellConfig.getExcelCellConfigChildren())) {
@@ -230,7 +248,7 @@ class ExcelReaderEngine<T> {
                 }
             }
             for (ExcelCellConfig excelCellConfig : this.excelCellConfigs) {
-                Cell cell = row.getCell(propertyCellMapping.getCellIndex());
+//                Cell cell = row.getCell(propertyCellMapping.getCellIndex());
                 if (CollectionUtils.isNotEmpty(excelCellConfig.getExcelCellConfigChildren())) {
 
                 }
@@ -345,7 +363,7 @@ class ExcelReaderEngine<T> {
                 propertyCellMapping.setPropertyName(fieldName);
                 propertyCellMapping.setType(excelCell.type());
                 propertyCellMapping.setExcelDateFormat(excelCell.excelDateFormat());
-                propertyCellMappingList.add(propertyCellMapping);
+//                propertyCellMappingList.add(propertyCellMapping);
             }
         }
     }
