@@ -8,6 +8,7 @@ import com.mzlion.core.reflect.StaticFieldFilter;
 import com.mzlion.core.util.ReflectionUtils;
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
+import com.mzlion.poi.annotation.ExcelId;
 import com.mzlion.poi.annotation.ExcelMappedEntity;
 import com.mzlion.poi.beans.PropertyCellMapping;
 import com.mzlion.poi.config.ExcelCellConfig;
@@ -34,10 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mzlion on 2016/6/8.
@@ -48,26 +46,27 @@ class ExcelReaderEngine<T> {
     /**
      * 导入的配置选项
      */
-    private final ExcelReadConfig excelReadConfig;
+    final ExcelReadConfig excelReadConfig;
 
     private ExcelType excelType = ExcelType.XLSX;
-    private List<PropertyCellMapping> propertyCellMappingList = new ArrayList<>();
+    private List<InternalReadExcelCellConfig> internalReadExcelCellConfigList = new ArrayList<>();
 
-    private List<ExcelCellConfig> excelCellConfigs;
+    List<ExcelCellConfig> excelCellConfigs;
 
     ExcelReaderEngine(ExcelReadConfig excelReadConfig) {
         this.excelReadConfig = excelReadConfig;
 
-        if (!ClassUtils.isAssignable(Map.class, this.excelReadConfig.getRawClass())) {
+        if (ClassUtils.isAssignable(Map.class, this.excelReadConfig.getRawClass())) {
+            this.excelCellConfigs = this.excelReadConfig.getExcelCellConfigList();
+        } else {
             List<ExcelCellConfig> parseExcelCellConfigList = this.parseExcelCellConfigList(this.excelReadConfig.getRawClass(), null);
             if (CollectionUtils.isEmpty(parseExcelCellConfigList)) {
                 throw new ExcelCellConfigException("The class[" + this.excelReadConfig.getRawClass() + "] does't config any `ExcelCell` in properties");
             }
             this.excelCellConfigs = parseExcelCellConfigList;
-        } else {
-            this.excelCellConfigs = this.excelReadConfig.getExcelCellConfigList();
         }
     }
+
 
     private List<ExcelCellConfig> parseExcelCellConfigList(Class<?> rawClass, String[] propertyNames) {
         List<ExcelCellConfig> parseExcelCellConfigList = new ArrayList<>();
@@ -75,6 +74,23 @@ class ExcelReaderEngine<T> {
         ExcelCell excelCell;
         ExcelCellConfig.Builder builder;
         ExcelMappedEntity excelMappedEntity;
+
+        //如果属性标有ExcelMappedEntity则必须指定某个属性注解为ExcelId
+        for (Field field : fieldList) {
+            if (field.isAnnotationPresent(ExcelMappedEntity.class)) {
+                boolean markExcelId = false;
+                for (Field _field : fieldList) {
+                    if (_field.isAnnotationPresent(ExcelId.class)) {
+                        markExcelId = true;
+                        break;
+                    }
+                }
+                if (!markExcelId) {
+                    throw new BeanNotConfigAnnotationException(String.format("The class [%s] must config annotation [%s]", rawClass.getName(), ExcelId.class.getName()));
+                }
+            }
+        }
+
         for (Field field : fieldList) {
             if (propertyNames == null || ArrayUtils.containsElement(propertyNames, field.getName())) {
                 excelCell = field.getAnnotation(ExcelCell.class);
@@ -153,10 +169,7 @@ class ExcelReaderEngine<T> {
 
         //2.获取标题头信息
         List<InternalExcelHeader> internalExcelHeaderList = this.getExcelHeaderTitles(rowIterator);
-        for (InternalExcelHeader internalExcelHeader : internalExcelHeaderList) {
-            System.out.println(internalExcelHeader);
-        }
-        Map<String, Integer> headerTitleMap = null;
+//        Map<String, Integer> headerTitleMap = null;
 //        if (this.excelReadConfig.isStrict()) {
 //            //严格模式,Bean定义中的列并且是required的需要出现在Excel的header title中
 //            for (PropertyCellMapping propertyCellMapping : this.propertyCellMappingList) {
@@ -166,22 +179,63 @@ class ExcelReaderEngine<T> {
 //            }
 //        }
         //将title在Excel的位置缓存
-        for (String headerTitle : headerTitleMap.keySet()) {
-            for (PropertyCellMapping propertyCellMapping : propertyCellMappingList) {
-                if (headerTitle.equals(propertyCellMapping.getTitle())) {
-                    propertyCellMapping.setCellIndex(headerTitleMap.get(headerTitle));
+        InternalReadExcelCellConfig internalReadExcelCellConfig;
+        List<ExcelCellConfig> newExcelCellConfigList = new ArrayList<>(this.excelCellConfigs.size());
+        for (InternalExcelHeader internalExcelHeader : internalExcelHeaderList) {
+            for (ExcelCellConfig excelCellConfig : this.excelCellConfigs) {
+                if (internalExcelHeader.title.equals(excelCellConfig.getTitle())) {
+//                    internalReadExcelCellConfig = new InternalReadExcelCellConfig();
+//                    internalReadExcelCellConfig.cellIndex = internalExcelHeader.cellIndex;
+//                    internalReadExcelCellConfig.type = excelCellConfig.getType();
+//                    internalReadExcelCellConfig.propertyName = excelCellConfig.getPropertyName();
+//                    internalReadExcelCellConfig.excelDateFormat = excelCellConfig.getExcelDateFormat();
+//                    internalReadExcelCellConfig.javaDateFormat = excelCellConfig.getJavaDateFormat();
+
+
+                    ExcelCellConfig.Builder builder = excelCellConfig.newBuilder().cellIndex(internalExcelHeader.cellIndex);
+                    if (CollectionUtils.isNotEmpty(internalExcelHeader.childExcelHeaders) && CollectionUtils.isNotEmpty(excelCellConfig.getExcelCellConfigChildren())) {
+                        List<ExcelCellConfig> childList = new ArrayList<>(excelCellConfig.getExcelCellConfigChildren().size());
+                        for (InternalExcelHeader childExcelHeader : internalExcelHeader.childExcelHeaders) {
+                            for (ExcelCellConfig excelCellConfigChild : excelCellConfig.getExcelCellConfigChildren()) {
+                                if (childExcelHeader.title.equals(excelCellConfigChild.getTitle())) {
+                                    childList.add(excelCellConfigChild.newBuilder().cellIndex(childExcelHeader.cellIndex).build());
+                                    break;
+                                }
+                            }
+                        }
+                        builder.clearChild().child(childList);
+                    }
+                    newExcelCellConfigList.add(builder.build());
                     break;
                 }
             }
-
         }
+        this.excelCellConfigs.clear();
+        this.excelCellConfigs = newExcelCellConfigList;
+        Collections.sort(this.excelCellConfigs);
 
         List<T> list = new ArrayList<>();
         Row row = null;
         while (rowIterator.hasNext() && (row == null || sheet.getLastRowNum() > row.getRowNum() + this.excelReadConfig.getLastInvalidRow())) {
             row = rowIterator.next();
-            DataRowParser dataRowParser = new DataRowParser(this.excelReadConfig, this.propertyCellMappingList, formulaEvaluator);
-            list.add((T) dataRowParser.process(row));
+            DataRowParser<T> dataRowParser = new DataRowParser<>(this);
+            for (int i = 0, size = this.excelCellConfigs.size(); i < size; i++) {
+                ExcelCellConfig excelCellConfig = this.excelCellConfigs.get(i);
+                Cell cell = row.getCell(excelCellConfig.getCellIndex());
+                if (i == 0) {
+                    CellRangeAddress cellRangeAddress = this.getCellRangeAddress(sheet, cell.getRowIndex(), cell.getColumnIndex());
+                    if (cellRangeAddress != null) {
+
+                    }
+                }
+            }
+            for (ExcelCellConfig excelCellConfig : this.excelCellConfigs) {
+                Cell cell = row.getCell(propertyCellMapping.getCellIndex());
+                if (CollectionUtils.isNotEmpty(excelCellConfig.getExcelCellConfigChildren())) {
+
+                }
+            }
+            list.add(dataRowParser.process(row));
         }
         return list;
     }

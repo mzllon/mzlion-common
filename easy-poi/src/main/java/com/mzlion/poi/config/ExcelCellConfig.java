@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by mzlion on 2016/6/13.
  */
-public class ExcelCellConfig {
+public class ExcelCellConfig implements Comparable<ExcelCellConfig> {
 
     /**
      * cell标题,必须唯一
@@ -144,6 +144,15 @@ public class ExcelCellConfig {
         return sb.toString();
     }
 
+    public Builder newBuilder() {
+        return new Builder(this);
+    }
+
+    @Override
+    public int compareTo(ExcelCellConfig o) {
+        return this.cellIndex - o.cellIndex;
+    }
+
     public static class Builder {
 
         /**
@@ -203,6 +212,21 @@ public class ExcelCellConfig {
             this.type = ExcelCellType.AUTO;
             this.width = 8.38f;
             this.autoWrap = false;
+        }
+
+        public Builder(ExcelCellConfig excelCellConfig) {
+            this.title = excelCellConfig.title;
+            this.required = excelCellConfig.required;
+            this.type = excelCellConfig.type;
+            this.propertyName = excelCellConfig.propertyName;
+            this.cellIndex = excelCellConfig.cellIndex;
+            this.excelDateFormat = excelCellConfig.excelDateFormat;
+            this.javaDateFormat = excelCellConfig.javaDateFormat;
+            this.width = excelCellConfig.width;
+            this.autoWrap = excelCellConfig.autoWrap;
+            this.excelHyperLinkType = excelCellConfig.excelHyperLinkType;
+            this.hyperlinkName = excelCellConfig.hyperlinkName;
+            this.excelCellConfigChildren = excelCellConfig.excelCellConfigChildren;
         }
 
         public Builder title(String title) {
@@ -273,6 +297,11 @@ public class ExcelCellConfig {
                 this.excelCellConfigChildren = new ArrayList<>();
             }
             this.excelCellConfigChildren.addAll(excelCellConfigList);
+            return this;
+        }
+
+        public Builder clearChild() {
+            this.excelCellConfigChildren.clear();
             return this;
         }
 
