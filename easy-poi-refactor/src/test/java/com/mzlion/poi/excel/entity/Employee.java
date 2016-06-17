@@ -4,6 +4,7 @@ import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
 import com.mzlion.poi.annotation.ExcelId;
 import com.mzlion.poi.annotation.ExcelMappedEntity;
+import com.mzlion.poi.constant.ExcelCellType;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class Employee {
 
     @ExcelId
-    @ExcelCell("员工号")
+    @ExcelCell(value = "员工号", excelCellType = ExcelCellType.TEXT)
     private String empNo;
 
     @ExcelCell("员工姓名")

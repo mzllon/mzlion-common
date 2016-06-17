@@ -30,4 +30,13 @@ public abstract class ExcelException extends RuntimeException {
     public ExcelException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    /**
+     * Construct a {@code ExcelException} with the  nested exception.
+     *
+     * @param cause the nested exception
+     */
+    public ExcelException(Throwable cause) {
+        super(cause);
+    }
 }

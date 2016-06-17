@@ -2,15 +2,18 @@ package com.mzlion.poi.excel;
 
 import com.mzlion.poi.config.ExcelCellHeaderConfig;
 import com.mzlion.poi.constant.ExcelCellType;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.List;
 
 /**
- * Created by mzlion on 2016/6/16.
+ * Created by mzlion on 2016/6/17.
  */
-class ReadExcelCellHeaderConfig implements Comparable<ReadExcelCellHeaderConfig> {
+class WriteExcelCellHeaderConfig implements Comparable<WriteExcelCellHeaderConfig> {
 
+
+    /**
+     * cell标题,必须唯一
+     */
     String title;
 
     /**
@@ -34,61 +37,57 @@ class ReadExcelCellHeaderConfig implements Comparable<ReadExcelCellHeaderConfig>
     String javaDateFormat;
 
     /**
+     * cell的宽度
+     */
+    float width;
+
+    /**
+     * 自动换行
+     */
+    boolean autoWrap;
+
+    /**
      * cell对应JavaBean属性名
      */
     String propertyName;
 
-    boolean isExcelId;
-
-    CellRangeAddress cellRangeAddress;
-
-    List<ReadExcelCellHeaderConfig> children;
+    List<WriteExcelCellHeaderConfig> children;
 
     Class<?> targetClass;
 
-    ReadExcelCellHeaderConfig() {
+    WriteExcelCellHeaderConfig() {
     }
 
-    ReadExcelCellHeaderConfig(ExcelCellHeaderConfig excelCellHeaderConfig) {
+    WriteExcelCellHeaderConfig(ExcelCellHeaderConfig excelCellHeaderConfig) {
         this.title = excelCellHeaderConfig.getTitle();
         this.excelCellType = excelCellHeaderConfig.getExcelCellType();
-        this.propertyName = excelCellHeaderConfig.getPropertyName();
         this.cellIndex = excelCellHeaderConfig.getCellIndex();
         this.excelDateFormat = excelCellHeaderConfig.getExcelDateFormat();
         this.javaDateFormat = excelCellHeaderConfig.getJavaDateFormat();
+        this.width = excelCellHeaderConfig.getWidth();
+        this.autoWrap = excelCellHeaderConfig.isAutoWrap();
+        this.propertyName = excelCellHeaderConfig.getPropertyName();
     }
 
-    public ReadExcelCellHeaderConfig(ReadExcelCellHeaderConfig parent) {
-        this.title = parent.title;
-        this.excelCellType = parent.excelCellType;
-        this.cellIndex = parent.cellIndex;
-        this.excelDateFormat = parent.excelDateFormat;
-        this.javaDateFormat = parent.javaDateFormat;
-        this.propertyName = parent.propertyName;
-        this.isExcelId = parent.isExcelId;
-        this.cellRangeAddress = parent.cellRangeAddress;
-        this.children = parent.children;
-        this.targetClass = parent.targetClass;
+    @Override
+    public int compareTo(WriteExcelCellHeaderConfig o) {
+        return this.cellIndex = o.cellIndex;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ReadExcelCellHeaderConfig{");
+        final StringBuilder sb = new StringBuilder("WriteExcelCellHeaderConfig{");
         sb.append("title='").append(title).append('\'');
         sb.append(", excelCellType=").append(excelCellType);
         sb.append(", cellIndex=").append(cellIndex);
         sb.append(", excelDateFormat='").append(excelDateFormat).append('\'');
         sb.append(", javaDateFormat='").append(javaDateFormat).append('\'');
+        sb.append(", width=").append(width);
+        sb.append(", autoWrap=").append(autoWrap);
         sb.append(", propertyName='").append(propertyName).append('\'');
-        sb.append(", isExcelId=").append(isExcelId);
-        sb.append(", cellRangeAddress=").append(cellRangeAddress);
         sb.append(", children=").append(children);
+        sb.append(", targetClass=").append(targetClass);
         sb.append('}');
         return sb.toString();
-    }
-
-    @Override
-    public int compareTo(ReadExcelCellHeaderConfig o) {
-        return this.cellIndex - o.cellIndex;
     }
 }

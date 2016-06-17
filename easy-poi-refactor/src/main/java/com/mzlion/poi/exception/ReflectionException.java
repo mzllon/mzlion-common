@@ -13,4 +13,13 @@ public class ReflectionException extends ExcelException {
     public ReflectionException(String message) {
         super(message);
     }
+
+    /**
+     * Construct a {@code ReflectionException} with the  nested exception.
+     *
+     * @param cause the nested exception
+     */
+    public ReflectionException(Throwable cause) {
+        super(cause);
+    }
 }

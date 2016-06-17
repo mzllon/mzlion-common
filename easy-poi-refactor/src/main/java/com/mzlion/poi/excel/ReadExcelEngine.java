@@ -29,26 +29,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mzlion on 2016/6/16.
  */
 class ReadExcelEngine<E> {
     //slf4j
-    private Logger logger = LoggerFactory.getLogger(ReadExcelEngine.class);
-
-
-    /**
-     * 导入的配置选项
-     */
+    private final Logger logger = LoggerFactory.getLogger(ReadExcelEngine.class);
+    //导入的配置选项
     final ReadExcelConfig readExcelConfig;
 
-    List<ReadExcelCellHeaderConfig> readExcelCellHeaderConfigList;
-    private FormulaEvaluator formulaEvaluator;
+    private List<ReadExcelCellHeaderConfig> readExcelCellHeaderConfigList;
+    FormulaEvaluator formulaEvaluator;
 
     ReadExcelEngine(ReadExcelConfig readExcelConfig) {
         this.readExcelConfig = readExcelConfig;
@@ -124,6 +117,7 @@ class ReadExcelEngine<E> {
             if (excelMappedEntity != null) {
                 Class<?> targetClass = excelMappedEntity.targetClass();
                 readExcelCellHeaderConfig.children = this.convertByJavaBean(targetClass, excelMappedEntity.propertyNames());
+                readExcelCellHeaderConfig.targetClass = targetClass;
             }
             readExcelCellHeaderConfigList.add(readExcelCellHeaderConfig);
         }
@@ -144,12 +138,34 @@ class ReadExcelEngine<E> {
         //2.获取标题头信息
         List<InternalExcelHeader> internalExcelHeaderList = this.getExcelHeaders(rowIterator);
 
+
+        if (ClassUtils.isAssignable(Map.class, this.readExcelConfig.getRawClass())) {
+            List<ReadExcelCellHeaderConfig> headerConfigList = this.mergeCellHeadersByMap(internalExcelHeaderList);
+            DataRowReader<E> dataRowReader = new DataRowReader<>(headerConfigList, this);
+            return dataRowReader.doReadForMap(rowIterator, sheet);
+        }
+
         //3.将Excel解析的InternalExcelHeader和JavaBean解析的ReadExcelCellHeaderConfig合并起来
         List<ReadExcelCellHeaderConfig> headerConfigList = this.mergeCellHeaders(internalExcelHeaderList);
-        for (ReadExcelCellHeaderConfig readExcelCellHeaderConfig : headerConfigList) {
-            System.out.println(readExcelCellHeaderConfig);
+        Collections.sort(headerConfigList);
+        this.readExcelCellHeaderConfigList = null;
+
+        DataRowReader<E> dataRowReader = new DataRowReader<>(headerConfigList, this);
+        return dataRowReader.doReadForJavaBean(rowIterator, sheet);
+    }
+
+    private List<ReadExcelCellHeaderConfig> mergeCellHeadersByMap(List<InternalExcelHeader> internalExcelHeaderList) {
+        List<ReadExcelCellHeaderConfig> headerConfigList = new ArrayList<>(internalExcelHeaderList.size());
+        for (InternalExcelHeader internalExcelHeader : internalExcelHeaderList) {
+            ReadExcelCellHeaderConfig _config = this.getByTitle(internalExcelHeader.title);
+            if (_config == null) {
+                continue;
+            }
+            ReadExcelCellHeaderConfig readExcelCellHeaderConfig = new ReadExcelCellHeaderConfig(_config);
+            readExcelCellHeaderConfig.cellIndex = internalExcelHeader.cellIndex;
+            headerConfigList.add(readExcelCellHeaderConfig);
         }
-        return null;
+        return headerConfigList;
     }
 
     private List<ReadExcelCellHeaderConfig> mergeCellHeaders(List<InternalExcelHeader> internalExcelHeaderList) {
@@ -157,14 +173,14 @@ class ReadExcelEngine<E> {
         for (InternalExcelHeader internalExcelHeader : internalExcelHeaderList) {
             ReadExcelCellHeaderConfig _config = this.getByTitle(internalExcelHeader.title);
             if (_config == null) {
-                throw new ExcelCellHeaderTitleException("Title [" + internalExcelHeader.title + "] @ExcelCell can not find.");
+                continue;
             }
             ReadExcelCellHeaderConfig readExcelCellHeaderConfig = new ReadExcelCellHeaderConfig(_config);
             readExcelCellHeaderConfig.cellIndex = internalExcelHeader.cellIndex;
             List<InternalExcelHeader> childExcelHeaders = internalExcelHeader.childExcelHeaders;
             if (CollectionUtils.isNotEmpty(childExcelHeaders)) {
-                List<ReadExcelCellHeaderConfig> children = readExcelCellHeaderConfig.children;
-                if (CollectionUtils.isEmpty(children)) {
+                List<ReadExcelCellHeaderConfig> _children = readExcelCellHeaderConfig.children;
+                if (CollectionUtils.isEmpty(_children)) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("The titles [");
                     for (InternalExcelHeader childExcelHeader : childExcelHeaders) {
@@ -175,14 +191,17 @@ class ReadExcelEngine<E> {
                     sb.append(" must config by @ExcelMappedEntity.");
                     throw new ExcelCellHeaderTitleException(sb.toString());
                 }
+                List<ReadExcelCellHeaderConfig> children = new ArrayList<>(_children.size());
                 for (InternalExcelHeader childExcelHeader : childExcelHeaders) {
                     ReadExcelCellHeaderConfig _child = this.getByTitle(childExcelHeader.title, readExcelCellHeaderConfig);
                     if (_child == null) {
                         throw new ExcelCellHeaderTitleException("Title [" + internalExcelHeader.title + "] @ExcelCell can not find.");
                     }
-                    ReadExcelCellHeaderConfig child = new ReadExcelCellHeaderConfig(_child);
-                    child.cellIndex = childExcelHeader.cellIndex;
-                    children.add(child);
+                    if (childExcelHeader.title.equals(_child.title)) {
+                        ReadExcelCellHeaderConfig child = new ReadExcelCellHeaderConfig(_child);
+                        child.cellIndex = childExcelHeader.cellIndex;
+                        children.add(child);
+                    }
                 }
                 readExcelCellHeaderConfig.children = children;
             }
@@ -292,7 +311,7 @@ class ReadExcelEngine<E> {
         return internalExcelHeaderList;
     }
 
-    private CellRangeAddress getCellRangeAddress(Sheet sheet, int rowIndex, int colIndex) {
+    CellRangeAddress getCellRangeAddress(Sheet sheet, int rowIndex, int colIndex) {
         for (CellRangeAddress cellRangeAddress : sheet.getMergedRegions()) {
             if (rowIndex >= cellRangeAddress.getFirstRow() && rowIndex <= cellRangeAddress.getLastRow() &&
                     colIndex >= cellRangeAddress.getFirstColumn() && colIndex <= cellRangeAddress.getLastColumn()) {
