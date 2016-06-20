@@ -43,7 +43,7 @@ class WriteExcelEngine {
     ExcelCellStyleHandler styleHandler;
 
     List<WriteExcelCellHeaderConfig> writeExcelCellHeaderConfigList;
-    int cellCount = 0;
+    private int cellCount = 0;
 
     WriteExcelEngine(WriteExcelConfig writeExcelConfig) {
         this.writeExcelConfig = writeExcelConfig;

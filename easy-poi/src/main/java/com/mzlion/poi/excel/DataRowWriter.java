@@ -1,6 +1,7 @@
 package com.mzlion.poi.excel;
 
 import com.mzlion.core.beans.PropertyUtilBean;
+import com.mzlion.core.date.DateUtils;
 import com.mzlion.core.lang.ClassUtils;
 import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.core.lang.StringUtils;
@@ -228,7 +229,10 @@ class DataRowWriter<E> {
                     cell.setCellValue((Boolean) value);
                 } else if (valueType.equals(String.class)) {
                     cell.setCellType(Cell.CELL_TYPE_STRING);
-                    cell.setCellValue(value.toString());
+                    if (StringUtils.hasLength(writeExcelCellHeaderConfig.excelDateFormat) &&
+                            StringUtils.hasLength(writeExcelCellHeaderConfig.javaDateFormat))
+                        cell.setCellValue(DateUtils.swapDateStr(value.toString(), writeExcelCellHeaderConfig.javaDateFormat, writeExcelCellHeaderConfig.excelDateFormat));
+                    else cell.setCellValue(value.toString());
                     cell.getCellStyle().setDataFormat(this.writeExcelEngine.workbook.getCreationHelper().createDataFormat().getFormat("@"));
                 } else if (valueType.equals(Date.class)) {
                     if (StringUtils.hasLength(writeExcelCellHeaderConfig.excelDateFormat)) {
