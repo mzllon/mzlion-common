@@ -69,7 +69,7 @@ public class ExcelUtilsTest {
         File output = new File("d:/emp.xlsx");
         Employee employee = new Employee();
 
-        ExcelUtils.write(Arrays.asList(employee), "", Employee.class, output);
+        ExcelUtils.write(Arrays.asList(employee), "测试导出复合型标题", Employee.class, output);
     }
 
     private List<EmployeeSimply> genEmployeeList() {

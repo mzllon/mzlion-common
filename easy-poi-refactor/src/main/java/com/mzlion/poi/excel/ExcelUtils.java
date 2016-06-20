@@ -137,7 +137,7 @@ public class ExcelUtils {
         Assert.notEmpty(dataSet, "The dataset must not be null or empty.");
         Assert.notNull(writeExcelConfig, "WriteExcelConfig must not be null.");
         Assert.notNull(output, "Output must not be null.");
-        WriteExcelEngine<E> writeExcelEngine = new WriteExcelEngine<>(writeExcelConfig);
+        WriteExcelEngine writeExcelEngine = new WriteExcelEngine(writeExcelConfig);
         writeExcelEngine.write(dataSet, output);
     }
 }
