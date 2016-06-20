@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by mzlion on 2016/6/15.
  */
-public class InternalExcelHeader {
+class InternalExcelHeader {
 
     String title;
 

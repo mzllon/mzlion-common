@@ -3,7 +3,10 @@ package com.mzlion.poi.annotation;
 import java.lang.annotation.*;
 
 /**
- * Created by mzlion on 2016/6/10.
+ * Excel标记注解，仅用于标记JavaBean是能够被该框架解析的
+ *
+ * @author mzlion
+ * @date 2016-06-10
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

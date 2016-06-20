@@ -5,7 +5,7 @@ import com.mzlion.poi.constant.ExcelCellType;
 import java.lang.annotation.*;
 
 /**
- * Excel的单元格注解，标记java属性和cell的关系
+ * Excel的列注解，标记java属性和column的关系
  *
  * @author mzlion
  * @date 2016-06-11
@@ -20,15 +20,15 @@ public @interface ExcelCell {
      */
     String value();
 
-    /**
-     * 该cell 列是否是必须的
-     */
-    boolean required() default false;
+//    /**
+//     * 该cell 列是否是必须的
+//     */
+//    boolean required() default false;
 
     /**
      * cell填充或解析的数据类型
      */
-    ExcelCellType type() default ExcelCellType.AUTO;
+    ExcelCellType excelCellType() default ExcelCellType.AUTO;
 
     /**
      * 导出时cell的宽度，单位为字符，一个汉字为2个字符

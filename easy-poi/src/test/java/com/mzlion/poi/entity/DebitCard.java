@@ -1,4 +1,4 @@
-package com.mzlion.poi.excel.entity;
+package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
@@ -11,7 +11,7 @@ public class DebitCard {
 
     private String cardId;
 
-    @ExcelCell(value = "卡号", width = 20)
+    @ExcelCell("卡号")
     private String cardNo;
 
     @ExcelCell("银行名称")

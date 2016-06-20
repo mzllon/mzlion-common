@@ -14,10 +14,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * http://www.oschina.net/p/easy-xls
- * https://git.oschina.net/bingyulei007/bingExcel
  * <p>
- * Created by mzlion on 2016/6/7.
+ * Excel的处理工具类
+ * </p>
+ *
+ * @author mzlion
+ * @date 2016-06-07
  */
 public class ExcelUtils {
 
@@ -30,6 +32,7 @@ public class ExcelUtils {
      * @return 集合
      */
     public static <E> List<E> read(File excelFile, Class<E> beanClass) {
+        //https://git.oschina.net/bingyulei007/bingExcel
         Assert.isTrue(beanClass != null, "The bean class must not be null.");
         ReadExcelConfig readExcelConfig = new ReadExcelConfig.Builder()
                 .rawClass(beanClass).build();

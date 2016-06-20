@@ -2,10 +2,10 @@ package com.mzlion.poi.excel;
 
 import com.mzlion.poi.config.ExcelCellHeaderConfig;
 import com.mzlion.poi.config.ReadExcelConfig;
-import com.mzlion.poi.excel.entity.DebitCard;
-import com.mzlion.poi.excel.entity.Employee;
-import com.mzlion.poi.excel.entity.EmployeeSimply;
-import com.mzlion.poi.excel.entity.Position;
+import com.mzlion.poi.entity.DebitCard;
+import com.mzlion.poi.entity.Employee;
+import com.mzlion.poi.entity.EmployeeSimply;
+import com.mzlion.poi.entity.Position;
 import org.junit.Test;
 
 import java.io.File;

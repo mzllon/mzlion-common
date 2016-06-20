@@ -7,7 +7,7 @@ package com.mzlion.poi.exception;
  * </p>
  *
  * @author mzlion
- * @date 2016-06-09
+ * @date 2016-06-16
  * @since 1.7
  */
 public abstract class ExcelException extends RuntimeException {
@@ -29,5 +29,14 @@ public abstract class ExcelException extends RuntimeException {
      */
     public ExcelException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Construct a {@code ExcelException} with the  nested exception.
+     *
+     * @param cause the nested exception
+     */
+    public ExcelException(Throwable cause) {
+        super(cause);
     }
 }

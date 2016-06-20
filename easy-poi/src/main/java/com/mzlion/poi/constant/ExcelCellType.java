@@ -5,6 +5,7 @@ package com.mzlion.poi.constant;
  */
 public enum ExcelCellType {
     AUTO,
+    TEXT,
     HYPER_LINK,
-    FORMULA;
+    FORMULA
 }
