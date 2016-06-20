@@ -2,7 +2,9 @@ package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
+import com.mzlion.poi.annotation.ExcelId;
 import com.mzlion.poi.annotation.ExcelMappedEntity;
+import com.mzlion.poi.constant.ExcelCellType;
 
 import java.util.List;
 
@@ -12,18 +14,19 @@ import java.util.List;
 @ExcelEntity
 public class Employee {
 
-    @ExcelCell("员工号")
+    @ExcelId
+    @ExcelCell(value = "员工号", excelCellType = ExcelCellType.TEXT)
     private String empNo;
 
     @ExcelCell("员工姓名")
     private String empName;
 
     @ExcelCell("工资卡列表")
-    @ExcelMappedEntity(propertyNames = {"cardNo", "cardType", "employee"}, mappedBy = DebitCard.class)
+    @ExcelMappedEntity(propertyNames = {"cardNo", "cardType", "employee"}, targetClass = DebitCard.class)
     private List<DebitCard> debitCardList;
 
     @ExcelCell("职称列表")
-    @ExcelMappedEntity(propertyNames = {"name", "createTime"}, mappedBy = Position.class)
+    @ExcelMappedEntity(propertyNames = {"name", "createTime"}, targetClass = Position.class)
     private List<Position> positionList;
 
     public String getEmpNo() {

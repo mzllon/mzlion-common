@@ -2,7 +2,6 @@ package com.mzlion.poi.entity;
 
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelEntity;
-import com.mzlion.poi.annotation.ExcelHyperLink;
 
 import java.util.Date;
 
@@ -17,13 +16,13 @@ public class EmployeeSimply {
     /**
      * 工号
      */
-    @ExcelCell(value = "工号", required = true, width = 12)
+    @ExcelCell(value = "工号", width = 12)
     private String no;
 
     /**
      * 姓名
      */
-    @ExcelCell(value = "姓名", required = true, order = 2)
+    @ExcelCell(value = "姓名", order = 2)
     private String name;
 
     /**
@@ -48,7 +47,6 @@ public class EmployeeSimply {
      * 转正日期
      */
     @ExcelCell(value = "转正日期", javaDateFormat = "yyyyMMdd", width = 12)
-    @ExcelHyperLink
     private String obtainedDate;
 
     public String getNo() {

@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by mzlion on 2016/6/16.
@@ -34,18 +34,29 @@ public class ExcelUtilsTest {
                 .excelCellHeaderConfig(new ExcelCellHeaderConfig.Builder().title("联系电话").propertyName("mobile").build())
                 .excelCellHeaderConfig(new ExcelCellHeaderConfig.Builder().title("家庭住址").propertyName("address").build())
                 .build();
-        List<Map> mapList = ExcelUtils.read(this.getClass().getClassLoader().getResourceAsStream("employeeList.xlsx"), readExcelConfig);
-        for (Map map : mapList) {
-            System.out.println(map);
-        }
+        List<Map> employeeList = ExcelUtils.read(this.getClass().getClassLoader()
+                .getResourceAsStream("imports/employeeList.xlsx"), readExcelConfig);
+        assertNotNull(employeeList);
+        assertEquals(100, employeeList.size());
     }
 
     @Test
     public void testRead2BeanSimply() throws Exception {
-        List<EmployeeSimply> employeeSimplyList = ExcelUtils.read(this.getClass().getClassLoader().getResourceAsStream("employeeList.xlsx"), EmployeeSimply.class);
-        for (EmployeeSimply employeeSimply : employeeSimplyList) {
-            System.out.println(employeeSimply);
-        }
+        List<EmployeeSimply> employeeSimplyList = ExcelUtils.read(this.getClass().getClassLoader()
+                .getResourceAsStream("imports/employeeList.xlsx"), EmployeeSimply.class);
+        assertNotNull(employeeSimplyList);
+        assertEquals(100, employeeSimplyList.size());
+        //091231301	施鸿朗	1990/1/20	男	2016-09-05	2016/11/6	17018321652	上海市长宁区倏肮路 18号 彻小区 34号楼 1单元 406室
+//        EmployeeSimply employeeSimply = new EmployeeSimply();
+//        employeeSimply.setNo("091231301");
+//        employeeSimply.setName("施鸿朗");
+//        employeeSimply.setBirthDay(DateUtils.parseDate("1990/1/20", "yyyy/M/dd"));
+//        employeeSimply.setSex("男");
+//        employeeSimply.setRegDate(DateUtils.parseDate("2016-09-05", "yyyy-MM-dd"));
+//        employeeSimply.setObtainedDate("2016/11/6");
+//        employeeSimply.setMobile("17018321652");
+//        employeeSimply.setAddress("上海市长宁区倏肮路 18号 彻小区 34号楼 1单元 406室");
+//        assertSame(employeeSimply, employeeSimplyList.get(0));
     }
 
     @Test
@@ -56,8 +67,9 @@ public class ExcelUtilsTest {
                 .headerRowUsed(2)
                 .build();
         ReadExcelEngine<Employee> readExcelEngine = new ReadExcelEngine<>(readExcelConfig);
-        List<Employee> employeeList = readExcelEngine.read(this.getClass().getClassLoader().getResourceAsStream("员工信息.xlsx"));
+        List<Employee> employeeList = readExcelEngine.read(this.getClass().getClassLoader().getResourceAsStream("imports/complexEmployList.xlsx"));
         assertTrue(employeeList != null);
+        assertEquals(3, employeeList.size());
         for (Employee employee : employeeList) {
             System.out.println(employee);
         }
