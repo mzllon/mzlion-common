@@ -54,5 +54,5 @@ public @interface ExcelCell {
      * 在JavaBean日期的格式化风格，默认为空则表示忽略
      */
     String javaDateFormat() default "";
-
+    
 }

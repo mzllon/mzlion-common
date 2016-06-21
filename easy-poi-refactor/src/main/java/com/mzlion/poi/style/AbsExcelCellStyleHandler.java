@@ -1,4 +1,4 @@
-package com.mzlion.poi.handler;
+package com.mzlion.poi.style;
 
 import com.mzlion.poi.config.ExcelCellHeaderConfig;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -24,7 +24,7 @@ public abstract class AbsExcelCellStyleHandler implements ExcelCellStyleHandler 
 
     @Override
     public CellStyle getDataCellStyle(int rowIndex, Object value, Class<?> valueClass, ExcelCellHeaderConfig excelCellHeaderConfig, CellStyle cloneCellStyle) {
-        return null;
+        return cloneCellStyle;
     }
 
     @Override
