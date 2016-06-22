@@ -171,14 +171,14 @@ class WriteExcelEngine {
                 for (int i = 0; i < size; i++) {
                     cell = row.createCell(children.get(i).cellIndex);
                     if (this.styleHandler != null)
-                        cell.setCellStyle(this.styleHandler.getHeaderCellStyle(children.get(i).title, children.get(i).cellIndex));
+                        cell.setCellStyle(this.styleHandler.getHeaderCellStyle(children.get(i).title, children.get(i).cellIndex, cell.getCellStyle()));
                     if (i == 0) {
                         cell.setCellValue(writeExcelCellHeaderConfig.title);
                     }
                     subCell = subRow.createCell(children.get(i).cellIndex);
                     subCell.setCellValue(children.get(i).title);
                     if (this.styleHandler != null)
-                        subCell.setCellStyle(this.styleHandler.getHeaderCellStyle(children.get(i).title, children.get(i).cellIndex));
+                        subCell.setCellStyle(this.styleHandler.getHeaderCellStyle(children.get(i).title, children.get(i).cellIndex, cell.getCellStyle()));
                 }
                 sheet.addMergedRegion(new CellRangeAddress(startRow, startRow, writeExcelCellHeaderConfig.cellIndex,
                         writeExcelCellHeaderConfig.cellIndex + size - 1));
@@ -186,7 +186,7 @@ class WriteExcelEngine {
                 cell = row.createCell(writeExcelCellHeaderConfig.cellIndex);
                 cell.setCellValue(writeExcelCellHeaderConfig.title);
                 if (this.styleHandler != null)
-                    cell.setCellStyle(this.styleHandler.getHeaderCellStyle(writeExcelCellHeaderConfig.title, writeExcelCellHeaderConfig.cellIndex));
+                    cell.setCellStyle(this.styleHandler.getHeaderCellStyle(writeExcelCellHeaderConfig.title, writeExcelCellHeaderConfig.cellIndex, cell.getCellStyle()));
             }
         }
         return returnRow;
@@ -203,6 +203,10 @@ class WriteExcelEngine {
     private List<WriteExcelCellHeaderConfig> convertByJavaBean(Class<?> beanClass, String[] includePropertyNames) {
         List<WriteExcelCellHeaderConfig> configs = new ArrayList<>();
         List<Field> fieldList = ReflectionUtils.getDeclaredFields(beanClass);
+        if (includePropertyNames != null && includePropertyNames.length == 1 && includePropertyNames[0].equals("*")) {
+            includePropertyNames = null;
+        }
+
         for (Field field : fieldList) {
             if (includePropertyNames != null && !ArrayUtils.containsElement(includePropertyNames, field.getName())) {
                 continue;

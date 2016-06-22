@@ -97,6 +97,9 @@ class ReadExcelEngine<E> {
     private List<ReadExcelCellHeaderConfig> convertByJavaBean(Class<?> beanClass, String[] includePropertyNames) {
         List<ReadExcelCellHeaderConfig> readExcelCellHeaderConfigList = new ArrayList<>();
         List<Field> fieldList = ReflectionUtils.getDeclaredFields(beanClass);
+        if (includePropertyNames != null && includePropertyNames.length == 1 && includePropertyNames[0].equals("*")) {
+            includePropertyNames = null;
+        }
 
         for (Field field : fieldList) {
             if (includePropertyNames != null && !ArrayUtils.containsElement(includePropertyNames, field.getName())) {

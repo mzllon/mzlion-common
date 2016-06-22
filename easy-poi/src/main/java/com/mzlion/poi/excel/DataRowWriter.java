@@ -7,6 +7,7 @@ import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.core.lang.StringUtils;
 import com.mzlion.poi.exception.ReflectionException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -104,10 +105,10 @@ class DataRowWriter<E> {
         for (E entity : dataSet) {
             int maxMergeRowCount = 0;
 
-            //1.判断Bean是否存在集合，如果存在则取出最大的集合数量
             for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.writeExcelCellHeaderConfigList) {
                 if (CollectionUtils.isNotEmpty(writeExcelCellHeaderConfig.children)) {
                     PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, writeExcelCellHeaderConfig.propertyName);
+                    //1.判断Bean是否存在集合，如果存在则取出最大的集合数量
                     if (ClassUtils.isAssignable(Collection.class, propertyDescriptor.getPropertyType())) {
                         Method readMethod = propertyDescriptor.getReadMethod();
                         Object value = readMethod.invoke(entity);
@@ -125,11 +126,27 @@ class DataRowWriter<E> {
                     PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, writeExcelCellHeaderConfig.propertyName);
                     Method readMethod = propertyDescriptor.getReadMethod();
                     Object value = readMethod.invoke(entity);
-                    Cell cell = row.createCell(writeExcelCellHeaderConfig.cellIndex);
-                    this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
-                    if (this.writeExcelEngine.styleHandler != null) {
-                        cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                cell.getRowIndex(), value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+
+                    //判断类型是否是JavaBean
+                    if (value != null && CollectionUtils.isNotEmpty(writeExcelCellHeaderConfig.children)) {
+                        for (WriteExcelCellHeaderConfig child : writeExcelCellHeaderConfig.children) {
+                            PropertyDescriptor childPropertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(value, child.propertyName);
+                            Object childValue = childPropertyDescriptor.getReadMethod().invoke(value);
+                            Cell cell = row.createCell(child.cellIndex);
+                            this.setCell(cell, childValue, childPropertyDescriptor.getPropertyType(), child);
+                            if (this.writeExcelEngine.styleHandler != null) {
+                                CellStyle dataCellStyle = this.writeExcelEngine.styleHandler.getDataCellStyle(cell.getRowIndex(), childValue, childPropertyDescriptor.getPropertyType(),
+                                        child.convertToExcelCellHeaderConfig(), cell.getCellStyle());
+                                if (dataCellStyle != null) cell.setCellStyle(dataCellStyle);
+                            }
+                        }
+                    } else {
+                        Cell cell = row.createCell(writeExcelCellHeaderConfig.cellIndex);
+                        this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
+                        if (this.writeExcelEngine.styleHandler != null) {
+                            cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
+                                    cell.getRowIndex(), value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                        }
                     }
                 }
             } else {

@@ -16,7 +16,7 @@ public @interface ExcelMappedEntity {
     /**
      * 需要解析属性列表，不可为空
      */
-    String[] propertyNames();
+    String[] propertyNames() default {"*"};
 
     /**
      * 对应的目标类型
