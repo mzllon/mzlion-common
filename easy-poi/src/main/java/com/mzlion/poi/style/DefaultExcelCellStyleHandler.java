@@ -101,7 +101,7 @@ public class DefaultExcelCellStyleHandler implements ExcelCellStyleHandler {
      * @return 返回样式
      */
     @Override
-    public CellStyle getDataCellStyle(int rowIndex, Object value, Class<?> valueClass, ExcelCellHeaderConfig excelCellHeaderConfig, CellStyle cellStyle) {
+    public CellStyle getDataCellStyle(int rowIndex, Object originalBean, Object value, Class<?> valueClass, ExcelCellHeaderConfig excelCellHeaderConfig, CellStyle cellStyle) {
         cellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
 

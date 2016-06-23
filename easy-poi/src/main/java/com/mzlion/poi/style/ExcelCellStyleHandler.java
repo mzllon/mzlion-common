@@ -41,7 +41,7 @@ public interface ExcelCellStyleHandler {
      * @param cellStyle             框架默认的样式
      * @return 返回样式
      */
-    CellStyle getDataCellStyle(int rowIndex, Object value, Class<?> valueClass, ExcelCellHeaderConfig excelCellHeaderConfig, CellStyle cellStyle);
+    CellStyle getDataCellStyle(int rowIndex, Object originalBean, Object value, Class<?> valueClass, ExcelCellHeaderConfig excelCellHeaderConfig, CellStyle cellStyle);
 
     CellStyle getStatisticsCellStyle(int order);
 

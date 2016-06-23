@@ -81,7 +81,7 @@ class DataRowWriter<E> {
                 cell = row.createCell(writeExcelCellHeaderConfig.cellIndex);
                 this.setCell(cell, value, value != null ? value.getClass() : null, writeExcelCellHeaderConfig);
                 if (this.writeExcelEngine.styleHandler != null) cell.setCellStyle(this.writeExcelEngine.styleHandler
-                        .getDataCellStyle(cell.getRowIndex(), value, value == null ? null : value.getClass(),
+                        .getDataCellStyle(cell.getRowIndex(), entity, value, value == null ? null : value.getClass(),
                                 writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
             }
         }
@@ -135,7 +135,7 @@ class DataRowWriter<E> {
                             Cell cell = row.createCell(child.cellIndex);
                             this.setCell(cell, childValue, childPropertyDescriptor.getPropertyType(), child);
                             if (this.writeExcelEngine.styleHandler != null) {
-                                CellStyle dataCellStyle = this.writeExcelEngine.styleHandler.getDataCellStyle(cell.getRowIndex(), childValue, childPropertyDescriptor.getPropertyType(),
+                                CellStyle dataCellStyle = this.writeExcelEngine.styleHandler.getDataCellStyle(cell.getRowIndex(), entity, childValue, childPropertyDescriptor.getPropertyType(),
                                         child.convertToExcelCellHeaderConfig(), cell.getCellStyle());
                                 if (dataCellStyle != null) cell.setCellStyle(dataCellStyle);
                             }
@@ -145,7 +145,7 @@ class DataRowWriter<E> {
                         this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
                         if (this.writeExcelEngine.styleHandler != null) {
                             cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                    cell.getRowIndex(), value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                    cell.getRowIndex(), entity, value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                         }
                     }
                 }
@@ -176,7 +176,7 @@ class DataRowWriter<E> {
                                     this.setCell(cell, childValue, childPropertyDescriptor.getPropertyType(), child);
                                     if (this.writeExcelEngine.styleHandler != null) {
                                         cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                                cell.getRowIndex(), childValue, childPropertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                                cell.getRowIndex(), entity, childValue, childPropertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                                     }
                                 }
                                 innerIndex++;
@@ -189,7 +189,7 @@ class DataRowWriter<E> {
                                         Cell cell = row.createCell(child.cellIndex);
                                         this.setCell(cell, null, null, child);
                                         cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                                cell.getRowIndex(), null, propertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                                cell.getRowIndex(), entity, null, propertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                                     }
                                 }
 
@@ -201,7 +201,7 @@ class DataRowWriter<E> {
                             this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
                             if (this.writeExcelEngine.styleHandler != null) {
                                 cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                        cell.getRowIndex(), value, propertyDescriptor.getPropertyType(),
+                                        cell.getRowIndex(), entity, value, propertyDescriptor.getPropertyType(),
                                         writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                             }
                         }
