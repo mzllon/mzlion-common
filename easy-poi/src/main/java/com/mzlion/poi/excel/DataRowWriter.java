@@ -280,6 +280,8 @@ class DataRowWriter<E> {
 //                }
                 break;
             case FORMULA:
+                cell.setCellType(Cell.CELL_TYPE_FORMULA);
+                cell.setCellFormula(value.toString());
                 break;
             default:
                 cell.setCellType(Cell.CELL_TYPE_BLANK);
