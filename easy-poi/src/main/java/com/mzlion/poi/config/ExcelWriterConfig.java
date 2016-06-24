@@ -2,13 +2,12 @@ package com.mzlion.poi.config;
 
 import com.mzlion.core.lang.Assert;
 import com.mzlion.core.lang.ClassUtils;
+import com.mzlion.core.lang.CollectionUtils;
 import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.style.DefaultExcelCellStyleHandler;
 import com.mzlion.poi.style.ExcelCellStyleHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Excel的导出引擎
@@ -16,7 +15,7 @@ import java.util.Map;
  * @author mzlion
  * @date 2016-06-17
  */
-public class WriteExcelConfig extends ExcelEntityValidator {
+public class ExcelWriterConfig extends ExcelEntityValidator {
 
     /**
      * Excel标题
@@ -48,6 +47,11 @@ public class WriteExcelConfig extends ExcelEntityValidator {
     private Class<? extends ExcelCellStyleHandler> styleHandler;
 
     private List<ExcelCellHeaderConfig> excelCellHeaderConfigList;
+
+    /**
+     * 配置排除属性列表
+     */
+    private List<String> excludePropertyNames;
 
     public String getTitle() {
         return title;
@@ -93,7 +97,11 @@ public class WriteExcelConfig extends ExcelEntityValidator {
         return excelCellHeaderConfigList;
     }
 
-    private WriteExcelConfig(Builder builder) {
+    public List<String> getExcludePropertyNames() {
+        return excludePropertyNames;
+    }
+
+    private ExcelWriterConfig(Builder builder) {
         this.title = builder.title;
         this.secondTitle = builder.secondTitle;
         this.excelType = builder.excelType;
@@ -105,6 +113,7 @@ public class WriteExcelConfig extends ExcelEntityValidator {
         this.styleHandler = builder.styleHandler;
         this.rawClass = builder.rawClass;
         this.excelCellHeaderConfigList = builder.excelCellHeaderConfigList;
+        this.excludePropertyNames = new ArrayList<>(builder.excludePropertyNames);
 
         Assert.isTrue(this.rawClass != null, "The bean class is null.");
 
@@ -144,6 +153,8 @@ public class WriteExcelConfig extends ExcelEntityValidator {
         private Class<? extends ExcelCellStyleHandler> styleHandler;
 
         private List<ExcelCellHeaderConfig> excelCellHeaderConfigList;
+
+        private Set<String> excludePropertyNames;
 
         public Builder title(String title) {
             this.title = title;
@@ -207,6 +218,11 @@ public class WriteExcelConfig extends ExcelEntityValidator {
             return this;
         }
 
+        public Builder excludePropertyName(String propertyName) {
+            this.excludePropertyNames.add(propertyName);
+            return this;
+        }
+
 
         public Builder() {
             this.excelType = ExcelType.XLSX;
@@ -218,9 +234,10 @@ public class WriteExcelConfig extends ExcelEntityValidator {
             this.rawClass = Map.class;
             this.excelCellHeaderConfigList = new ArrayList<>();
             this.headerRowCreate = true;
+            this.excludePropertyNames = new HashSet<>();
         }
 
-        Builder(WriteExcelConfig writeExcelConfig) {
+        Builder(ExcelWriterConfig writeExcelConfig) {
             this.title = writeExcelConfig.title;
             this.secondTitle = writeExcelConfig.secondTitle;
             this.excelType = writeExcelConfig.excelType;
@@ -232,10 +249,13 @@ public class WriteExcelConfig extends ExcelEntityValidator {
             this.rawClass = writeExcelConfig.rawClass;
             this.styleHandler = writeExcelConfig.styleHandler;
             this.excelCellHeaderConfigList = writeExcelConfig.excelCellHeaderConfigList;
+            this.excludePropertyNames = new HashSet<>();
+            if (CollectionUtils.isNotEmpty(writeExcelConfig.excludePropertyNames))
+                this.excludePropertyNames.addAll(writeExcelConfig.excludePropertyNames);
         }
 
-        public WriteExcelConfig build() {
-            return new WriteExcelConfig(this);
+        public ExcelWriterConfig build() {
+            return new ExcelWriterConfig(this);
         }
 
     }

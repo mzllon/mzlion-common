@@ -4,8 +4,8 @@ import com.mzlion.core.io.FileUtils;
 import com.mzlion.core.io.FilenameUtils;
 import com.mzlion.core.io.IOUtils;
 import com.mzlion.core.lang.Assert;
+import com.mzlion.poi.config.ExcelWriterConfig;
 import com.mzlion.poi.config.ReadExcelConfig;
-import com.mzlion.poi.config.WriteExcelConfig;
 import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.exception.WriteExcelException;
 
@@ -95,7 +95,7 @@ public class ExcelUtils {
      * @param <E>       泛型类型
      */
     public static <E> void write(Collection<E> dataSet, String title, Class<E> beanClass, File output) {
-        WriteExcelConfig writeExcelConfig = new WriteExcelConfig.Builder()
+        ExcelWriterConfig writeExcelConfig = new ExcelWriterConfig.Builder()
                 .rawClass(beanClass)
                 .title(title)
                 .build();
@@ -110,7 +110,7 @@ public class ExcelUtils {
      * @param output           Excel文件保存
      * @param <E>              泛型类型
      */
-    public static <E> void write(Collection<E> dataSet, WriteExcelConfig writeExcelConfig, File output) {
+    public static <E> void write(Collection<E> dataSet, ExcelWriterConfig writeExcelConfig, File output) {
         Assert.notNull(output, "Output file must not be null.");
         Assert.notNull(writeExcelConfig, "WriteExcelConfig must not be null.");
         FileOutputStream outputStream = null;
@@ -136,11 +136,11 @@ public class ExcelUtils {
      * @param output           Excel输出流
      * @param <E>              泛型类型
      */
-    public static <E> void write(Collection<E> dataSet, WriteExcelConfig writeExcelConfig, OutputStream output) {
+    public static <E> void write(Collection<E> dataSet, ExcelWriterConfig writeExcelConfig, OutputStream output) {
         Assert.notEmpty(dataSet, "The dataset must not be null or empty.");
         Assert.notNull(writeExcelConfig, "WriteExcelConfig must not be null.");
         Assert.notNull(output, "Output must not be null.");
-        WriteExcelEngine writeExcelEngine = new WriteExcelEngine(writeExcelConfig);
+        ExcelWriterEngine writeExcelEngine = new ExcelWriterEngine(writeExcelConfig);
         writeExcelEngine.write(dataSet, output);
     }
 }

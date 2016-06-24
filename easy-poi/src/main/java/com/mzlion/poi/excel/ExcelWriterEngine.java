@@ -8,7 +8,7 @@ import com.mzlion.core.util.ReflectionUtils;
 import com.mzlion.poi.annotation.ExcelCell;
 import com.mzlion.poi.annotation.ExcelMappedEntity;
 import com.mzlion.poi.config.ExcelCellHeaderConfig;
-import com.mzlion.poi.config.WriteExcelConfig;
+import com.mzlion.poi.config.ExcelWriterConfig;
 import com.mzlion.poi.constant.ExcelType;
 import com.mzlion.poi.style.ExcelCellStyleHandler;
 import com.mzlion.poi.utils.PoiUtils;
@@ -32,31 +32,31 @@ import java.util.*;
 /**
  * Created by mzlion on 2016/6/17.
  */
-class WriteExcelEngine {
+class ExcelWriterEngine {
     //slf4j
-    private final Logger logger = LoggerFactory.getLogger(WriteExcelEngine.class);
+    private final Logger logger = LoggerFactory.getLogger(ExcelWriterEngine.class);
     //导出配置对象
-    final WriteExcelConfig writeExcelConfig;
+    final ExcelWriterConfig excelWriterConfig;
 
     Workbook workbook;
     //Excel单元格样式接口
     ExcelCellStyleHandler styleHandler;
 
-    List<WriteExcelCellHeaderConfig> writeExcelCellHeaderConfigList;
+    List<ExcelWriterCellHeaderConfig> excelWriterCellHeaderConfigList;
     private int cellCount = 0;
 
-    WriteExcelEngine(WriteExcelConfig writeExcelConfig) {
-        this.writeExcelConfig = writeExcelConfig;
-        if (ClassUtils.isAssignable(Map.class, writeExcelConfig.getRawClass())) {
-            this.writeExcelCellHeaderConfigList = this.convertByMapBean();
+    ExcelWriterEngine(ExcelWriterConfig excelWriterConfig) {
+        this.excelWriterConfig = excelWriterConfig;
+        if (ClassUtils.isAssignable(Map.class, excelWriterConfig.getRawClass())) {
+            this.excelWriterCellHeaderConfigList = this.convertByMapBean();
         } else {
-            this.writeExcelCellHeaderConfigList = this.convertByJavaBean(this.writeExcelConfig.getRawClass(), null);
+            this.excelWriterCellHeaderConfigList = this.convertByJavaBean(this.excelWriterConfig.getRawClass(), null);
         }
-        this.sortPropertyCellMappingList(new ArrayList<>(this.writeExcelCellHeaderConfigList));
+        this.sortPropertyCellMappingList(new ArrayList<>(this.excelWriterCellHeaderConfigList));
     }
 
     <E> void write(Collection<E> dataSet, OutputStream out) {
-        if (this.writeExcelConfig.getExcelType().equals(ExcelType.XLS)) {
+        if (this.excelWriterConfig.getExcelType().equals(ExcelType.XLS)) {
             this.workbook = new HSSFWorkbook();
         } else {
             if (dataSet.size() > 1000) {
@@ -66,17 +66,17 @@ class WriteExcelEngine {
             }
         }
         try {
-            if (this.writeExcelConfig.getStyleHandler() != null) {
-                Class<? extends ExcelCellStyleHandler> styleHandler = this.writeExcelConfig.getStyleHandler();
+            if (this.excelWriterConfig.getStyleHandler() != null) {
+                Class<? extends ExcelCellStyleHandler> styleHandler = this.excelWriterConfig.getStyleHandler();
                 Constructor<? extends ExcelCellStyleHandler> excelCellStyleClassConstructor = styleHandler.getConstructor(Workbook.class);
                 this.styleHandler = excelCellStyleClassConstructor.newInstance(workbook);
             }
             long start = System.currentTimeMillis();
             logger.debug(" ===> ExcelEntity export is starting,bean class is {},excel version is {}",
-                    this.writeExcelConfig.getRawClass(), this.writeExcelConfig.getExcelType().toString());
+                    this.excelWriterConfig.getRawClass(), this.excelWriterConfig.getExcelType().toString());
             Sheet sheet;
-            if (StringUtils.hasText(this.writeExcelConfig.getSheetName())) {
-                sheet = this.workbook.createSheet(this.writeExcelConfig.getSheetName());
+            if (StringUtils.hasText(this.excelWriterConfig.getSheetName())) {
+                sheet = this.workbook.createSheet(this.excelWriterConfig.getSheetName());
             } else {
                 sheet = this.workbook.createSheet();
             }
@@ -102,10 +102,10 @@ class WriteExcelEngine {
      * @param sheet sheet对象
      */
     private void setColumnIndex(Sheet sheet) {
-        for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelCellHeaderConfigList) {
+        for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.excelWriterCellHeaderConfigList) {
             sheet.setColumnWidth(writeExcelCellHeaderConfig.cellIndex, (int) (256 * writeExcelCellHeaderConfig.width));
             cellCount++;
-            List<WriteExcelCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
+            List<ExcelWriterCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
             if (CollectionUtils.isNotEmpty(children)) {
                 for (int i = 0, size = children.size(); i < size; i++) {
                     if (i != 0) cellCount++;
@@ -117,12 +117,12 @@ class WriteExcelEngine {
     }
 
     private int createTitleRow(Sheet sheet) {
-        if (StringUtils.isEmpty(this.writeExcelConfig.getTitle())) return 0;
+        if (StringUtils.isEmpty(this.excelWriterConfig.getTitle())) return 0;
         Row row = sheet.createRow(0);
-        row.setHeightInPoints(this.writeExcelConfig.getTitleRowHeight());
+        row.setHeightInPoints(this.excelWriterConfig.getTitleRowHeight());
 
         Cell cell = row.createCell(0);
-        cell.setCellValue(this.writeExcelConfig.getTitle());
+        cell.setCellValue(this.excelWriterConfig.getTitle());
         if (this.styleHandler != null) cell.setCellStyle(this.styleHandler.getTitleCellStyle());
 
         for (int i = 1; i < cellCount; i++) {
@@ -136,12 +136,12 @@ class WriteExcelEngine {
     }
 
     private int createSecondTitleRow(Sheet sheet, int rowIndex) {
-        if (StringUtils.isEmpty(this.writeExcelConfig.getSecondTitle())) return 0;
+        if (StringUtils.isEmpty(this.excelWriterConfig.getSecondTitle())) return 0;
         Row row = sheet.createRow(rowIndex);
-        row.setHeightInPoints(this.writeExcelConfig.getSecondTitleRowHeight());
+        row.setHeightInPoints(this.excelWriterConfig.getSecondTitleRowHeight());
 
         Cell cell = row.createCell(0);
-        cell.setCellValue(this.writeExcelConfig.getSecondTitle());
+        cell.setCellValue(this.excelWriterConfig.getSecondTitle());
         if (this.styleHandler != null) cell.setCellStyle(this.styleHandler.getSecondTitleCellStyle());
 
         for (int i = 1; i < cellCount; i++) {
@@ -155,12 +155,12 @@ class WriteExcelEngine {
     }
 
     private int createHeaderTitleRow(Sheet sheet, int startRow) {
-        if (!this.writeExcelConfig.isHeaderRowCreate()) return 0;
+        if (!this.excelWriterConfig.isHeaderRowCreate()) return 0;
         int returnRow = 1;
         Row row = sheet.createRow(startRow), subRow;
         Cell cell, subCell;
-        for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelCellHeaderConfigList) {
-            List<WriteExcelCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
+        for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.excelWriterCellHeaderConfigList) {
+            List<ExcelWriterCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
             if (CollectionUtils.isNotEmpty(children)) {
                 subRow = sheet.getRow(startRow + 1);
                 if (subRow == null) {
@@ -192,16 +192,16 @@ class WriteExcelEngine {
         return returnRow;
     }
 
-    private List<WriteExcelCellHeaderConfig> convertByMapBean() {
-        List<WriteExcelCellHeaderConfig> configs = new ArrayList<>(this.writeExcelConfig.getExcelCellHeaderConfigList().size());
-        for (ExcelCellHeaderConfig excelCellHeaderConfig : this.writeExcelConfig.getExcelCellHeaderConfigList()) {
-            configs.add(new WriteExcelCellHeaderConfig(excelCellHeaderConfig));
+    private List<ExcelWriterCellHeaderConfig> convertByMapBean() {
+        List<ExcelWriterCellHeaderConfig> configs = new ArrayList<>(this.excelWriterConfig.getExcelCellHeaderConfigList().size());
+        for (ExcelCellHeaderConfig excelCellHeaderConfig : this.excelWriterConfig.getExcelCellHeaderConfigList()) {
+            configs.add(new ExcelWriterCellHeaderConfig(excelCellHeaderConfig));
         }
         return configs;
     }
 
-    private List<WriteExcelCellHeaderConfig> convertByJavaBean(Class<?> beanClass, String[] includePropertyNames) {
-        List<WriteExcelCellHeaderConfig> configs = new ArrayList<>();
+    private List<ExcelWriterCellHeaderConfig> convertByJavaBean(Class<?> beanClass, String[] includePropertyNames) {
+        List<ExcelWriterCellHeaderConfig> configs = new ArrayList<>();
         List<Field> fieldList = ReflectionUtils.getDeclaredFields(beanClass);
         if (includePropertyNames != null && includePropertyNames.length == 1 && includePropertyNames[0].equals("*")) {
             includePropertyNames = null;
@@ -214,8 +214,9 @@ class WriteExcelEngine {
 
             ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
             if (excelCell == null) continue;
+            if (this.excelWriterConfig.getExcludePropertyNames().contains(field.getName())) continue;
 
-            WriteExcelCellHeaderConfig writeExcelCellHeaderConfig = new WriteExcelCellHeaderConfig();
+            ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig = new ExcelWriterCellHeaderConfig();
             writeExcelCellHeaderConfig.title = excelCell.value();
             writeExcelCellHeaderConfig.excelCellType = excelCell.excelCellType();
             writeExcelCellHeaderConfig.excelDateFormat = excelCell.excelDateFormat();
@@ -234,10 +235,10 @@ class WriteExcelEngine {
         return configs;
     }
 
-    private void sortPropertyCellMappingList(List<WriteExcelCellHeaderConfig> writeExcelCellHeaderConfigList) {
-        List<WriteExcelCellHeaderConfig> noOrderList = new ArrayList<>(writeExcelCellHeaderConfigList.size() >> 1);
-        List<WriteExcelCellHeaderConfig> orderList = new ArrayList<>(writeExcelCellHeaderConfigList.size() >> 1);
-        for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : writeExcelCellHeaderConfigList) {
+    private void sortPropertyCellMappingList(List<ExcelWriterCellHeaderConfig> writeExcelCellHeaderConfigList) {
+        List<ExcelWriterCellHeaderConfig> noOrderList = new ArrayList<>(writeExcelCellHeaderConfigList.size() >> 1);
+        List<ExcelWriterCellHeaderConfig> orderList = new ArrayList<>(writeExcelCellHeaderConfigList.size() >> 1);
+        for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : writeExcelCellHeaderConfigList) {
             if (writeExcelCellHeaderConfig.cellIndex == 0) {
                 noOrderList.add(writeExcelCellHeaderConfig);
             } else {
@@ -253,29 +254,29 @@ class WriteExcelEngine {
         Collections.sort(orderList);
 
         int noOrderIndex = 0, count = 0, cellIndex, i;
-        this.writeExcelCellHeaderConfigList = new ArrayList<>(writeExcelCellHeaderConfigList.size());
-        for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : orderList) {
+        this.excelWriterCellHeaderConfigList = new ArrayList<>(writeExcelCellHeaderConfigList.size());
+        for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : orderList) {
             cellIndex = writeExcelCellHeaderConfig.cellIndex;
             for (i = noOrderIndex; count < cellIndex; i++) {
-                WriteExcelCellHeaderConfig config = noOrderList.get(i);
+                ExcelWriterCellHeaderConfig config = noOrderList.get(i);
                 config.cellIndex = count++;
-                this.writeExcelCellHeaderConfigList.add(config);
+                this.excelWriterCellHeaderConfigList.add(config);
                 noOrderIndex++;
             }
-            this.writeExcelCellHeaderConfigList.add(writeExcelCellHeaderConfig);
+            this.excelWriterCellHeaderConfigList.add(writeExcelCellHeaderConfig);
             count++;
         }
         int size = noOrderList.size();
         if (noOrderIndex < size) {
             for (; noOrderIndex < size; noOrderIndex++) {
-                WriteExcelCellHeaderConfig writeExcelCellHeaderConfig = noOrderList.get(noOrderIndex);
+                ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig = noOrderList.get(noOrderIndex);
                 writeExcelCellHeaderConfig.cellIndex = count++;
-                this.writeExcelCellHeaderConfigList.add(writeExcelCellHeaderConfig);
+                this.excelWriterCellHeaderConfigList.add(writeExcelCellHeaderConfig);
             }
         }
 
         boolean breakSort = false;
-        for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelCellHeaderConfigList) {
+        for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.excelWriterCellHeaderConfigList) {
             if (CollectionUtils.isNotEmpty(writeExcelCellHeaderConfig.children)) {
                 breakSort = true;
                 break;
@@ -283,9 +284,9 @@ class WriteExcelEngine {
         }
         if (breakSort) {
             int autoCellIndex = 0;
-            for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelCellHeaderConfigList) {
+            for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.excelWriterCellHeaderConfigList) {
                 writeExcelCellHeaderConfig.cellIndex = autoCellIndex++;
-                List<WriteExcelCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
+                List<ExcelWriterCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
                 if (CollectionUtils.isNotEmpty(children)) {
                     for (int j = 0, length = children.size(); j < length; j++) {
                         if (j == 0) children.get(j).cellIndex = autoCellIndex - 1;
