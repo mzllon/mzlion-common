@@ -29,14 +29,14 @@ import java.util.*;
 class DataRowWriter<E> {
     //sfl4j
     private final Logger logger = LoggerFactory.getLogger(DataRowWriter.class);
-    private final WriteExcelEngine writeExcelEngine;
+    private final ExcelWriterEngine writeExcelEngine;
 
     /**
      * 构建{@link DataRowReader}
      *
-     * @param writeExcelEngine {@linkplain WriteExcelEngine}的引用
+     * @param writeExcelEngine {@linkplain ExcelWriterEngine}的引用
      */
-    DataRowWriter(WriteExcelEngine writeExcelEngine) {
+    DataRowWriter(ExcelWriterEngine writeExcelEngine) {
         this.writeExcelEngine = writeExcelEngine;
     }
 
@@ -49,8 +49,8 @@ class DataRowWriter<E> {
      */
     @SuppressWarnings("unchecked")
     void write(Collection<E> dataSet, Sheet sheet, int startRowIndex) {
-        logger.debug(" ===> The raw class is {}", this.writeExcelEngine.writeExcelConfig.getRawClass());
-        if (ClassUtils.isAssignable(Map.class, this.writeExcelEngine.writeExcelConfig.getRawClass())) {
+        logger.debug(" ===> The raw class is {}", this.writeExcelEngine.excelWriterConfig.getRawClass());
+        if (ClassUtils.isAssignable(Map.class, this.writeExcelEngine.excelWriterConfig.getRawClass())) {
             this.doWriteForMap((Collection<Map<String, Object>>) dataSet, sheet, startRowIndex);
         } else {
             try {
@@ -76,12 +76,12 @@ class DataRowWriter<E> {
             Row row = sheet.createRow(index++);
             Object value;
             Cell cell;
-            for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.writeExcelCellHeaderConfigList) {
+            for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.excelWriterCellHeaderConfigList) {
                 value = entity.get(writeExcelCellHeaderConfig.propertyName);
                 cell = row.createCell(writeExcelCellHeaderConfig.cellIndex);
                 this.setCell(cell, value, value != null ? value.getClass() : null, writeExcelCellHeaderConfig);
                 if (this.writeExcelEngine.styleHandler != null) cell.setCellStyle(this.writeExcelEngine.styleHandler
-                        .getDataCellStyle(cell.getRowIndex(), value, value == null ? null : value.getClass(),
+                        .getDataCellStyle(cell.getRowIndex(), entity, value, value == null ? null : value.getClass(),
                                 writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
             }
         }
@@ -105,7 +105,7 @@ class DataRowWriter<E> {
         for (E entity : dataSet) {
             int maxMergeRowCount = 0;
 
-            for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.writeExcelCellHeaderConfigList) {
+            for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.excelWriterCellHeaderConfigList) {
                 if (CollectionUtils.isNotEmpty(writeExcelCellHeaderConfig.children)) {
                     PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, writeExcelCellHeaderConfig.propertyName);
                     //1.判断Bean是否存在集合，如果存在则取出最大的集合数量
@@ -122,20 +122,20 @@ class DataRowWriter<E> {
             //2.不存在集合，按照普通的处理
             if (maxMergeRowCount == 0) {
                 Row row = sheet.createRow(index++);
-                for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.writeExcelCellHeaderConfigList) {
+                for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.excelWriterCellHeaderConfigList) {
                     PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, writeExcelCellHeaderConfig.propertyName);
                     Method readMethod = propertyDescriptor.getReadMethod();
                     Object value = readMethod.invoke(entity);
 
                     //判断类型是否是JavaBean
                     if (value != null && CollectionUtils.isNotEmpty(writeExcelCellHeaderConfig.children)) {
-                        for (WriteExcelCellHeaderConfig child : writeExcelCellHeaderConfig.children) {
+                        for (ExcelWriterCellHeaderConfig child : writeExcelCellHeaderConfig.children) {
                             PropertyDescriptor childPropertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(value, child.propertyName);
                             Object childValue = childPropertyDescriptor.getReadMethod().invoke(value);
                             Cell cell = row.createCell(child.cellIndex);
                             this.setCell(cell, childValue, childPropertyDescriptor.getPropertyType(), child);
                             if (this.writeExcelEngine.styleHandler != null) {
-                                CellStyle dataCellStyle = this.writeExcelEngine.styleHandler.getDataCellStyle(cell.getRowIndex(), childValue, childPropertyDescriptor.getPropertyType(),
+                                CellStyle dataCellStyle = this.writeExcelEngine.styleHandler.getDataCellStyle(cell.getRowIndex(), entity, childValue, childPropertyDescriptor.getPropertyType(),
                                         child.convertToExcelCellHeaderConfig(), cell.getCellStyle());
                                 if (dataCellStyle != null) cell.setCellStyle(dataCellStyle);
                             }
@@ -145,7 +145,7 @@ class DataRowWriter<E> {
                         this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
                         if (this.writeExcelEngine.styleHandler != null) {
                             cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                    cell.getRowIndex(), value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                    cell.getRowIndex(), entity, value, readMethod.getReturnType(), writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                         }
                     }
                 }
@@ -156,11 +156,11 @@ class DataRowWriter<E> {
                 for (int i = 0; i < maxMergeRowCount; i++) {
                     rows.add(sheet.createRow(index++));
                 }
-                for (WriteExcelCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.writeExcelCellHeaderConfigList) {
+                for (ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig : this.writeExcelEngine.excelWriterCellHeaderConfigList) {
                     PropertyDescriptor propertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(entity, writeExcelCellHeaderConfig.propertyName);
                     Method readMethod = propertyDescriptor.getReadMethod();
                     Object value = readMethod.invoke(entity);
-                    List<WriteExcelCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
+                    List<ExcelWriterCellHeaderConfig> children = writeExcelCellHeaderConfig.children;
                     //值不为空
                     if (value != null && CollectionUtils.isNotEmpty(children)) {
                         if (ClassUtils.isAssignable(Collection.class, propertyDescriptor.getPropertyType())) {
@@ -168,7 +168,7 @@ class DataRowWriter<E> {
                             int innerIndex = 0;
                             for (Object obj : collection) {
                                 Row row = rows.get(innerIndex);
-                                for (WriteExcelCellHeaderConfig child : children) {
+                                for (ExcelWriterCellHeaderConfig child : children) {
                                     PropertyDescriptor childPropertyDescriptor = PropertyUtilBean.getInstance().getPropertyDescriptor(obj.getClass(), child.propertyName);
                                     Method childReadMethod = childPropertyDescriptor.getReadMethod();
                                     Cell cell = row.createCell(child.cellIndex);
@@ -176,7 +176,7 @@ class DataRowWriter<E> {
                                     this.setCell(cell, childValue, childPropertyDescriptor.getPropertyType(), child);
                                     if (this.writeExcelEngine.styleHandler != null) {
                                         cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                                cell.getRowIndex(), childValue, childPropertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                                cell.getRowIndex(), entity, childValue, childPropertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                                     }
                                 }
                                 innerIndex++;
@@ -185,11 +185,11 @@ class DataRowWriter<E> {
                             if (innerIndex < maxMergeRowCount) {
                                 for (; innerIndex < maxMergeRowCount; innerIndex++) {
                                     Row row = rows.get(innerIndex);
-                                    for (WriteExcelCellHeaderConfig child : children) {
+                                    for (ExcelWriterCellHeaderConfig child : children) {
                                         Cell cell = row.createCell(child.cellIndex);
                                         this.setCell(cell, null, null, child);
                                         cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                                cell.getRowIndex(), null, propertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
+                                                cell.getRowIndex(), entity, null, propertyDescriptor.getPropertyType(), child.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                                     }
                                 }
 
@@ -201,7 +201,7 @@ class DataRowWriter<E> {
                             this.setCell(cell, value, propertyDescriptor.getPropertyType(), writeExcelCellHeaderConfig);
                             if (this.writeExcelEngine.styleHandler != null) {
                                 cell.setCellStyle(this.writeExcelEngine.styleHandler.getDataCellStyle(
-                                        cell.getRowIndex(), value, propertyDescriptor.getPropertyType(),
+                                        cell.getRowIndex(), entity, value, propertyDescriptor.getPropertyType(),
                                         writeExcelCellHeaderConfig.convertToExcelCellHeaderConfig(), cell.getCellStyle()));
                             }
                         }
@@ -222,7 +222,7 @@ class DataRowWriter<E> {
      * @param valueType                  值的类型
      * @param writeExcelCellHeaderConfig 写入Cell的配置选项
      */
-    private void setCell(Cell cell, Object value, Class<?> valueType, WriteExcelCellHeaderConfig writeExcelCellHeaderConfig) {
+    private void setCell(Cell cell, Object value, Class<?> valueType, ExcelWriterCellHeaderConfig writeExcelCellHeaderConfig) {
         cell.setCellStyle(this.writeExcelEngine.workbook.createCellStyle());
         //1.判断是否为空
         if (value == null) {
@@ -280,6 +280,8 @@ class DataRowWriter<E> {
 //                }
                 break;
             case FORMULA:
+                cell.setCellType(Cell.CELL_TYPE_FORMULA);
+                cell.setCellFormula(value.toString());
                 break;
             default:
                 cell.setCellType(Cell.CELL_TYPE_BLANK);

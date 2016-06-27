@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by mzlion on 2016/6/17.
  */
-class WriteExcelCellHeaderConfig implements Comparable<WriteExcelCellHeaderConfig> {
+class ExcelWriterCellHeaderConfig implements Comparable<ExcelWriterCellHeaderConfig> {
 
 
     /**
@@ -51,14 +51,14 @@ class WriteExcelCellHeaderConfig implements Comparable<WriteExcelCellHeaderConfi
      */
     String propertyName;
 
-    List<WriteExcelCellHeaderConfig> children;
+    List<ExcelWriterCellHeaderConfig> children;
 
     Class<?> targetClass;
 
-    WriteExcelCellHeaderConfig() {
+    ExcelWriterCellHeaderConfig() {
     }
 
-    WriteExcelCellHeaderConfig(ExcelCellHeaderConfig excelCellHeaderConfig) {
+    ExcelWriterCellHeaderConfig(ExcelCellHeaderConfig excelCellHeaderConfig) {
         this.title = excelCellHeaderConfig.getTitle();
         this.excelCellType = excelCellHeaderConfig.getExcelCellType();
         this.cellIndex = excelCellHeaderConfig.getCellIndex();
@@ -70,7 +70,7 @@ class WriteExcelCellHeaderConfig implements Comparable<WriteExcelCellHeaderConfi
     }
 
     @Override
-    public int compareTo(WriteExcelCellHeaderConfig o) {
+    public int compareTo(ExcelWriterCellHeaderConfig o) {
         return this.cellIndex = o.cellIndex;
     }
 
